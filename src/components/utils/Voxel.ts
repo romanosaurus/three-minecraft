@@ -115,7 +115,7 @@ export default class Voxel
         return cell[voxelOffset];
     }
 
-    public displayVoxelWorld(scene)
+    public displayVoxelWorld(scene, posX, posY, posZ)
     {
         const { cellSize } = this;
 
@@ -144,6 +144,9 @@ export default class Voxel
             new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
         geometry.setIndex(indices);
         const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.x = posX;
+        mesh.position.y = posY;
+        mesh.position.z = posZ;
         scene.add(mesh);
     }
 
