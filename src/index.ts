@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 
+import Physijs from "./lib/physi";
+
 import Voxel from "./components/utils/Voxel";
 import LightningUtilities from "./components/lights/LightningUtilities";
 import ModelLoader from "./components/models/ModelLoader";
@@ -102,13 +104,13 @@ class Window
         LightningUtilities.AddLight(this.mainScene, -1,  2,  4);
         LightningUtilities.AddLight(this.mainScene, 1, -1, -2);
 
-        for (let i = 0; i < 4; i++)
+        /*for (let i = 0; i < 4; i++)
             for (let y = 0; y < 4; y++)
                 voxelGenerator.displayVoxelWorld(this.mainScene, i * 32, 0, y * 32);
 
         this.steve.getObject().then(object => {
             this.mainScene.add(object);
-        });
+        });*/
     }
 
     public Main(): void
