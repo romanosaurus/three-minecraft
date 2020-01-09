@@ -104,6 +104,11 @@ class Window
         LightningUtilities.AddLight(this.mainScene, -1,  2,  4);
         LightningUtilities.AddLight(this.mainScene, 1, -1, -2);
 
+        var box = new Physijs.BoxMesh(
+            new THREE.BoxGeometry( 5, 5, 5 ),
+            new THREE.MeshBasicMaterial({ color: 0x888888 })
+        );
+        this.mainScene.add( box );
         /*for (let i = 0; i < 4; i++)
             for (let y = 0; y < 4; y++)
                 voxelGenerator.displayVoxelWorld(this.mainScene, i * 32, 0, y * 32);
