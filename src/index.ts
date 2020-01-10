@@ -3,6 +3,8 @@ import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 
 import Voxel from "./components/utils/Voxel";
 import LightningUtilities from "./components/lights/LightningUtilities";
+import CameraMovement from "./components/camera/CameraMovement";
+import PlayerMovement from "./components/game/PlayerMovement";
 import ModelLoader from "./components/models/ModelLoader";
 import Object3 from "./components/models/Object3";
 import { MOUSE } from "three";
@@ -14,6 +16,8 @@ class Window
     private windowNeedToResize: boolean;
     private readonly mainScene: THREE.Scene;
     private modelLoader: ModelLoader;
+    private CameraMovement: CameraMovement;
+    private PlayerMovement: PlayerMovement;
 
     private steve: Object3;
 
@@ -31,68 +35,14 @@ class Window
             object.position.z = 40;
             object.position.y = 20;
         });
-    }
 
-    private onDocumentKeyDown(e)
-    {
-        // init basic speed x and y
-        var xSpeed = 1;
-        var ySpeed = 1;
-   
-        // Update steve and camera position
-        this.steve.getObject().then(object => {
-            if (e.key == "s")
-                object.position.x -= xSpeed;                
-            if (e.key == "z")
-                object.position.x += xSpeed;
-            if (e.key == "q")
-                object.position.z -= ySpeed;
-            if (e.key == "d")
-                object.position.z += ySpeed;
-            this.camera.position.set(object.position.x + 1, object.position.y + 8, object.position.z);
-        });
-    }
-
-
-    private CameraMovement(eventMouse)
-    {
-        const euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
-        var PI_2 = Math.PI / 2;
-        const movementX = eventMouse.movementX || eventMouse.mozMovementX || eventMouse.webkitMovementX || 0;
-        const movementY = eventMouse.movementY || eventMouse.mozMovementY || eventMouse.webkitMovementY || 0;
-
-        euler.setFromQuaternion( this.camera.quaternion );
-
-		euler.y -= movementX * 0.005;
-		euler.x -= movementY * 0.005;
-
-        euler.x = Math.max( - PI_2, Math.min( PI_2, euler.x ) );
-       
-        // fix limit for camera vision
-        if (euler.x < -1 || euler.x > 1 || euler.y < -3)
-            return;
-        else if (euler.y < -2.5 || euler.y > - 0.50)
-            return;
-        else {
-            this.camera.quaternion.setFromEuler(euler);
-        }
+        this.CameraMovement = new CameraMovement( this.steve, this.camera );
+        this.PlayerMovement = new PlayerMovement( 1, 1 );
     }
 
     private InitScene()
     {
         this.mainScene.background = new THREE.Color('lightblue');
-    }
-
-    private InitCamera()
-    {
-        this.steve.getObject().then(object => {
-            this.camera.position.set(object.position.x + 1, object.position.y + 8, object.position.z);
-            this.camera.rotation.set(object.rotation.x, object.rotation.y, object.rotation.z);
-            const euler = new THREE.Euler(0, 0, 0, 'YXZ');
-            euler.x = object.rotation.x;
-            euler.y = object.rotation.y - 1.6;
-            this.camera.quaternion.setFromEuler(euler);
-        });
     }
 
     private UpdateViewPort()
@@ -104,8 +54,8 @@ class Window
     private Listeners(): void
     {
         window.addEventListener('resize', () => { this.windowNeedToResize = true });
-        window.addEventListener('keydown', (e) => { this.onDocumentKeyDown(e) });
-        window.addEventListener("mousemove", (event) => {this.CameraMovement(event)});
+        this.PlayerMovement.PlayerListener( this.steve, this.camera );
+        this.CameraMovement.CameraListeners( this.camera );
     }
 
     public Update(): void
@@ -142,8 +92,6 @@ class Window
 
     public Main(): void
     {
-        this.InitCamera();
-
         this.Init();
 
         this.InitScene();
