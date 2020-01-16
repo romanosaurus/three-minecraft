@@ -4,7 +4,7 @@ import Object3 from "./../models/Object3";
 
 export default class PlayerMovement
 {
-    // Basic ctor for PlayerMovement init speed
+    // Basic ctor for PlayerMovement
     constructor()
     {
 
