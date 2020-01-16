@@ -8,32 +8,24 @@ export default class PlayerMovement
     private xSpeed: number;
     private ySpeed: number;
 
+    private moveForward: boolean;
+    private moveBackward: boolean;
+    private moveLeft: boolean;
+    private moveRight: boolean;
+
     // Basic ctor for PlayerMovement init speed
-    constructor( xSpeed, ySpeed )
+    constructor()
     {
-        this.xSpeed = xSpeed;
-        this.ySpeed = ySpeed;
+
     }
 
-    // Handle movement player
-    private OnKeyDown( keyPressEvent, playerObj, camera )
+    public updatePlayerMovement( playerObj, camera )
     {
         playerObj.getObject().then(object => {
-            if (keyPressEvent.key == "s")
-                object.position.x -= this.xSpeed;                
-            if (keyPressEvent.key == "z")
-                object.position.x += this.xSpeed;
-            if (keyPressEvent.key == "q")
-                object.position.z -= this.ySpeed;
-            if (keyPressEvent.key == "d")
-                object.position.z += this.ySpeed;
-            camera.position.set(object.position.x + 1, object.position.y + 8, object.position.z);
+            object.rotation.y = camera.rotation.y;
+            object.position.x = camera.position.x;
+            object.position.y = camera.position.y - 8;
+            object.position.z = camera.position.z;
         })
-    }
-
-    // Add listeners for key down
-    public PlayerListener( playerObj, camera ): void
-    {
-        document.addEventListener( 'keydown', ( keyPressEvent ) => { this.OnKeyDown(keyPressEvent, playerObj, camera ) } );
     }
 }
