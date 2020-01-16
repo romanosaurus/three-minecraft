@@ -35,7 +35,9 @@
   },
   "dependencies": {
     "@avatsaev/three-orbitcontrols-ts": "^0.1.5",
+    "@types/cannon": "^0.1.4",
     "@types/three": "latest",
+    "cannon": "^0.6.2",
     "three": "latest",
     "three-orbitcontrols-ts": "^0.1.2"
   }
