@@ -37,6 +37,7 @@ class Window
             1000
         );
         this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setClearColor('lightblue');
         this.world = new CANNON.World();
         this.physicsSystem = new PhysicsSystem();
         this.debugger = new CannonDebugRenderer(this.scene, this.world, null);
@@ -64,33 +65,57 @@ class Window
             y: 4,
             z: 8,
             width: 1,
-            height: 1,
+            height: 2,
             depth: 1,
             color: 0xFFFF00,
             rigid: true,
             mass: 20
         }));
         this.physicsSystem.AddPhysicsObject(new Box({
-            name: "Second box",
+            name: "Dirt block",
             x: 3,
             y: 0,
             z: 8,
-            width: 1.5,
-            height: 2.5,
+            width: 1,
+            height: 1,
             depth: 1,
-            color: 0xFFFF00,
+            color: "../assets/materials/dirt.jpg",
             rigid: true,
             mass: 0
         }));
         this.physicsSystem.AddPhysicsObject(new Box({
+            name: "Cobble block",
+            x: 3,
+            y: 1,
+            z: 8,
+            width: 1,
+            height: 1,
+            depth: 1,
+            color: "../assets/materials/cobblestone.png",
+            rigid: true,
+            mass: 0
+        }));
+        this.physicsSystem.AddPhysicsObject(new Box({
+            name: "Sand block",
+            x: 3,
+            y: 10,
+            z: 8,
+            width: 1,
+            height: 1,
+            depth: 1,
+            color: "../assets/materials/sand.jpg",
+            rigid: true,
+            mass: 20
+        }));
+        this.physicsSystem.AddPhysicsObject(new Box({
             name: "Ground",
             x: 0,
-            y: 0,
+            y: -0.75,
             z: 0,
             width: 20,
             height: .5,
             depth: 20,
-            color: 0x00FF00,
+            color: 0x27ae60,
             rigid: true,
             mass: 0
         }));
@@ -98,9 +123,13 @@ class Window
         this.scene.add(this.physicsSystem.GetPhysicsObject(0).mesh);
         this.scene.add(this.physicsSystem.GetPhysicsObject(1).mesh);
         this.scene.add(this.physicsSystem.GetPhysicsObject(2).mesh);
+        this.scene.add(this.physicsSystem.GetPhysicsObject(3).mesh);
+        this.scene.add(this.physicsSystem.GetPhysicsObject(4).mesh);
         this.world.addBody(this.physicsSystem.GetPhysicsObject(0).body);
         this.world.addBody(this.physicsSystem.GetPhysicsObject(1).body);
         this.world.addBody(this.physicsSystem.GetPhysicsObject(2).body);
+        this.world.addBody(this.physicsSystem.GetPhysicsObject(3).body);
+        this.world.addBody(this.physicsSystem.GetPhysicsObject(4).body);
 
         this.firstPersonUtils = new CameraMovement(this.physicsSystem.GetPhysicsObject(0).mesh, this.camera);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -122,7 +151,7 @@ class Window
         this.playerMovement.Movement(this.physicsSystem.GetPhysicsObject(0).body, this.camera, this.deltaTime);
         this.firstPersonUtils.Update(this.camera, this.physicsSystem.GetPhysicsObject(0).mesh);
 
-        //this.debugger.update();
+        this.debugger.update();
 
         this.Render();
     }

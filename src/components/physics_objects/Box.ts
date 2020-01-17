@@ -10,7 +10,7 @@ export interface BoxOptions {
     width: number,
     height: number,
     depth: number,
-    color: number,
+    color: number | string,
     rigid: boolean,
     mass: number
 }
@@ -30,9 +30,16 @@ export class Box extends PhysicsObject {
             options && options.height || 1,
             options && options.depth || 1
         );
-        this.material = new THREE.MeshBasicMaterial(
-            { color: options.color }
-        );
+        if (typeof options.color === "number") {
+            this.material = new THREE.MeshBasicMaterial(
+                {color: options.color}
+            );
+        } else {
+            let texture = new THREE.TextureLoader().load(options.color);
+            this.material = new THREE.MeshBasicMaterial(
+                { map: texture }
+            );
+        }
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.mesh.position.set(
             options && options.x || 0,

@@ -55,7 +55,7 @@ export default class CameraMovement
     }
 
     public Update(camera : THREE.Camera, object : THREE.Mesh) : void {
-        camera.position.set(object.position.x, object.position.y, object.position.z);
+        camera.position.set(object.position.x, object.position.y + 1, object.position.z);
     }
     // Add listeners for mouse move
     public CameraListeners(camera : THREE.Camera): void {
