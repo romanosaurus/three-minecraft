@@ -3,26 +3,21 @@ import * as THREE from 'three';
 import Object3 from "./../models/Object3";
 import { MOUSE } from "three";
 
-export default class MovementCamera
+export default class CameraMovement
 {
-    private PI_2: number;
+    private readonly PI_2: number;
 
     private speedY: number;
     private speedX: number;
 
     private speed: number;
 
-    private euler: THREE.Euler;
+    private readonly euler: THREE.Euler;
 
     private quat: THREE.Quaternion;
 
-    private moveForward: boolean;
-    private moveBackward: boolean;
-    private moveLeft: boolean;
-    private moveRight: boolean;
-
     // Basic ctor for MovementCamera init camera view
-    constructor( playerObj, camera )
+    constructor(object: THREE.Mesh, camera: THREE.Camera)
     {
         this.PI_2 = Math.PI / 2;
 
@@ -33,29 +28,21 @@ export default class MovementCamera
 
         this.quat = new THREE.Quaternion();
 
-        this.moveForward = false;
-        this.moveBackward = false;
-        this.moveLeft = false;
-        this.moveRight = false;
+        camera.position.set( object.position.x + 1, object.position.y + 8, object.position.z );
+        camera.rotation.set( object.rotation.x, object.rotation.y, object.rotation.z );
 
-        playerObj.getObject().then(object => {
-            camera.position.set( object.position.x + 1, object.position.y + 8, object.position.z );
-            camera.rotation.set( object.rotation.x, object.rotation.y, object.rotation.z );
+        this.euler = new THREE.Euler( 0, 0, 0, 'XYZ');
+        this.euler.x = object.rotation.x;
+        this.euler.y = object.rotation.y - 1.6;
 
-            this.euler = new THREE.Euler( 0, 0, 0, 'XYZ');
-            this.euler.x = object.rotation.x;
-            this.euler.y = object.rotation.y - 1.6;
-
-            camera.quaternion.setFromEuler( this.euler );
-        })
+        camera.quaternion.setFromEuler( this.euler );
     }
 
     // Handle camera movement
-    private CameraMovement( mouse_event, camera )
-    {
+    private CameraMovement(mouseEvent, camera : THREE.Camera) {
         const euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
-        const movementX = mouse_event.movementX || mouse_event.mozMovementX || mouse_event.webkitMovementX || 0;
-        const movementY = mouse_event.movementY || mouse_event.mozMovementY || mouse_event.webkitMovementY || 0;
+        const movementX = mouseEvent.movementX || mouseEvent.mozMovementX || mouseEvent.webkitMovementX || 0;
+        const movementY = mouseEvent.movementY || mouseEvent.mozMovementY || mouseEvent.webkitMovementY || 0;
 
         euler.setFromQuaternion( camera.quaternion );
 
@@ -63,66 +50,15 @@ export default class MovementCamera
 		euler.x -= movementY * 0.005;
 
         euler.x = Math.max( - this.PI_2, Math.min( this.PI_2, euler.x ) );
-       
+
         camera.quaternion.setFromEuler(euler);
     }
 
-    private onKeyDown( keyEvent )
-    {
-        switch ( keyEvent.key )
-        {
-            case "z":
-                this.moveForward = true;
-                break;
-            case "s":
-                this.moveBackward = true;
-                break;
-            case "q":
-                this.moveLeft = true;
-                break;
-            case "d":
-                this.moveRight = true;
-                break;
-        }
+    public Update(camera : THREE.Camera, object : THREE.Mesh) : void {
+        camera.position.set(object.position.x, object.position.y, object.position.z);
     }
-
-    private onKeyUp( keyEvent )
-    {
-        switch ( keyEvent.key )
-        {
-            case "z":
-                this.moveForward = false;
-                break;
-            case "s":
-                this.moveBackward = false;
-                break;
-            case "q":
-                this.moveLeft = false;
-                break;
-            case "d":
-                this.moveRight = false;
-                break;
-        }
-    }
-
-    // Function for update translate X and Y camera
-    public updateCamera( camera )
-    {
-        if ( this.moveForward )
-            camera.translateZ( - this.speed );
-        if ( this.moveBackward )
-            camera.translateZ( this.speed );
-        if ( this.moveLeft )
-            camera.translateX( - this.speed );
-        if ( this.moveRight )
-            camera.translateX( this.speed );
-    }
-
     // Add listeners for mouse move
-    public CameraListeners( camera ): void
-    {
-        document.addEventListener( 'mousemove', ( mouse_event ) => { this.CameraMovement( mouse_event, camera ) });
-        document.addEventListener( 'keydown', ( keyEvent ) => { this.onKeyDown( keyEvent ) });
-        document.addEventListener( 'keyup', ( keyEvent ) => { this.onKeyUp( keyEvent ) }, false);
+    public CameraListeners(camera : THREE.Camera): void {
+        document.addEventListener( 'mousemove', ( mouse_event ) => { this.CameraMovement(mouse_event, camera) });
     }
 }
