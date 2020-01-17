@@ -31,7 +31,7 @@ export class Box extends PhysicsObject {
             options && options.depth || 1
         );
         this.material = new THREE.MeshBasicMaterial(
-            { color: options.color, wireframe: true }
+            { color: options.color }
         );
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.mesh.position.set(
