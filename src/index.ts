@@ -1,106 +1,124 @@
 import * as THREE from "three";
-import * as CANNON from "cannon";
+import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 
-import { PhysicsSystem } from "./components/utils/PhysicsSystem";
-import { Box, BoxOptions } from "./components/physics_objects/Box";
-import CannonDebugRenderer from "./components/utils/CannonDebugger";
+import Voxel from "./components/utils/Voxel";
+import LightningUtilities from "./components/lights/LightningUtilities";
+import ModelLoader from "./components/models/ModelLoader";
+import Object3 from "./components/models/Object3";
 
 class Window
 {
-    // ThreeJS utils
-    private readonly scene : THREE.Scene = new THREE.Scene();
-    private readonly camera : THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
-    private readonly renderer : THREE.WebGLRenderer = new THREE.WebGLRenderer();
+    private readonly camera: THREE.PerspectiveCamera;
+    private renderer: THREE.WebGLRenderer;
+    private windowNeedToResize: boolean;
+    private readonly mainScene: THREE.Scene;
+    private controllers: OrbitControls;
+    private modelLoader: ModelLoader;
 
-    // Physics
-    private readonly world : CANNON.World = new CANNON.World();
-    private readonly physicsSystem : PhysicsSystem = new PhysicsSystem();
-    private readonly debugger = new CannonDebugRenderer(this.scene, this.world, null);
+    private steve: Object3;
 
-    private InitCannon() : void {
-        this.world.gravity.set(0, -9.82, 0); // m/s²
-        this.world.broadphase = new CANNON.NaiveBroadphase();
-        this.world.solver.iterations = 5;
-        this.world.defaultContactMaterial.contactEquationStiffness = 1e6;
-        this.world.defaultContactMaterial.contactEquationRelaxation = 10;
+    constructor()
+    {
+        this.modelLoader = new ModelLoader();
+        this.renderer = new THREE.WebGLRenderer();
+        this.windowNeedToResize = false;
+        this.camera = new THREE.PerspectiveCamera(75, 2, 0.1, 1000);
+        this.mainScene = new THREE.Scene();
+        this.controllers = new OrbitControls( this.camera, this.renderer.domElement );
+
+        this.steve = new Object3("Steve", "./assets/steve/minecraft-steve.obj", "./assets/steve/minecraft-steve.mtl");
     }
 
-    private InitThree() : void {
-        this.camera.position.z = 30;
+    private onDocumentKeyDown(e)
+    {
+        this.steve.getObject().then(object => {
+            switch(e.key) {
+                case "s":
+                    console.log('lel')
+                    object.position.x -= 10;
+                    break;
+                case "z":
+                    object.position.x += 10;
+                    break;
+                case "q":
+                    object.position.z += 10;
+                    break;
+                case "d":
+                    object.position.z -= 10;
+                    break;
+            }
+            object.position.x += 10;
+        });
 
-        this.scene.add(this.camera);
+        console.log(e);
+    }
 
-        this.physicsSystem.AddPhysicsObject(new Box({
-            name: "First box",
-            x: 0,
-            y: 0,
-            z: 8,
-            width: 1.5,
-            height: 2.5,
-            depth: 1,
-            color: 0xFFFF00,
-            rigid: true,
-            mass: 20
-        }));
-        this.physicsSystem.AddPhysicsObject(new Box({
-            name: "Second box",
-            x: 2,
-            y: 0,
-            z: 8,
-            width: 1.5,
-            height: 2.5,
-            depth: 1,
-            color: 0xFF0000,
-            rigid: true,
-            mass: 10
-        }));
-        this.physicsSystem.AddPhysicsObject(new Box({
-            name: "Ground",
-            x: 0,
-            y: -10,
-            z: 0,
-            width: 20,
-            height: .5,
-            depth: 20,
-            color: 0x00FF00,
-            rigid: true,
-            mass: 0
-        }));
+    private InitScene()
+    {
+        this.mainScene.background = new THREE.Color('lightblue');
+    }
 
-        this.scene.add(this.physicsSystem.GetPhysicsObject(0).mesh);
-        this.scene.add(this.physicsSystem.GetPhysicsObject(1).mesh);
-        this.scene.add(this.physicsSystem.GetPhysicsObject(2).mesh);
-        this.world.addBody(this.physicsSystem.GetPhysicsObject(0).body);
-        this.world.addBody(this.physicsSystem.GetPhysicsObject(1).body);
-        this.world.addBody(this.physicsSystem.GetPhysicsObject(2).body);
+    private InitCamera()
+    {
+        this.camera.position.set(-32 * .3, 32 * .8, -32 * .3);
+    }
+
+    private UpdateViewPort()
+    {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+    }
+
+    private Listeners(): void
+    {
+        window.addEventListener('resize', () => { this.windowNeedToResize = true });
+        window.addEventListener('keydown', (e) => { this.onDocumentKeyDown(e) });
+    }
+
+    public Update(): void
+    {
+        requestAnimationFrame(() => { this.Update() });
+
+        if (this.windowNeedToResize) {
+            this.windowNeedToResize = false;
+            this.UpdateViewPort();
+        }
+
+        this.controllers.update();
+        this.renderer.render(this.mainScene, this.camera);
+    }
+
+    public Init(): void
+    {
+        const chunkSize : number = 32;
+        const voxelGenerator : Voxel = new Voxel(chunkSize);
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
+
+        this.controllers.target.set(chunkSize / 2, chunkSize / 3, chunkSize / 2);
+        this.controllers.update();
+
+        LightningUtilities.AddLight(this.mainScene, -1,  2,  4);
+        LightningUtilities.AddLight(this.mainScene, 1, -1, -2);
+        voxelGenerator.displayVoxelWorld(this.mainScene, 32, 0, 32);
+
+        this.steve.getObject().then(object => {
+            this.mainScene.add(object);
+        });
     }
 
-    private Update() : void {
-        requestAnimationFrame(() => { this.Update() });
+    public Main(): void
+    {
+        this.InitCamera();
 
-        this.world.step(1/60);
-        this.physicsSystem.Update();
-        //this.debugger.update();
+        this.Init();
 
-        this.Render();
-    }
+        this.InitScene();
 
-    private Render() : void {
-        this.renderer.render(this.scene, this.camera);
-    }
-
-    public Main() : void {
-        this.InitThree();
-        this.InitCannon();
         this.Update();
+
+        this.Listeners();
     }
 }
 

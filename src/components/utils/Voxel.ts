@@ -1,17 +1,21 @@
 import * as THREE from 'three';
 
+import PerlinImage from './PerlinImage';
+
 export default class Voxel
 {
     private readonly cellSize: number;
     private readonly faces;
     private cell: Uint8Array;
     private cellSliceSize;
+    private perlin;
 
     constructor(cellSize)
     {
         this.cellSize = cellSize;
         this.cell = new Uint8Array(cellSize * cellSize * cellSize);
         this.cellSliceSize = cellSize * cellSize;
+        this.perlin = new PerlinImage();
 
         this.faces = [
             { // left
@@ -115,21 +119,29 @@ export default class Voxel
         return cell[voxelOffset];
     }
 
-    public displayVoxelWorld(scene, posX, posY, posZ)
+    public async displayVoxelWorld(scene, posX, posY, posZ)
     {
         const { cellSize } = this;
-
-        for (let y = 0; y < cellSize; ++y) {
-            for (let z = 0; z < cellSize; ++z) {
-                for (let x = 0; x < cellSize; ++x) {
-                    const height = (Math.sin(x / cellSize * Math.PI * 2) + Math.sin(z / cellSize * Math.PI * 3)) * (cellSize / 6) + (cellSize / 2);
-                    if (y < height) {
-                        this.setVoxel(x, y, z, 1);
-                    }
-                }
+        const simplexTest = [
+            [0, 0.5],
+            [1, 0]
+        ];
+        const test = await this.perlin.getArray();
+//        console.log(test);
+        if (test == null)
+            return;
+        console.log(this.perlin.getTexture().image.height);
+        console.log(this.perlin.getTexture().image.width);
+        for (let y = 0; y < this.perlin.getTexture().image.height; ++y) {
+            for (let x = 0; x < this.perlin.getTexture().image.width; ++x) {
+                //compute z (height) by white contrast
+                //modifier nom variable par rapport au plan 3d
+//                console.log(test[x + y * this.perlin.getTexture().image.width].r);
+                this.setVoxel(x, test[x + y * this.perlin.getTexture().image.width][0] * 0.02, y, 1);
+//                this.setVoxel(x, y, test[x + y * this.perlin.getTexture().image.width].r, 1);
+//                this.setVoxel(x, y, simplexTest[y][x], 1);
             }
         }
-
         const {positions, normals, indices} = this.generateGeometryDataForCell(0, 0, 0);
         const geometry = new THREE.BufferGeometry();
         const material = new THREE.MeshLambertMaterial({color: 'green'});
