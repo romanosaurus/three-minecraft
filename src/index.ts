@@ -90,7 +90,7 @@ class Window
 
     public Init(): void
     {
-        const chunkSize : number = 32;
+        const chunkSize : number = 128;
         const voxelGenerator : Voxel = new Voxel(chunkSize);
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);

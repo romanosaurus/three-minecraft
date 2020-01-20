@@ -132,16 +132,21 @@ export default class Voxel
             return;
         console.log(this.perlin.getTexture().image.height);
         console.log(this.perlin.getTexture().image.width);
+        console.log(test);
+        let counter = 0;
         for (let y = 0; y < this.perlin.getTexture().image.height; ++y) {
             for (let x = 0; x < this.perlin.getTexture().image.width; ++x) {
                 //compute z (height) by white contrast
                 //modifier nom variable par rapport au plan 3d
 //                console.log(test[x + y * this.perlin.getTexture().image.width].r);
-                this.setVoxel(x, test[x + y * this.perlin.getTexture().image.width][0] * 0.02, y, 1);
+                for (let height = test[counter][0] * 0.05; height >= 0; height--)
+                    this.setVoxel(x, height, y, 1);
+                counter++;
 //                this.setVoxel(x, y, test[x + y * this.perlin.getTexture().image.width].r, 1);
 //                this.setVoxel(x, y, simplexTest[y][x], 1);
             }
         }
+        console.log("counter = " + counter);
         const {positions, normals, indices} = this.generateGeometryDataForCell(0, 0, 0);
         const geometry = new THREE.BufferGeometry();
         const material = new THREE.MeshLambertMaterial({color: 'green'});
