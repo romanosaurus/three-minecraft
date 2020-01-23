@@ -12,7 +12,9 @@ export default class CameraMovement
 
     private speed: number;
 
-    private pointerLock: boolean;
+    private pointerLockActivated: boolean;
+
+    private cursor: THREE.Mesh;
 
     private readonly euler: THREE.Euler;
 
@@ -28,7 +30,7 @@ export default class CameraMovement
 
         this.speed = 0.2;
 
-        this.pointerLock = true;
+        this.pointerLockActivated = true;
 
         this.quat = new THREE.Quaternion();
 
@@ -56,13 +58,11 @@ export default class CameraMovement
         euler.x = Math.max( - this.PI_2, Math.min( this.PI_2, euler.x ) );
 
         camera.quaternion.setFromEuler(euler);
-
-
     }
 
     private updateCameraPointer(camera : THREE.Camera)
     {
-        if ( this.pointerLock )
+        if ( this.pointerLockActivated )
             document.body.requestPointerLock();
         else
             document.exitPointerLock();
@@ -71,10 +71,10 @@ export default class CameraMovement
     private CameraPointerLock( keyPressed )
     {
         if (keyPressed.key == "e") {
-            if (!this.pointerLock )
-                this.pointerLock = true;
+            if (!this.pointerLockActivated )
+                this.pointerLockActivated = true;
             else
-                this.pointerLock = false;
+                this.pointerLockActivated = false;
         }
     }
     public Update(camera : THREE.Camera, object : THREE.Mesh) : void {
@@ -86,33 +86,5 @@ export default class CameraMovement
     public CameraListeners(camera : THREE.Camera): void {
         document.addEventListener( 'mousemove', ( mouse_event ) => { this.CameraMovement(mouse_event, camera) });
         document.addEventListener( 'keydown', ( key_pressed ) => { this.CameraPointerLock(key_pressed) });
-    }
-
-    public createPointer(camera : THREE.Camera, scene : THREE.Scene)
-    {
-        var loader = new THREE.TextureLoader();
-
-        var texture = new THREE.TextureLoader().load( '../../../assets/cursor/Cursor.png' );
-    
-        var material = new THREE.MeshPhongMaterial({ transparent: true, map: texture });
-
-        material.transparent = true;
-        material.opacity = 0.9;
-    
-        var geometry = new THREE.PlaneGeometry(10, 10*.75);
-
-        var mesh = new THREE.Mesh(geometry, material);
-        
-        mesh.position.set(0,1,0)
-
-        scene.add(mesh);
-
-        var light = new THREE.PointLight( 0xffffff, 1, 0 );
-
-        // Specify the light's position
-        light.position.set(1, 1, 100 );
-
-        // Add the light to the scene
-        scene.add(light);
     }
 }

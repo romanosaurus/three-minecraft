@@ -109,8 +109,6 @@ class Window
         this.playerMovement.Listeners();
         this.firstPersonUtils.CameraListeners(this.camera);
         this.physicsSystem.GetPhysicsObject(0).body.addEventListener("collide", (e) => {this.playerMovement.setJumping(false)})
-        this.firstPersonUtils.createPointer(this.camera, this.scene);
-        this.renderer.setClearColor(0x000000, 0);
     }
 
     private Update() : void {
