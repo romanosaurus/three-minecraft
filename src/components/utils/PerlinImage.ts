@@ -43,7 +43,7 @@ export default class PerlinImage
     }
     public async getArray() {
         if (this.array === null) {
-            this.texture = await this.loadTexture("src/components/utils/noiseTexture.png");
+            this.texture = await this.loadTexture("src/components/utils/32x32.png");
             console.log(this.texture);
             this.computePerlinCalculation();
         }

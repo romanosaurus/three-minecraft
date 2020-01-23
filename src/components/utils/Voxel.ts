@@ -4,6 +4,11 @@ import * as CANNON from 'cannon';
 import PerlinImage from './PerlinImage';
 import {Box} from "../physics_objects/Box";
 
+interface BoxCollider {
+    position: CANNON.Vec3,
+    body: CANNON.Body
+}
+
 export default class Voxel
 {
     private readonly cellSize: number;
@@ -12,8 +17,7 @@ export default class Voxel
     private cellSliceSize;
     private perlin;
     private mesh : THREE.Mesh;
-    private body : CANNON.Body;
-    private bodies;
+    private boxColliders : Array<BoxCollider>;
 
     constructor(cellSize)
     {
@@ -22,7 +26,7 @@ export default class Voxel
         this.cellSliceSize = cellSize * cellSize;
         this.perlin = new PerlinImage();
         this.mesh = new THREE.Mesh();
-        this.bodies = [];
+        this.boxColliders = [];
 
         this.faces = [
             { // left
@@ -88,7 +92,6 @@ export default class Voxel
         const voxelY = THREE.Math.euclideanModulo(y, this.cellSize) | 0;
         const voxelZ = THREE.Math.euclideanModulo(z, this.cellSize) | 0;
 
-        console.log(y, voxelY)
         return voxelY * this.cellSliceSize +
             voxelZ * this.cellSize +
             voxelX;
@@ -127,6 +130,10 @@ export default class Voxel
         return cell[voxelOffset];
     }
 
+    public getVoxelPosition(x, y, z) {
+        return new CANNON.Vec3(x + 0.5, y + 0.5, z + 0.5)
+    }
+
     public async displayVoxelWorld(scene, world, physicsSystem)
     {
         const { cellSize } = this;
@@ -138,9 +145,6 @@ export default class Voxel
 //        console.log(test);
         if (test == null)
             return;
-        console.log(this.perlin.getTexture().image.height);
-        console.log(this.perlin.getTexture().image.width);
-        console.log(test);
         let counter = 0;
         for (let y = 0; y < this.perlin.getTexture().image.height; ++y) {
             for (let x = 0; x < this.perlin.getTexture().image.width; ++x) {
@@ -159,7 +163,6 @@ export default class Voxel
 //                this.setVoxel(x, y, simplexTest[y][x], 1);
             }
         }
-        console.log("counter = " + counter);
         const {positions, normals, indices} = this.generateGeometryDataForCell(0, 0, 0, world);
         const geometry = new THREE.BufferGeometry();
         const material = new THREE.MeshLambertMaterial({color: 'green'});
@@ -175,10 +178,6 @@ export default class Voxel
             new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
         geometry.setIndex(indices);
         this.mesh = new THREE.Mesh(geometry, material);
-
-        this.body = new CANNON.Body({ mass: 0 });
-        //let shape = new CANNON.Box(new CANNON.Vec3(geometry.scale. / 2))
-        //world.add(this.body);
         scene.add(this.mesh);
     }
 
@@ -210,10 +209,12 @@ export default class Voxel
                                 for (const pos of corners) {
                                     positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
                                     normals.push(...dir);
-                                    let body = new CANNON.Body({mass: 0});
-                                    body.position.set(voxX + 0.5, voxY + 0.5, voxZ + 0.5);
-                                    body.addShape(new CANNON.Box(new CANNON.Vec3(1 / 2, 1 / 2 , 1 / 2)));
-                                    world.add(body);
+                                    /*if (pos[1] + y > 6) {
+                                        let body = new CANNON.Body({mass: 0});
+                                        body.position.set(voxX + 0.5, voxY + 0.5, voxZ + 0.5);
+                                        body.addShape(new CANNON.Box(new CANNON.Vec3(1 / 2, 1 / 2, 1 / 2)));
+                                        world.add(body);
+                                    }*/
                                 }
                                 indices.push(
                                     ndx, ndx + 1, ndx + 2,
@@ -232,8 +233,24 @@ export default class Voxel
         }
     }
 
-    public Update() {
-        this.body.position.copy(this.mesh.position as any);
-        this.body.quaternion.copy(this.mesh.quaternion as any);
+    public Update(player : CANNON.Body, world : CANNON.World) {
+        for (let physicZpos = Math.round(player.position.z) - 3; physicZpos < Math.round(player.position.z) + 3; physicZpos++) {
+            for (let physicXpos = Math.round(player.position.x) - 3; physicXpos < Math.round(player.position.x) + 3; physicXpos++) {
+                let exist : boolean = false;
+                let newBody = new CANNON.Body({mass: 0});
+                newBody.position = this.getVoxelPosition(physicXpos, 6, physicZpos);
+                newBody.addShape(new CANNON.Box(new CANNON.Vec3(1 / 2, 1 / 2, 1/2)));
+
+                for (let col = 0;  col < this.boxColliders.length; col++) {
+                    let boxPosition = this.boxColliders[col].position;
+                    if (boxPosition.x === newBody.position.x && boxPosition.y === newBody.position.y && boxPosition.z === newBody.position.z)
+                        exist = true;
+                }
+                if (!exist) {
+                    this.boxColliders.push({position: newBody.position, body: newBody});
+                    world.addBody(newBody);
+                }
+            }
+        }
     }
 }

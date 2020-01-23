@@ -63,15 +63,15 @@ class Window
 
         this.physicsSystem.AddPhysicsObject(new Box({
             name: "First box",
-            x: 0,
-            y: 12,
-            z: 8,
+            x: 10.5,
+            y: 10,
+            z: 10.5,
             width: 1,
             height: 1,
             depth: 1,
             color: 0xFFFF00,
             rigid: true,
-            mass: 0
+            mass: 5
         }));
         this.physicsSystem.AddPhysicsObject(new Box({
             name: "Second box",
@@ -129,7 +129,7 @@ class Window
         this.playerMovement.Rotation(this.physicsSystem.GetPhysicsObject(0).mesh, this.camera);
         this.playerMovement.Movement(this.physicsSystem.GetPhysicsObject(0).body, this.camera, this.deltaTime);
         this.firstPersonUtils.Update(this.camera, this.physicsSystem.GetPhysicsObject(0).mesh);
-        //this.voxelGenerator.Update();
+        this.voxelGenerator.Update(this.physicsSystem.GetPhysicsObject(0).body, this.world);
         this.debugger.update();
 
         this.Render();
