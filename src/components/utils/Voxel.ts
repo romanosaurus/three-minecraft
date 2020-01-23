@@ -23,7 +23,7 @@ export default class Voxel
         this.cellSize = cellSize;
         this.cell = new Uint8Array(cellSize * cellSize * cellSize);
         this.cellSliceSize = cellSize * cellSize;
-        this.perlin = new PerlinImage();
+        this.perlin = new PerlinImage("assets/perlin/perlin.png");
         this.mesh = new THREE.Mesh();
         this.boxColliders = [];
 
@@ -135,15 +135,15 @@ export default class Voxel
 
     public async displayVoxelWorld(scene, world) {
         const perlinArray = await this.perlin.getArray();
+
         if (perlinArray == null)
             return;
+
         let counter = 0;
 
         for (let y = 0; y < this.perlin.getTexture().image.height; ++y) {
             for (let x = 0; x < this.perlin.getTexture().image.width; ++x) {
-                //compute z (height) by white contrast
-                //modifier nom variable par rapport au plan 3d
-//                console.log(test[x + y * this.perlin.getTexture().image.width].r);
+                //compute height by red contrast
                 for (let height = perlinArray[counter][0] * 0.05; height >= 0; height--) {
                     this.setVoxel(x, height, y, 1);
                 }
