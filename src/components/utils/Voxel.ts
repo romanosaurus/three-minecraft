@@ -234,14 +234,16 @@ export default class Voxel
     }
 
     public Update(player : CANNON.Body, world : CANNON.World) {
+        let stock = [];
         for (let physicZpos = Math.round(player.position.z) - 3; physicZpos < Math.round(player.position.z) + 3; physicZpos++) {
             for (let physicXpos = Math.round(player.position.x) - 3; physicXpos < Math.round(player.position.x) + 3; physicXpos++) {
                 let cell = this.getVoxel(physicXpos, 6, physicZpos);
                 if (cell === 0)
-                    continue
+                    continue;
                 let exist : boolean = false;
                 let newBody = new CANNON.Body({mass: 0});
                 newBody.position = this.getVoxelPosition(physicXpos, 6, physicZpos);
+                stock.push(newBody.position);
                 newBody.addShape(new CANNON.Box(new CANNON.Vec3(1 / 2, 1 / 2, 1/2)));
 
                 for (let col = 0;  col < this.boxColliders.length; col++) {
@@ -254,6 +256,24 @@ export default class Voxel
                     world.addBody(newBody);
                 }
             }
+        }
+
+        let indexToDelete = [];
+
+        for (let i = 0; i < this.boxColliders.length; i++) {
+            for (let j = 0; j < stock.length; j++) {
+                let tmpPosition = this.boxColliders[i].position;
+
+                if (tmpPosition.x === stock[j].x && tmpPosition.y === stock[j].y && tmpPosition.z === stock[j].z) {
+                    continue;
+                } else {
+                    indexToDelete.push(i);
+                }
+            }
+        }
+        for (let i = 0; i < indexToDelete.length; i++) {
+            world.remove(this.boxColliders[indexToDelete[i]].body);
+            //this.boxColliders.splice(i, 1);
         }
     }
 }
