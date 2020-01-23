@@ -235,25 +235,27 @@ export default class Voxel
 
     public Update(player : CANNON.Body, world : CANNON.World) {
         let stock = [];
-        for (let physicZpos = Math.round(player.position.z) - 3; physicZpos < Math.round(player.position.z) + 3; physicZpos++) {
-            for (let physicXpos = Math.round(player.position.x) - 3; physicXpos < Math.round(player.position.x) + 3; physicXpos++) {
-                let cell = this.getVoxel(physicXpos, 6, physicZpos);
-                if (cell === 0)
-                    continue;
-                let exist : boolean = false;
-                let newBody = new CANNON.Body({mass: 0});
-                newBody.position = this.getVoxelPosition(physicXpos, 6, physicZpos);
-                stock.push(newBody.position);
-                newBody.addShape(new CANNON.Box(new CANNON.Vec3(1 / 2, 1 / 2, 1/2)));
+        for (let physicZpos = Math.round(player.position.z) - 3; physicZpos <= Math.round(player.position.z) + 3; physicZpos++) {
+            for (let physicXpos = Math.round(player.position.x) - 3; physicXpos <= Math.round(player.position.x) + 3; physicXpos++) {
+                for (let physicYpos = Math.round(player.position.y) - 3; physicYpos <= Math.round(player.position.y) + 3; physicYpos++) {
+                    let cell = this.getVoxel(physicXpos, physicYpos, physicZpos);
+                    if (cell === 0)
+                        continue;
+                    let exist : boolean = false;
+                    let newBody = new CANNON.Body({mass: 0});
+                    newBody.position = this.getVoxelPosition(physicXpos, physicYpos, physicZpos);
+                    stock.push(newBody.position);
+                    newBody.addShape(new CANNON.Box(new CANNON.Vec3(1 / 2, 1 / 2, 1/2)));
 
-                for (let col = 0;  col < this.boxColliders.length; col++) {
-                    let boxPosition = this.boxColliders[col].position;
-                    if (boxPosition.x === newBody.position.x && boxPosition.y === newBody.position.y && boxPosition.z === newBody.position.z)
-                        exist = true;
-                }
-                if (!exist) {
-                    this.boxColliders.push({position: newBody.position, body: newBody});
-                    world.addBody(newBody);
+                    for (let col = 0;  col < this.boxColliders.length; col++) {
+                        let boxPosition = this.boxColliders[col].position;
+                        if (boxPosition.x === newBody.position.x && boxPosition.y === newBody.position.y && boxPosition.z === newBody.position.z)
+                            exist = true;
+                    }
+                    if (!exist) {
+                        this.boxColliders.push({position: newBody.position, body: newBody});
+                        world.addBody(newBody);
+                    }
                 }
             }
         }
@@ -261,19 +263,22 @@ export default class Voxel
         let indexToDelete = [];
 
         for (let i = 0; i < this.boxColliders.length; i++) {
+            let toPush = true;
             for (let j = 0; j < stock.length; j++) {
                 let tmpPosition = this.boxColliders[i].position;
 
                 if (tmpPosition.x === stock[j].x && tmpPosition.y === stock[j].y && tmpPosition.z === stock[j].z) {
+                    toPush = false;
                     continue;
-                } else {
-                    indexToDelete.push(i);
                 }
+            }
+            if (toPush === true) {
+                indexToDelete.push(i);
             }
         }
         for (let i = 0; i < indexToDelete.length; i++) {
             world.remove(this.boxColliders[indexToDelete[i]].body);
-            //this.boxColliders.splice(i, 1);
+            this.boxColliders.splice(indexToDelete[i], 1);
         }
     }
 }
