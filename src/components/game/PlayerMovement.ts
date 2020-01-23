@@ -89,7 +89,7 @@ export default class PlayerMovement {
         player.position.x += movementVector.x;
     }
 
-    public Rotation(player : THREE.Mesh, camera : THREE.Camera) {
+    public Rotation(player : THREE.Mesh, playerCollider : CANNON.Body, camera : THREE.Camera) {
         player.rotation.set(0, camera.rotation.y, 0);
     }
 

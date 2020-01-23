@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as CANNON from "cannon";
 
-import { PhysicsSystem } from "./components/utils/PhysicsSystem";
+import {PhysicsObject, PhysicsSystem} from "./components/utils/PhysicsSystem";
 import { Box } from "./components/physics_objects/Box";
 import CannonDebugRenderer from "./components/utils/CannonDebugger";
 
@@ -96,7 +96,7 @@ class Window
             mass: 0
         }));
         this.physicsSystem.AddPhysicsObject(new Box({
-            name: "Sand block",
+            name: "Sand",
             x: 3,
             y: 10,
             z: 8,
@@ -147,9 +147,10 @@ class Window
         this.deltaTime = this.clock.getDelta();
         this.physicsSystem.Update();
 
-        this.playerMovement.Rotation(this.physicsSystem.GetPhysicsObject(0).mesh, this.camera);
-        this.playerMovement.Movement(this.physicsSystem.GetPhysicsObject(0).body, this.camera, this.deltaTime);
-        this.firstPersonUtils.Update(this.camera, this.physicsSystem.GetPhysicsObject(0).mesh);
+        const player : PhysicsObject = this.physicsSystem.GetPhysicsObject(0);
+        this.playerMovement.Rotation(player.mesh, player.body, this.camera);
+        this.playerMovement.Movement(player.body, this.camera, this.deltaTime);
+        this.firstPersonUtils.Update(this.camera, player.mesh);
 
         this.debugger.update();
 
