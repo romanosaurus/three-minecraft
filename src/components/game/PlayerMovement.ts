@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 
+import * as CANNON from 'cannon';
+
 interface Direction {
     left: number,
     right: number,
