@@ -52,6 +52,7 @@ export class Box extends PhysicsObject {
             this.body = new CANNON.Body({mass: options && options.mass || 0 });
         }
 
+        this.body.fixedRotation = true;
         this.body.addShape(boxShape);
         this.body.position.set(
             this.mesh.position.x,

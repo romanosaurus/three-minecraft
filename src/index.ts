@@ -7,6 +7,8 @@ import CannonDebugRenderer from "./components/utils/CannonDebugger";
 
 import CameraMovement from "./components/camera/CameraMovement";
 import PlayerMovement from "./components/game/PlayerMovement";
+import Voxel from "./components/utils/Voxel";
+import LightningUtilities from "./components/lights/LightningUtilities";
 
 class Window
 {
@@ -27,6 +29,7 @@ class Window
     // Time handling
     private clock : THREE.Clock;
     private deltaTime : number;
+    private voxelGenerator : Voxel = new Voxel(128);
 
     constructor() {
         this.scene = new THREE.Scene();
@@ -54,21 +57,21 @@ class Window
     }
 
     private InitThree() : void {
-        this.camera.position.z = 30;
+        this.camera.position.set(-32 * .3, 32 * .8, -32 * .3)
 
         this.scene.add(this.camera);
 
         this.physicsSystem.AddPhysicsObject(new Box({
             name: "First box",
-            x: 0,
-            y: 4,
-            z: 8,
+            x: 10.5,
+            y: 13,
+            z: 10.5,
             width: 1,
-            height: 1,
+            height: 2,
             depth: 1,
             color: 0xFFFF00,
             rigid: true,
-            mass: 20
+            mass: 100
         }));
         this.physicsSystem.AddPhysicsObject(new Box({
             name: "Second box",
@@ -82,28 +85,20 @@ class Window
             rigid: true,
             mass: 0
         }));
-        this.physicsSystem.AddPhysicsObject(new Box({
-            name: "Ground",
-            x: 0,
-            y: 0,
-            z: 0,
-            width: 20,
-            height: .5,
-            depth: 20,
-            color: 0x00FF00,
-            rigid: true,
-            mass: 0
-        }));
 
         this.scene.add(this.physicsSystem.GetPhysicsObject(0).mesh);
         this.scene.add(this.physicsSystem.GetPhysicsObject(1).mesh);
-        this.scene.add(this.physicsSystem.GetPhysicsObject(2).mesh);
         this.world.addBody(this.physicsSystem.GetPhysicsObject(0).body);
         this.world.addBody(this.physicsSystem.GetPhysicsObject(1).body);
-        this.world.addBody(this.physicsSystem.GetPhysicsObject(2).body);
+
+        LightningUtilities.AddLight(this.scene, -1,  2,  4);
+        LightningUtilities.AddLight(this.scene, 1, -1, -2);
+
+        this.voxelGenerator.displayVoxelWorld(this.scene, this.world);
 
         this.firstPersonUtils = new CameraMovement(this.physicsSystem.GetPhysicsObject(0).mesh, this.camera);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor('lightblue');
         document.body.appendChild(this.renderer.domElement);
 
         this.playerMovement.Listeners();
@@ -121,7 +116,7 @@ class Window
         this.playerMovement.Rotation(this.physicsSystem.GetPhysicsObject(0).mesh, this.camera);
         this.playerMovement.Movement(this.physicsSystem.GetPhysicsObject(0).body, this.camera, this.deltaTime);
         this.firstPersonUtils.Update(this.camera, this.physicsSystem.GetPhysicsObject(0).mesh);
-
+        this.voxelGenerator.Update(this.physicsSystem.GetPhysicsObject(0).body, this.world);
         //this.debugger.update();
 
         this.Render();
@@ -135,6 +130,7 @@ class Window
         this.InitThree();
         this.InitCannon();
         this.Update();
+
     }
 }
 
