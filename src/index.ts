@@ -64,14 +64,14 @@ class Window
         this.physicsSystem.AddPhysicsObject(new Box({
             name: "First box",
             x: 10.5,
-            y: 10,
+            y: 13,
             z: 10.5,
             width: 1,
-            height: 1,
+            height: 2,
             depth: 1,
             color: 0xFFFF00,
             rigid: true,
-            mass: 5
+            mass: 100
         }));
         this.physicsSystem.AddPhysicsObject(new Box({
             name: "Second box",
@@ -85,33 +85,20 @@ class Window
             rigid: true,
             mass: 0
         }));
-        /*this.physicsSystem.AddPhysicsObject(new Box({
-            name: "Ground",
-            x: 0,
-            y: 0,
-            z: 0,
-            width: 20,
-            height: .5,
-            depth: 20,
-            color: 0x00FF00,
-            rigid: true,
-            mass: 0
-        }));*/
 
         this.scene.add(this.physicsSystem.GetPhysicsObject(0).mesh);
         this.scene.add(this.physicsSystem.GetPhysicsObject(1).mesh);
-        //this.scene.add(this.physicsSystem.GetPhysicsObject(2).mesh);
         this.world.addBody(this.physicsSystem.GetPhysicsObject(0).body);
         this.world.addBody(this.physicsSystem.GetPhysicsObject(1).body);
-        //this.world.addBody(this.physicsSystem.GetPhysicsObject(2).body);
 
         LightningUtilities.AddLight(this.scene, -1,  2,  4);
         LightningUtilities.AddLight(this.scene, 1, -1, -2);
 
-        this.voxelGenerator.displayVoxelWorld(this.scene, this.world, this.physicsSystem);
+        this.voxelGenerator.displayVoxelWorld(this.scene, this.world);
 
         this.firstPersonUtils = new CameraMovement(this.physicsSystem.GetPhysicsObject(0).mesh, this.camera);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor('lightblue');
         document.body.appendChild(this.renderer.domElement);
 
         this.playerMovement.Listeners();
@@ -130,7 +117,7 @@ class Window
         this.playerMovement.Movement(this.physicsSystem.GetPhysicsObject(0).body, this.camera, this.deltaTime);
         this.firstPersonUtils.Update(this.camera, this.physicsSystem.GetPhysicsObject(0).mesh);
         this.voxelGenerator.Update(this.physicsSystem.GetPhysicsObject(0).body, this.world);
-        this.debugger.update();
+        //this.debugger.update();
 
         this.Render();
     }

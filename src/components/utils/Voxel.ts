@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon';
 
 import PerlinImage from './PerlinImage';
-import {Box} from "../physics_objects/Box";
 
 interface BoxCollider {
     position: CANNON.Vec3,
@@ -134,33 +133,21 @@ export default class Voxel
         return new CANNON.Vec3(x + 0.5, y + 0.5, z + 0.5)
     }
 
-    public async displayVoxelWorld(scene, world, physicsSystem)
-    {
-        const { cellSize } = this;
-        const simplexTest = [
-            [0, 0.5],
-            [1, 0]
-        ];
-        const test = await this.perlin.getArray();
-//        console.log(test);
-        if (test == null)
+    public async displayVoxelWorld(scene, world) {
+        const perlinArray = await this.perlin.getArray();
+        if (perlinArray == null)
             return;
         let counter = 0;
+
         for (let y = 0; y < this.perlin.getTexture().image.height; ++y) {
             for (let x = 0; x < this.perlin.getTexture().image.width; ++x) {
                 //compute z (height) by white contrast
                 //modifier nom variable par rapport au plan 3d
 //                console.log(test[x + y * this.perlin.getTexture().image.width].r);
-                let maxSize = {x: 0, height: 0, y: 0};
-
-                for (let height = test[counter][0] * 0.05; height >= 0; height--) {
-                    if (maxSize.height < height)
-                        maxSize = {x: x, height: height, y: y};
+                for (let height = perlinArray[counter][0] * 0.05; height >= 0; height--) {
                     this.setVoxel(x, height, y, 1);
                 }
                 counter++;
-//                this.setVoxel(x, y, test[x + y * this.perlin.getTexture().image.width].r, 1);
-//                this.setVoxel(x, y, simplexTest[y][x], 1);
             }
         }
         const {positions, normals, indices} = this.generateGeometryDataForCell(0, 0, 0, world);
@@ -172,10 +159,12 @@ export default class Voxel
 
         geometry.setAttribute(
             'position',
-            new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
+            new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents)
+        );
         geometry.setAttribute(
             'normal',
-            new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
+            new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents)
+        );
         geometry.setIndex(indices);
         this.mesh = new THREE.Mesh(geometry, material);
         scene.add(this.mesh);
@@ -209,12 +198,6 @@ export default class Voxel
                                 for (const pos of corners) {
                                     positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
                                     normals.push(...dir);
-                                    /*if (pos[1] + y > 6) {
-                                        let body = new CANNON.Body({mass: 0});
-                                        body.position.set(voxX + 0.5, voxY + 0.5, voxZ + 0.5);
-                                        body.addShape(new CANNON.Box(new CANNON.Vec3(1 / 2, 1 / 2, 1 / 2)));
-                                        world.add(body);
-                                    }*/
                                 }
                                 indices.push(
                                     ndx, ndx + 1, ndx + 2,
@@ -243,15 +226,17 @@ export default class Voxel
                         continue;
                     let exist : boolean = false;
                     let newBody = new CANNON.Body({mass: 0});
+
                     newBody.position = this.getVoxelPosition(physicXpos, physicYpos, physicZpos);
                     stock.push(newBody.position);
-                    newBody.addShape(new CANNON.Box(new CANNON.Vec3(1 / 2, 1 / 2, 1/2)));
+                    newBody.addShape(new CANNON.Box(new CANNON.Vec3(1.25 / 2, 1.25 / 2, 1.25/2)));
 
                     for (let col = 0;  col < this.boxColliders.length; col++) {
                         let boxPosition = this.boxColliders[col].position;
                         if (boxPosition.x === newBody.position.x && boxPosition.y === newBody.position.y && boxPosition.z === newBody.position.z)
                             exist = true;
                     }
+
                     if (!exist) {
                         this.boxColliders.push({position: newBody.position, body: newBody});
                         world.addBody(newBody);
@@ -269,9 +254,9 @@ export default class Voxel
 
                 if (tmpPosition.x === stock[j].x && tmpPosition.y === stock[j].y && tmpPosition.z === stock[j].z) {
                     toPush = false;
-                    continue;
                 }
             }
+
             if (toPush === true) {
                 indexToDelete.push(i);
             }
