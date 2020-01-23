@@ -92,12 +92,13 @@ export default class CameraMovement
     {
         var loader = new THREE.TextureLoader();
 
-        var texture = new THREE.TextureLoader().load( '../../../assets/cursor/Cursor.jpg' );
+        var texture = new THREE.TextureLoader().load( '../../../assets/cursor/Cursor.png' );
     
-        var material = new THREE.MeshPhongMaterial({map: texture, color: 0xFFFFFF});
+        var material = new THREE.MeshPhongMaterial({ transparent: true, map: texture });
 
         material.transparent = true;
-
+        material.opacity = 0.9;
+    
         var geometry = new THREE.PlaneGeometry(10, 10*.75);
 
         var mesh = new THREE.Mesh(geometry, material);
