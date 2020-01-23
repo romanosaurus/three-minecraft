@@ -1,124 +1,149 @@
 import * as THREE from "three";
-import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
+import * as CANNON from "cannon";
 
+import { PhysicsSystem } from "./components/utils/PhysicsSystem";
+import { Box } from "./components/physics_objects/Box";
+import CannonDebugRenderer from "./components/utils/CannonDebugger";
+
+import CameraMovement from "./components/camera/CameraMovement";
+import PlayerMovement from "./components/game/PlayerMovement";
 import Voxel from "./components/utils/Voxel";
 import LightningUtilities from "./components/lights/LightningUtilities";
-import ModelLoader from "./components/models/ModelLoader";
-import Object3 from "./components/models/Object3";
 
 class Window
 {
-    private readonly camera: THREE.PerspectiveCamera;
-    private renderer: THREE.WebGLRenderer;
-    private windowNeedToResize: boolean;
-    private readonly mainScene: THREE.Scene;
-    private controllers: OrbitControls;
-    private modelLoader: ModelLoader;
+    // ThreeJS utils
+    private readonly scene : THREE.Scene;
+    private readonly camera : THREE.PerspectiveCamera;
+    private readonly renderer : THREE.WebGLRenderer;
 
-    private steve: Object3;
+    // Physics
+    private readonly world : CANNON.World;
+    private readonly physicsSystem : PhysicsSystem;
+    private readonly debugger;
 
-    constructor()
-    {
-        this.modelLoader = new ModelLoader();
+    // First person camera
+    private firstPersonUtils : CameraMovement;
+    private playerMovement : PlayerMovement;
+
+    // Time handling
+    private clock : THREE.Clock;
+    private deltaTime : number;
+    private voxelGenerator : Voxel = new Voxel(128);
+
+    constructor() {
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
         this.renderer = new THREE.WebGLRenderer();
-        this.windowNeedToResize = false;
-        this.camera = new THREE.PerspectiveCamera(75, 2, 0.1, 1000);
-        this.mainScene = new THREE.Scene();
-        this.controllers = new OrbitControls( this.camera, this.renderer.domElement );
-
-        this.steve = new Object3("Steve", "./assets/steve/minecraft-steve.obj", "./assets/steve/minecraft-steve.mtl");
+        this.world = new CANNON.World();
+        this.physicsSystem = new PhysicsSystem();
+        this.debugger = new CannonDebugRenderer(this.scene, this.world, null);
+        this.playerMovement = new PlayerMovement();
+        this.clock = new THREE.Clock();
+        this.deltaTime = 0;
     }
 
-    private onDocumentKeyDown(e)
-    {
-        this.steve.getObject().then(object => {
-            switch(e.key) {
-                case "s":
-                    console.log('lel')
-                    object.position.x -= 10;
-                    break;
-                case "z":
-                    object.position.x += 10;
-                    break;
-                case "q":
-                    object.position.z += 10;
-                    break;
-                case "d":
-                    object.position.z -= 10;
-                    break;
-            }
-            object.position.x += 10;
-        });
-
-        console.log(e);
+    private InitCannon() : void {
+        this.world.gravity.set(0, -9.82, 0); // m/s²
+        this.world.broadphase = new CANNON.NaiveBroadphase();
+        this.world.solver.iterations = 5;
+        this.world.defaultContactMaterial.contactEquationStiffness = 1e6;
+        this.world.defaultContactMaterial.contactEquationRelaxation = 10;
     }
 
-    private InitScene()
-    {
-        this.mainScene.background = new THREE.Color('lightblue');
-    }
+    private InitThree() : void {
+        this.camera.position.set(-32 * .3, 32 * .8, -32 * .3)
 
-    private InitCamera()
-    {
-        this.camera.position.set(-32 * .3, 32 * .8, -32 * .3);
-    }
+        this.scene.add(this.camera);
 
-    private UpdateViewPort()
-    {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-    }
+        this.physicsSystem.AddPhysicsObject(new Box({
+            name: "First box",
+            x: 0,
+            y: 12,
+            z: 8,
+            width: 1,
+            height: 1,
+            depth: 1,
+            color: 0xFFFF00,
+            rigid: true,
+            mass: 0
+        }));
+        this.physicsSystem.AddPhysicsObject(new Box({
+            name: "Second box",
+            x: 3,
+            y: 0,
+            z: 8,
+            width: 1.5,
+            height: 2.5,
+            depth: 1,
+            color: 0xFFFF00,
+            rigid: true,
+            mass: 0
+        }));
+        /*this.physicsSystem.AddPhysicsObject(new Box({
+            name: "Ground",
+            x: 0,
+            y: 0,
+            z: 0,
+            width: 20,
+            height: .5,
+            depth: 20,
+            color: 0x00FF00,
+            rigid: true,
+            mass: 0
+        }));*/
 
-    private Listeners(): void
-    {
-        window.addEventListener('resize', () => { this.windowNeedToResize = true });
-        window.addEventListener('keydown', (e) => { this.onDocumentKeyDown(e) });
-    }
+        this.scene.add(this.physicsSystem.GetPhysicsObject(0).mesh);
+        this.scene.add(this.physicsSystem.GetPhysicsObject(1).mesh);
+        //this.scene.add(this.physicsSystem.GetPhysicsObject(2).mesh);
+        this.world.addBody(this.physicsSystem.GetPhysicsObject(0).body);
+        this.world.addBody(this.physicsSystem.GetPhysicsObject(1).body);
+        //this.world.addBody(this.physicsSystem.GetPhysicsObject(2).body);
 
-    public Update(): void
-    {
-        requestAnimationFrame(() => { this.Update() });
+        LightningUtilities.AddLight(this.scene, -1,  2,  4);
+        LightningUtilities.AddLight(this.scene, 1, -1, -2);
 
-        if (this.windowNeedToResize) {
-            this.windowNeedToResize = false;
-            this.UpdateViewPort();
-        }
+        this.voxelGenerator.displayVoxelWorld(this.scene, this.world, this.physicsSystem);
 
-        this.controllers.update();
-        this.renderer.render(this.mainScene, this.camera);
-    }
-
-    public Init(): void
-    {
-        const chunkSize : number = 128;
-        const voxelGenerator : Voxel = new Voxel(chunkSize);
-
+        this.firstPersonUtils = new CameraMovement(this.physicsSystem.GetPhysicsObject(0).mesh, this.camera);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
-        this.controllers.target.set(chunkSize / 2, chunkSize / 3, chunkSize / 2);
-        this.controllers.update();
-
-        LightningUtilities.AddLight(this.mainScene, -1,  2,  4);
-        LightningUtilities.AddLight(this.mainScene, 1, -1, -2);
-        voxelGenerator.displayVoxelWorld(this.mainScene, 32, 0, 32);
-
-        this.steve.getObject().then(object => {
-            this.mainScene.add(object);
-        });
+        this.playerMovement.Listeners();
+        this.firstPersonUtils.CameraListeners(this.camera);
+        this.physicsSystem.GetPhysicsObject(0).body.addEventListener("collide", (e) => {this.playerMovement.setJumping(false)})
     }
 
-    public Main(): void
-    {
-        this.InitCamera();
+    private Update() : void {
+        requestAnimationFrame(() => { this.Update() });
 
-        this.Init();
+        this.world.step(1/60);
+        this.deltaTime = this.clock.getDelta();
+        this.physicsSystem.Update();
 
-        this.InitScene();
+        this.playerMovement.Rotation(this.physicsSystem.GetPhysicsObject(0).mesh, this.camera);
+        this.playerMovement.Movement(this.physicsSystem.GetPhysicsObject(0).body, this.camera, this.deltaTime);
+        this.firstPersonUtils.Update(this.camera, this.physicsSystem.GetPhysicsObject(0).mesh);
+        //this.voxelGenerator.Update();
+        this.debugger.update();
 
+        this.Render();
+    }
+
+    private Render() : void {
+        this.renderer.render(this.scene, this.camera);
+    }
+
+    public Main() : void {
+        this.InitThree();
+        this.InitCannon();
         this.Update();
 
-        this.Listeners();
     }
 }
 

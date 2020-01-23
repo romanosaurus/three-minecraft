@@ -1,6 +1,8 @@
 import * as THREE from 'three';
+import * as CANNON from 'cannon';
 
 import PerlinImage from './PerlinImage';
+import {Box} from "../physics_objects/Box";
 
 export default class Voxel
 {
@@ -9,6 +11,9 @@ export default class Voxel
     private cell: Uint8Array;
     private cellSliceSize;
     private perlin;
+    private mesh : THREE.Mesh;
+    private body : CANNON.Body;
+    private bodies;
 
     constructor(cellSize)
     {
@@ -16,6 +21,8 @@ export default class Voxel
         this.cell = new Uint8Array(cellSize * cellSize * cellSize);
         this.cellSliceSize = cellSize * cellSize;
         this.perlin = new PerlinImage();
+        this.mesh = new THREE.Mesh();
+        this.bodies = [];
 
         this.faces = [
             { // left
@@ -81,6 +88,7 @@ export default class Voxel
         const voxelY = THREE.Math.euclideanModulo(y, this.cellSize) | 0;
         const voxelZ = THREE.Math.euclideanModulo(z, this.cellSize) | 0;
 
+        console.log(y, voxelY)
         return voxelY * this.cellSliceSize +
             voxelZ * this.cellSize +
             voxelX;
@@ -119,7 +127,7 @@ export default class Voxel
         return cell[voxelOffset];
     }
 
-    public async displayVoxelWorld(scene, posX, posY, posZ)
+    public async displayVoxelWorld(scene, world, physicsSystem)
     {
         const { cellSize } = this;
         const simplexTest = [
@@ -139,20 +147,26 @@ export default class Voxel
                 //compute z (height) by white contrast
                 //modifier nom variable par rapport au plan 3d
 //                console.log(test[x + y * this.perlin.getTexture().image.width].r);
-                for (let height = test[counter][0] * 0.05; height >= 0; height--)
+                let maxSize = {x: 0, height: 0, y: 0};
+
+                for (let height = test[counter][0] * 0.05; height >= 0; height--) {
+                    if (maxSize.height < height)
+                        maxSize = {x: x, height: height, y: y};
                     this.setVoxel(x, height, y, 1);
+                }
                 counter++;
 //                this.setVoxel(x, y, test[x + y * this.perlin.getTexture().image.width].r, 1);
 //                this.setVoxel(x, y, simplexTest[y][x], 1);
             }
         }
         console.log("counter = " + counter);
-        const {positions, normals, indices} = this.generateGeometryDataForCell(0, 0, 0);
+        const {positions, normals, indices} = this.generateGeometryDataForCell(0, 0, 0, world);
         const geometry = new THREE.BufferGeometry();
         const material = new THREE.MeshLambertMaterial({color: 'green'});
 
         const positionNumComponents = 3;
         const normalNumComponents = 3;
+
         geometry.setAttribute(
             'position',
             new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
@@ -160,14 +174,15 @@ export default class Voxel
             'normal',
             new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
         geometry.setIndex(indices);
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.x = posX;
-        mesh.position.y = posY;
-        mesh.position.z = posZ;
-        scene.add(mesh);
+        this.mesh = new THREE.Mesh(geometry, material);
+
+        this.body = new CANNON.Body({ mass: 0 });
+        //let shape = new CANNON.Box(new CANNON.Vec3(geometry.scale. / 2))
+        //world.add(this.body);
+        scene.add(this.mesh);
     }
 
-    public generateGeometryDataForCell(cellX, cellY, cellZ)
+    public generateGeometryDataForCell(cellX, cellY, cellZ, world)
     {
         const positions = [];
         const normals = [];
@@ -195,6 +210,10 @@ export default class Voxel
                                 for (const pos of corners) {
                                     positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
                                     normals.push(...dir);
+                                    let body = new CANNON.Body({mass: 0});
+                                    body.position.set(voxX + 0.5, voxY + 0.5, voxZ + 0.5);
+                                    body.addShape(new CANNON.Box(new CANNON.Vec3(1 / 2, 1 / 2 , 1 / 2)));
+                                    world.add(body);
                                 }
                                 indices.push(
                                     ndx, ndx + 1, ndx + 2,
@@ -211,5 +230,10 @@ export default class Voxel
             normals,
             indices,
         }
+    }
+
+    public Update() {
+        this.body.position.copy(this.mesh.position as any);
+        this.body.quaternion.copy(this.mesh.quaternion as any);
     }
 }

@@ -12,7 +12,7 @@ export default class PerlinImage
     }
     private load() {
         return new Promise((resolve, reject) => {
-            this.loader.load("src/components/utils/perlin.png", function(texture) {                
+            this.loader.load("src/components/utils/noiseTexture.png", function(texture) {
             }, onprogress, reject);
         });
     }
@@ -43,7 +43,7 @@ export default class PerlinImage
     }
     public async getArray() {
         if (this.array === null) {
-            this.texture = await this.loadTexture("src/components/utils/perlin.png");
+            this.texture = await this.loadTexture("src/components/utils/noiseTexture.png");
             console.log(this.texture);
             this.computePerlinCalculation();
         }
