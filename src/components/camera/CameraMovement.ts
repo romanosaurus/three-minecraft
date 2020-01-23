@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import Object3 from "./../models/Object3";
-import { MOUSE } from "three";
+import { MOUSE, Raycaster, Scene } from "three";
 
 export default class CameraMovement
 {
@@ -11,6 +11,10 @@ export default class CameraMovement
     private speedX: number;
 
     private speed: number;
+
+    private pointerLockActivated: boolean;
+
+    private cursor: THREE.Mesh;
 
     private readonly euler: THREE.Euler;
 
@@ -25,6 +29,8 @@ export default class CameraMovement
         this.speedY = 0.005;
 
         this.speed = 0.2;
+
+        this.pointerLockActivated = true;
 
         this.quat = new THREE.Quaternion();
 
@@ -54,11 +60,31 @@ export default class CameraMovement
         camera.quaternion.setFromEuler(euler);
     }
 
+    private updateCameraPointer(camera : THREE.Camera)
+    {
+        if ( this.pointerLockActivated )
+            document.body.requestPointerLock();
+        else
+            document.exitPointerLock();
+    }
+
+    private CameraPointerLock( keyPressed )
+    {
+        if (keyPressed.key == "e") {
+            if (!this.pointerLockActivated )
+                this.pointerLockActivated = true;
+            else
+                this.pointerLockActivated = false;
+        }
+    }
     public Update(camera : THREE.Camera, object : THREE.Mesh) : void {
         camera.position.set(object.position.x, object.position.y, object.position.z);
+        this.updateCameraPointer( camera );
     }
+
     // Add listeners for mouse move
     public CameraListeners(camera : THREE.Camera): void {
         document.addEventListener( 'mousemove', ( mouse_event ) => { this.CameraMovement(mouse_event, camera) });
+        document.addEventListener( 'keydown', ( key_pressed ) => { this.CameraPointerLock(key_pressed) });
     }
 }
