@@ -236,6 +236,9 @@ export default class Voxel
     public Update(player : CANNON.Body, world : CANNON.World) {
         for (let physicZpos = Math.round(player.position.z) - 3; physicZpos < Math.round(player.position.z) + 3; physicZpos++) {
             for (let physicXpos = Math.round(player.position.x) - 3; physicXpos < Math.round(player.position.x) + 3; physicXpos++) {
+                let cell = this.getVoxel(physicXpos, 6, physicZpos);
+                if (cell === 0)
+                    continue
                 let exist : boolean = false;
                 let newBody = new CANNON.Body({mass: 0});
                 newBody.position = this.getVoxelPosition(physicXpos, 6, physicZpos);
