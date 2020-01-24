@@ -8,19 +8,33 @@ interface BoxCollider {
     body: CANNON.Body
 }
 
+interface Options {
+    cellSize: number,
+    tileSize: number,
+    tileTextureWidth: number,
+    tileTextureHeight: number
+}
+
 export default class Voxel
 {
     private readonly cellSize: number;
     private readonly faces;
+    private tileTextureWidth;
+    private tileTextureHeight;
+    private tileSize;
     private cell: Uint8Array;
     private cellSliceSize;
     private perlin;
     private mesh : THREE.Mesh;
     private boxColliders : Array<BoxCollider>;
 
-    constructor(cellSize)
+    constructor(options : Options)
     {
-        this.cellSize = cellSize;
+        this.cellSize = options.cellSize;
+        this.tileSize = options.tileSize;
+        this.tileTextureWidth = options.tileTextureWidth;
+        this.tileTextureHeight = options.tileTextureHeight;
+        const { cellSize } = this;
         this.cell = new Uint8Array(cellSize * cellSize * cellSize);
         this.cellSliceSize = cellSize * cellSize;
         this.perlin = new PerlinImage("assets/perlin/perlin.png");
@@ -29,57 +43,63 @@ export default class Voxel
 
         this.faces = [
             { // left
+                uvRow: 0,
                 dir: [ -1,  0,  0, ],
                 corners: [
-                    [ 0, 1, 0 ],
-                    [ 0, 0, 0 ],
-                    [ 0, 1, 1 ],
-                    [ 0, 0, 1 ],
+                    { pos: [ 0, 1, 0 ], uv: [ 0, 1 ], },
+                    { pos: [ 0, 0, 0 ], uv: [ 0, 0 ], },
+                    { pos: [ 0, 1, 1 ], uv: [ 1, 1 ], },
+                    { pos: [ 0, 0, 1 ], uv: [ 1, 0 ], },
                 ],
             },
             { // right
+                uvRow: 0,
                 dir: [  1,  0,  0, ],
                 corners: [
-                    [ 1, 1, 1 ],
-                    [ 1, 0, 1 ],
-                    [ 1, 1, 0 ],
-                    [ 1, 0, 0 ],
+                    { pos: [ 1, 1, 1 ], uv: [ 0, 1 ], },
+                    { pos: [ 1, 0, 1 ], uv: [ 0, 0 ], },
+                    { pos: [ 1, 1, 0 ], uv: [ 1, 1 ], },
+                    { pos: [ 1, 0, 0 ], uv: [ 1, 0 ], },
                 ],
             },
             { // bottom
+                uvRow: 1,
                 dir: [  0, -1,  0, ],
                 corners: [
-                    [ 1, 0, 1 ],
-                    [ 0, 0, 1 ],
-                    [ 1, 0, 0 ],
-                    [ 0, 0, 0 ],
+                    { pos: [ 1, 0, 1 ], uv: [ 1, 0 ], },
+                    { pos: [ 0, 0, 1 ], uv: [ 0, 0 ], },
+                    { pos: [ 1, 0, 0 ], uv: [ 1, 1 ], },
+                    { pos: [ 0, 0, 0 ], uv: [ 0, 1 ], },
                 ],
             },
             { // top
+                uvRow: 2,
                 dir: [  0,  1,  0, ],
                 corners: [
-                    [ 0, 1, 1 ],
-                    [ 1, 1, 1 ],
-                    [ 0, 1, 0 ],
-                    [ 1, 1, 0 ],
+                    { pos: [ 0, 1, 1 ], uv: [ 1, 1 ], },
+                    { pos: [ 1, 1, 1 ], uv: [ 0, 1 ], },
+                    { pos: [ 0, 1, 0 ], uv: [ 1, 0 ], },
+                    { pos: [ 1, 1, 0 ], uv: [ 0, 0 ], },
                 ],
             },
             { // back
+                uvRow: 0,
                 dir: [  0,  0, -1, ],
                 corners: [
-                    [ 1, 0, 0 ],
-                    [ 0, 0, 0 ],
-                    [ 1, 1, 0 ],
-                    [ 0, 1, 0 ],
+                    { pos: [ 1, 0, 0 ], uv: [ 0, 0 ], },
+                    { pos: [ 0, 0, 0 ], uv: [ 1, 0 ], },
+                    { pos: [ 1, 1, 0 ], uv: [ 0, 1 ], },
+                    { pos: [ 0, 1, 0 ], uv: [ 1, 1 ], },
                 ],
             },
             { // front
+                uvRow: 0,
                 dir: [  0,  0,  1, ],
                 corners: [
-                    [ 0, 0, 1 ],
-                    [ 1, 0, 1 ],
-                    [ 0, 1, 1 ],
-                    [ 1, 1, 1 ],
+                    { pos: [ 0, 0, 1 ], uv: [ 0, 0 ], },
+                    { pos: [ 1, 0, 1 ], uv: [ 1, 0 ], },
+                    { pos: [ 0, 1, 1 ], uv: [ 0, 1 ], },
+                    { pos: [ 1, 1, 1 ], uv: [ 1, 1 ], },
                 ],
             },
         ];
@@ -136,6 +156,11 @@ export default class Voxel
     public async displayVoxelWorld(scene, world) {
         const perlinArray = await this.perlin.getArray();
 
+        const loader = new THREE.TextureLoader();
+        const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/minecraft/flourish-cc-by-nc-sa.png');
+        texture.magFilter = THREE.NearestFilter;
+        texture.minFilter = THREE.NearestFilter;
+
         if (perlinArray == null)
             return;
 
@@ -145,17 +170,24 @@ export default class Voxel
             for (let x = 0; x < this.perlin.getTexture().image.width; ++x) {
                 //compute height by red contrast
                 for (let height = perlinArray[counter][0] * 0.05; height >= 0; height--) {
-                    this.setVoxel(x, height, y, 1);
+                    this.setVoxel(x, height, y, 14);
                 }
                 counter++;
             }
         }
-        const {positions, normals, indices} = this.generateGeometryDataForCell(0, 0, 0, world);
+        const {positions, normals, uvs, indices} = this.generateGeometryDataForCell(0, 0, 0, world);
         const geometry = new THREE.BufferGeometry();
-        const material = new THREE.MeshLambertMaterial({color: 'green'});
+        const material = new THREE.MeshLambertMaterial({
+            map: texture,
+            side: THREE.DoubleSide,
+            alphaTest: 0.1,
+            transparent: true,
+        });
+
 
         const positionNumComponents = 3;
         const normalNumComponents = 3;
+        const uvNumComponents = 2;
 
         geometry.setAttribute(
             'position',
@@ -165,6 +197,9 @@ export default class Voxel
             'normal',
             new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents)
         );
+        geometry.setAttribute(
+            'uv',
+            new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
         geometry.setIndex(indices);
         this.mesh = new THREE.Mesh(geometry, material);
         scene.add(this.mesh);
@@ -172,8 +207,10 @@ export default class Voxel
 
     public generateGeometryDataForCell(cellX, cellY, cellZ, world)
     {
+        const { cellSize, tileSize, tileTextureWidth, tileTextureHeight } = this;
         const positions = [];
         const normals = [];
+        const uvs = [];
         const indices = [];
         const startX = cellX * this.cellSize;
         const startY = cellY * this.cellSize;
@@ -187,7 +224,8 @@ export default class Voxel
                     const voxX = startX + x;
                     const vox = this.getVoxel(voxX, voxY, voxZ);
                     if (vox) {
-                        for (const { dir, corners } of this.faces) {
+                        const uvVoxel = vox - 1;
+                        for (const { dir, corners, uvRow } of this.faces) {
                             const neighbor = this.getVoxel(
                                 voxX + dir[0],
                                 voxY + dir[1],
@@ -195,9 +233,12 @@ export default class Voxel
 
                             if (!neighbor) {
                                 const ndx = positions.length / 3;
-                                for (const pos of corners) {
+                                for (const { pos, uv } of corners) {
                                     positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
                                     normals.push(...dir);
+                                    uvs.push(
+                                        (uvVoxel +   uv[0]) * tileSize / tileTextureWidth,
+                                        1 - (uvRow + 1 - uv[1]) * tileSize / tileTextureHeight);
                                 }
                                 indices.push(
                                     ndx, ndx + 1, ndx + 2,
@@ -212,6 +253,7 @@ export default class Voxel
         return {
             positions,
             normals,
+            uvs,
             indices,
         }
     }

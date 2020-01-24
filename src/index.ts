@@ -29,7 +29,7 @@ class Window
     // Time handling
     private clock : THREE.Clock;
     private deltaTime : number;
-    private voxelGenerator : Voxel = new Voxel(128);
+    private voxelGenerator : Voxel = new Voxel({cellSize: 128, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16});
 
     constructor() {
         this.scene = new THREE.Scene();
