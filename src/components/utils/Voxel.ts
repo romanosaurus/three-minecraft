@@ -19,11 +19,11 @@ export default class Voxel
 {
     private readonly cellSize: number;
     private readonly faces;
-    private tileTextureWidth;
-    private tileTextureHeight;
-    private tileSize;
+    private tileTextureWidth : number;
+    private tileTextureHeight : number;
+    private tileSize : number;
     private cell: Uint8Array;
-    private cellSliceSize;
+    private cellSliceSize : number;
     private perlin;
     private mesh : THREE.Mesh;
     private boxColliders : Array<BoxCollider>;
@@ -34,9 +34,11 @@ export default class Voxel
         this.tileSize = options.tileSize;
         this.tileTextureWidth = options.tileTextureWidth;
         this.tileTextureHeight = options.tileTextureHeight;
+
         const { cellSize } = this;
         this.cell = new Uint8Array(cellSize * cellSize * cellSize);
         this.cellSliceSize = cellSize * cellSize;
+
         this.perlin = new PerlinImage("assets/perlin/perlin.png");
         this.mesh = new THREE.Mesh();
         this.boxColliders = [];
@@ -105,22 +107,22 @@ export default class Voxel
         ];
     }
 
-    private computeVoxelOffset(x, y, z)
+    private computeVoxelOffset(x : number, y : number, z : number) : number
     {
-        const voxelX = THREE.Math.euclideanModulo(x, this.cellSize) | 0;
-        const voxelY = THREE.Math.euclideanModulo(y, this.cellSize) | 0;
-        const voxelZ = THREE.Math.euclideanModulo(z, this.cellSize) | 0;
+        const voxelX : number = THREE.Math.euclideanModulo(x, this.cellSize) | 0;
+        const voxelY : number = THREE.Math.euclideanModulo(y, this.cellSize) | 0;
+        const voxelZ : number = THREE.Math.euclideanModulo(z, this.cellSize) | 0;
 
         return voxelY * this.cellSliceSize +
             voxelZ * this.cellSize +
             voxelX;
     }
 
-    public getCellForVoxel(x, y, z)
+    public getCellForVoxel(x : number, y : number, z : number)
     {
-        const cellX = Math.floor(x / this.cellSize);
-        const cellY = Math.floor(y / this.cellSize);
-        const cellZ = Math.floor(z / this.cellSize);
+        const cellX : number = Math.floor(x / this.cellSize);
+        const cellY : number = Math.floor(y / this.cellSize);
+        const cellZ : number = Math.floor(z / this.cellSize);
 
         if (cellX !== 0 || cellY !== 0 || cellZ !== 0)
             return null;
@@ -128,7 +130,7 @@ export default class Voxel
         return this.cell;
     }
 
-    public setVoxel(x, y, z, v)
+    public setVoxel(x : number, y : number, z : number, v : number) : void
     {
         let cell = this.getCellForVoxel(x, y, z);
 
@@ -139,32 +141,32 @@ export default class Voxel
         cell[voxelOffset] = v;
     }
 
-    public getVoxel(x, y, z) {
+    public getVoxel(x : number, y : number, z : number) {
         const cell = this.getCellForVoxel(x, y, z);
 
         if (!cell)
             return 0;
 
-        const voxelOffset = this.computeVoxelOffset(x, y, z);
+        const voxelOffset : number = this.computeVoxelOffset(x, y, z);
         return cell[voxelOffset];
     }
 
-    public getVoxelPosition(x, y, z) {
+    public getVoxelPosition(x : number, y : number, z : number) : CANNON.Vec3 {
         return new CANNON.Vec3(x + 0.5, y + 0.5, z + 0.5)
     }
 
-    public async displayVoxelWorld(scene, world) {
+    public async displayVoxelWorld(scene : THREE.Scene) {
         const perlinArray = await this.perlin.getArray();
 
-        const loader = new THREE.TextureLoader();
-        const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/minecraft/flourish-cc-by-nc-sa.png');
+        const loader : THREE.TextureLoader = new THREE.TextureLoader();
+        const texture : THREE.Texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/minecraft/flourish-cc-by-nc-sa.png');
         texture.magFilter = THREE.NearestFilter;
         texture.minFilter = THREE.NearestFilter;
 
         if (perlinArray == null)
             return;
 
-        let counter = 0;
+        let counter : number = 0;
 
         for (let y = 0; y < this.perlin.getTexture().image.height; ++y) {
             for (let x = 0; x < this.perlin.getTexture().image.width; ++x) {
@@ -175,9 +177,9 @@ export default class Voxel
                 counter++;
             }
         }
-        const {positions, normals, uvs, indices} = this.generateGeometryDataForCell(0, 0, 0, world);
-        const geometry = new THREE.BufferGeometry();
-        const material = new THREE.MeshLambertMaterial({
+        const {positions, normals, uvs, indices} = this.generateGeometryDataForCell(0, 0, 0);
+        const geometry : THREE.BufferGeometry = new THREE.BufferGeometry();
+        const material : THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial({
             map: texture,
             side: THREE.DoubleSide,
             alphaTest: 0.1,
@@ -185,9 +187,9 @@ export default class Voxel
         });
 
 
-        const positionNumComponents = 3;
-        const normalNumComponents = 3;
-        const uvNumComponents = 2;
+        const positionNumComponents : number= 3;
+        const normalNumComponents : number = 3;
+        const uvNumComponents : number = 2;
 
         geometry.setAttribute(
             'position',
@@ -201,11 +203,12 @@ export default class Voxel
             'uv',
             new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
         geometry.setIndex(indices);
+
         this.mesh = new THREE.Mesh(geometry, material);
         scene.add(this.mesh);
     }
 
-    public generateGeometryDataForCell(cellX, cellY, cellZ, world)
+    public generateGeometryDataForCell(cellX : number, cellY : number, cellZ : number)
     {
         const { cellSize, tileSize, tileTextureWidth, tileTextureHeight } = this;
         const positions = [];

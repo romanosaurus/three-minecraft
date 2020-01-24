@@ -94,7 +94,7 @@ class Window
         LightningUtilities.AddLight(this.scene, -1,  2,  4);
         LightningUtilities.AddLight(this.scene, 1, -1, -2);
 
-        this.voxelGenerator.displayVoxelWorld(this.scene, this.world);
+        this.voxelGenerator.displayVoxelWorld(this.scene);
 
         this.firstPersonUtils = new CameraMovement(this.physicsSystem.GetPhysicsObject(0).mesh, this.camera);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
