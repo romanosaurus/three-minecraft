@@ -8,99 +8,121 @@ interface BoxCollider {
     body: CANNON.Body
 }
 
+interface Options {
+    cellSize: number,
+    tileSize: number,
+    tileTextureWidth: number,
+    tileTextureHeight: number
+}
+
 export default class Voxel
 {
     private readonly cellSize: number;
     private readonly faces;
+    private tileTextureWidth : number;
+    private tileTextureHeight : number;
+    private tileSize : number;
     private cell: Uint8Array;
-    private cellSliceSize;
+    private cellSliceSize : number;
     private perlin;
     private mesh : THREE.Mesh;
     private boxColliders : Array<BoxCollider>;
 
-    constructor(cellSize)
+    constructor(options : Options)
     {
-        this.cellSize = cellSize;
+        this.cellSize = options.cellSize;
+        this.tileSize = options.tileSize;
+        this.tileTextureWidth = options.tileTextureWidth;
+        this.tileTextureHeight = options.tileTextureHeight;
+
+        const { cellSize } = this;
         this.cell = new Uint8Array(cellSize * cellSize * cellSize);
         this.cellSliceSize = cellSize * cellSize;
+
         this.perlin = new PerlinImage("assets/perlin/perlin.png");
         this.mesh = new THREE.Mesh();
         this.boxColliders = [];
 
         this.faces = [
             { // left
+                uvRow: 0,
                 dir: [ -1,  0,  0, ],
                 corners: [
-                    [ 0, 1, 0 ],
-                    [ 0, 0, 0 ],
-                    [ 0, 1, 1 ],
-                    [ 0, 0, 1 ],
+                    { pos: [ 0, 1, 0 ], uv: [ 0, 1 ], },
+                    { pos: [ 0, 0, 0 ], uv: [ 0, 0 ], },
+                    { pos: [ 0, 1, 1 ], uv: [ 1, 1 ], },
+                    { pos: [ 0, 0, 1 ], uv: [ 1, 0 ], },
                 ],
             },
             { // right
+                uvRow: 0,
                 dir: [  1,  0,  0, ],
                 corners: [
-                    [ 1, 1, 1 ],
-                    [ 1, 0, 1 ],
-                    [ 1, 1, 0 ],
-                    [ 1, 0, 0 ],
+                    { pos: [ 1, 1, 1 ], uv: [ 0, 1 ], },
+                    { pos: [ 1, 0, 1 ], uv: [ 0, 0 ], },
+                    { pos: [ 1, 1, 0 ], uv: [ 1, 1 ], },
+                    { pos: [ 1, 0, 0 ], uv: [ 1, 0 ], },
                 ],
             },
             { // bottom
+                uvRow: 1,
                 dir: [  0, -1,  0, ],
                 corners: [
-                    [ 1, 0, 1 ],
-                    [ 0, 0, 1 ],
-                    [ 1, 0, 0 ],
-                    [ 0, 0, 0 ],
+                    { pos: [ 1, 0, 1 ], uv: [ 1, 0 ], },
+                    { pos: [ 0, 0, 1 ], uv: [ 0, 0 ], },
+                    { pos: [ 1, 0, 0 ], uv: [ 1, 1 ], },
+                    { pos: [ 0, 0, 0 ], uv: [ 0, 1 ], },
                 ],
             },
             { // top
+                uvRow: 2,
                 dir: [  0,  1,  0, ],
                 corners: [
-                    [ 0, 1, 1 ],
-                    [ 1, 1, 1 ],
-                    [ 0, 1, 0 ],
-                    [ 1, 1, 0 ],
+                    { pos: [ 0, 1, 1 ], uv: [ 1, 1 ], },
+                    { pos: [ 1, 1, 1 ], uv: [ 0, 1 ], },
+                    { pos: [ 0, 1, 0 ], uv: [ 1, 0 ], },
+                    { pos: [ 1, 1, 0 ], uv: [ 0, 0 ], },
                 ],
             },
             { // back
+                uvRow: 0,
                 dir: [  0,  0, -1, ],
                 corners: [
-                    [ 1, 0, 0 ],
-                    [ 0, 0, 0 ],
-                    [ 1, 1, 0 ],
-                    [ 0, 1, 0 ],
+                    { pos: [ 1, 0, 0 ], uv: [ 0, 0 ], },
+                    { pos: [ 0, 0, 0 ], uv: [ 1, 0 ], },
+                    { pos: [ 1, 1, 0 ], uv: [ 0, 1 ], },
+                    { pos: [ 0, 1, 0 ], uv: [ 1, 1 ], },
                 ],
             },
             { // front
+                uvRow: 0,
                 dir: [  0,  0,  1, ],
                 corners: [
-                    [ 0, 0, 1 ],
-                    [ 1, 0, 1 ],
-                    [ 0, 1, 1 ],
-                    [ 1, 1, 1 ],
+                    { pos: [ 0, 0, 1 ], uv: [ 0, 0 ], },
+                    { pos: [ 1, 0, 1 ], uv: [ 1, 0 ], },
+                    { pos: [ 0, 1, 1 ], uv: [ 0, 1 ], },
+                    { pos: [ 1, 1, 1 ], uv: [ 1, 1 ], },
                 ],
             },
         ];
     }
 
-    private computeVoxelOffset(x, y, z)
+    private computeVoxelOffset(x : number, y : number, z : number) : number
     {
-        const voxelX = THREE.Math.euclideanModulo(x, this.cellSize) | 0;
-        const voxelY = THREE.Math.euclideanModulo(y, this.cellSize) | 0;
-        const voxelZ = THREE.Math.euclideanModulo(z, this.cellSize) | 0;
+        const voxelX : number = THREE.Math.euclideanModulo(x, this.cellSize) | 0;
+        const voxelY : number = THREE.Math.euclideanModulo(y, this.cellSize) | 0;
+        const voxelZ : number = THREE.Math.euclideanModulo(z, this.cellSize) | 0;
 
         return voxelY * this.cellSliceSize +
             voxelZ * this.cellSize +
             voxelX;
     }
 
-    public getCellForVoxel(x, y, z)
+    public getCellForVoxel(x : number, y : number, z : number)
     {
-        const cellX = Math.floor(x / this.cellSize);
-        const cellY = Math.floor(y / this.cellSize);
-        const cellZ = Math.floor(z / this.cellSize);
+        const cellX : number = Math.floor(x / this.cellSize);
+        const cellY : number = Math.floor(y / this.cellSize);
+        const cellZ : number = Math.floor(z / this.cellSize);
 
         if (cellX !== 0 || cellY !== 0 || cellZ !== 0)
             return null;
@@ -108,7 +130,7 @@ export default class Voxel
         return this.cell;
     }
 
-    public setVoxel(x, y, z, v)
+    public setVoxel(x : number, y : number, z : number, v : number) : void
     {
         let cell = this.getCellForVoxel(x, y, z);
 
@@ -119,43 +141,55 @@ export default class Voxel
         cell[voxelOffset] = v;
     }
 
-    public getVoxel(x, y, z) {
+    public getVoxel(x : number, y : number, z : number) {
         const cell = this.getCellForVoxel(x, y, z);
 
         if (!cell)
             return 0;
 
-        const voxelOffset = this.computeVoxelOffset(x, y, z);
+        const voxelOffset : number = this.computeVoxelOffset(x, y, z);
         return cell[voxelOffset];
     }
 
-    public getVoxelPosition(x, y, z) {
+    public getVoxelPosition(x : number, y : number, z : number) : CANNON.Vec3 {
         return new CANNON.Vec3(x + 0.5, y + 0.5, z + 0.5)
     }
 
-    public async displayVoxelWorld(scene, world) {
+    public async displayVoxelWorld(scene : THREE.Scene) {
         const perlinArray = await this.perlin.getArray();
+
+        const loader : THREE.TextureLoader = new THREE.TextureLoader();
+        const texture : THREE.Texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/minecraft/flourish-cc-by-nc-sa.png');
+        texture.magFilter = THREE.NearestFilter;
+        texture.minFilter = THREE.NearestFilter;
 
         if (perlinArray == null)
             return;
 
-        let counter = 0;
+        let counter : number = 0;
 
         for (let y = 0; y < this.perlin.getTexture().image.height; ++y) {
             for (let x = 0; x < this.perlin.getTexture().image.width; ++x) {
                 //compute height by red contrast
                 for (let height = perlinArray[counter][0] * 0.05; height >= 0; height--) {
-                    this.setVoxel(x, height, y, 1);
+                    this.setVoxel(x, height, y, 14);
                 }
                 counter++;
             }
         }
-        const {positions, normals, indices} = this.generateGeometryDataForCell(0, 0, 0, world);
-        const geometry = new THREE.BufferGeometry();
-        const material = new THREE.MeshLambertMaterial({color: 'green'});
+        const {positions, normals, uvs, indices} = this.generateGeometryDataForCell(0, 0, 0);
+        const geometry : THREE.BufferGeometry = new THREE.BufferGeometry();
+        const material : THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial({
+            map: texture,
+            side: THREE.DoubleSide,
+            alphaTest: 0.1,
+            transparent: true,
+        });
 
-        const positionNumComponents = 3;
-        const normalNumComponents = 3;
+
+        const positionNumComponents : number= 3;
+        const normalNumComponents : number = 3;
+        const uvNumComponents : number = 2;
 
         geometry.setAttribute(
             'position',
@@ -165,15 +199,21 @@ export default class Voxel
             'normal',
             new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents)
         );
+        geometry.setAttribute(
+            'uv',
+            new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
         geometry.setIndex(indices);
+
         this.mesh = new THREE.Mesh(geometry, material);
         scene.add(this.mesh);
     }
 
-    public generateGeometryDataForCell(cellX, cellY, cellZ, world)
+    public generateGeometryDataForCell(cellX : number, cellY : number, cellZ : number)
     {
+        const { cellSize, tileSize, tileTextureWidth, tileTextureHeight } = this;
         const positions = [];
         const normals = [];
+        const uvs = [];
         const indices = [];
         const startX = cellX * this.cellSize;
         const startY = cellY * this.cellSize;
@@ -187,7 +227,8 @@ export default class Voxel
                     const voxX = startX + x;
                     const vox = this.getVoxel(voxX, voxY, voxZ);
                     if (vox) {
-                        for (const { dir, corners } of this.faces) {
+                        const uvVoxel = vox - 1;
+                        for (const { dir, corners, uvRow } of this.faces) {
                             const neighbor = this.getVoxel(
                                 voxX + dir[0],
                                 voxY + dir[1],
@@ -195,9 +236,12 @@ export default class Voxel
 
                             if (!neighbor) {
                                 const ndx = positions.length / 3;
-                                for (const pos of corners) {
+                                for (const { pos, uv } of corners) {
                                     positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
                                     normals.push(...dir);
+                                    uvs.push(
+                                        (uvVoxel +   uv[0]) * tileSize / tileTextureWidth,
+                                        1 - (uvRow + 1 - uv[1]) * tileSize / tileTextureHeight);
                                 }
                                 indices.push(
                                     ndx, ndx + 1, ndx + 2,
@@ -212,6 +256,7 @@ export default class Voxel
         return {
             positions,
             normals,
+            uvs,
             indices,
         }
     }

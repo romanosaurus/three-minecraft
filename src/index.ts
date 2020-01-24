@@ -29,7 +29,7 @@ class Window
     // Time handling
     private clock : THREE.Clock;
     private deltaTime : number;
-    private voxelGenerator : Voxel = new Voxel(128);
+    private voxelGenerator : Voxel = new Voxel({cellSize: 128, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16});
 
     constructor() {
         this.scene = new THREE.Scene();
@@ -94,7 +94,7 @@ class Window
         LightningUtilities.AddLight(this.scene, -1,  2,  4);
         LightningUtilities.AddLight(this.scene, 1, -1, -2);
 
-        this.voxelGenerator.displayVoxelWorld(this.scene, this.world);
+        this.voxelGenerator.displayVoxelWorld(this.scene);
 
         this.firstPersonUtils = new CameraMovement(this.physicsSystem.GetPhysicsObject(0).mesh, this.camera);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
