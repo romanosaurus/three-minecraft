@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 import Object3 from "./../models/Object3";
 import { MOUSE, Raycaster, Scene } from "three";
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
 
 export default class CameraMovement
 {
@@ -13,6 +14,8 @@ export default class CameraMovement
     private speed: number;
 
     private pointerLockActivated: boolean;
+
+    private controls: PointerLockControls;
 
     private cursor: THREE.Mesh;
 
@@ -33,6 +36,8 @@ export default class CameraMovement
         this.pointerLockActivated = true;
 
         this.quat = new THREE.Quaternion();
+
+        this.controls = new PointerLockControls( camera, document.body );
 
         camera.position.set( object.position.x + 1, object.position.y + 8, object.position.z );
         camera.rotation.set( object.rotation.x, object.rotation.y, object.rotation.z );
@@ -60,31 +65,33 @@ export default class CameraMovement
         camera.quaternion.setFromEuler(euler);
     }
 
-    private updateCameraPointer(camera : THREE.Camera)
-    {
-        if ( this.pointerLockActivated )
-            document.body.requestPointerLock();
-        else
-            document.exitPointerLock();
-    }
-
-    private CameraPointerLock( keyPressed )
-    {
-        if (keyPressed.key == "e") {
-            if (!this.pointerLockActivated )
-                this.pointerLockActivated = true;
-            else
-                this.pointerLockActivated = false;
-        }
-    }
     public Update(camera : THREE.Camera, object : THREE.Mesh) : void {
         camera.position.set(object.position.x, object.position.y + 1, object.position.z);
-        this.updateCameraPointer( camera );
+        this.updatePointerLock();
+    }
+
+    private updatePointerLock()
+    {
+        if ( this.pointerLockActivated )
+            this.controls.unlock();
+        else 
+            this.controls.lock();
+    }
+
+    private PointerLockChange( key_pressed )
+    {
+        if ( key_pressed.key == 'e' ) {
+            if ( this.pointerLockActivated )
+                this.pointerLockActivated = false;
+            else
+                this.pointerLockActivated = true;
+        }
     }
 
     // Add listeners for mouse move
     public CameraListeners(camera : THREE.Camera): void {
         document.addEventListener( 'mousemove', ( mouse_event ) => { this.CameraMovement(mouse_event, camera) });
-        document.addEventListener( 'keydown', ( key_pressed ) => { this.CameraPointerLock(key_pressed) });
+        document.addEventListener( 'keypress', ( key_preesed ) => { this.PointerLockChange(key_preesed) });
+
     }
 }
