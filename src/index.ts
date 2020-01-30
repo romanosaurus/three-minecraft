@@ -4,6 +4,7 @@ import ThreeSystem from "./systems/ThreeSystem";
 import CannonSystem from "./systems/CannonSystem";
 import FirstPersonSystem from "./systems/FirstPersonSystem";
 import WalkingPhysicsSystem from "./systems/WalkingPhysicsSystem";
+import WorldGenerationSystem from "./systems/WorldGenerationSystem";
 
 class Window {
     run() : void {
@@ -13,8 +14,10 @@ class Window {
         ecsWrapper.systemManager.newSystem<CannonSystem>(new CannonSystem("CannonSystem"));
         ecsWrapper.systemManager.newSystem<FirstPersonSystem>(new FirstPersonSystem("FirstPersonSystem"));
         ecsWrapper.systemManager.newSystem<WalkingPhysicsSystem>(new WalkingPhysicsSystem("WalkingPhysicsSystem"));
+        ecsWrapper.systemManager.newSystem<WorldGenerationSystem>(new WorldGenerationSystem("WorldGenerationSystem"));
         ecsWrapper.systemManager.startSystem("ThreeSystem");
         ecsWrapper.systemManager.startSystem("CannonSystem");
+        ecsWrapper.systemManager.startSystem("WorldGenerationSystem");
         ecsWrapper.systemManager.startSystem("FirstPersonSystem");
         ecsWrapper.systemManager.startSystem("WalkingPhysicsSystem");
 
