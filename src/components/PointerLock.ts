@@ -12,6 +12,7 @@ class PointerLock extends AComponent {
     constructor(entity: IEntity, camera : THREE.Camera) {
         super(entity);
 
+        this._pointerLockActivated = false;
         this._controls = new PointerLockControls( camera, document.body );
         this.controls.addEventListener( 'lock', () => { this.pointerLockActivated = true });
         this.controls.addEventListener( 'unlock', () => { this.pointerLockActivated = false });
