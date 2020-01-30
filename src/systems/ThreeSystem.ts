@@ -65,7 +65,7 @@ class ThreeSystem extends ASystem {
             10
         ));
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
-        playerEntity.getComponent(Camera).setPosition(-32 * .3, 32 * .8, -32 * .3);
+        playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
 
 
         ecsWrapper.entityManager.applyToEach(["Box"], (entity) => {

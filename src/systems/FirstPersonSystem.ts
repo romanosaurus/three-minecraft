@@ -80,7 +80,7 @@ class FirstPersonSystem extends ASystem {
         });
 
         ecsWrapper.entityManager.applyToEach(["Box", "Camera"], (entity) => {
-            entity.getComponent(Camera).setPosition(
+            entity.getComponent(Camera).camera.position.set(
                 entity.getComponent(Box).mesh.position.x,
                 entity.getComponent(Box).mesh.position.y,
                 entity.getComponent(Box).mesh.position.z

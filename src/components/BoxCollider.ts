@@ -11,22 +11,11 @@ class BoxCollider extends AComponent {
     constructor(entity: IEntity, position: THREE.Vector3, size: THREE.Vector3, mass: number) {
         super(entity);
 
-        this._shape = new CANNON.Box(
-            new CANNON.Vec3(
-                size.x / 2,
-                size.y / 2,
-                size.z / 2
-            )
-        );
-
+        this._shape = new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2));
         this._body = new CANNON.Body({ mass: mass });
         this._body.fixedRotation = true;
         this._body.addShape(this._shape);
-        this._body.position.set(
-            position.x,
-            position.y,
-            position.z
-        );
+        this._body.position.set(position.x, position.y, position.z);
     }
 
     get body(): CANNON.Body {

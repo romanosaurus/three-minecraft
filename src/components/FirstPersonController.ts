@@ -23,12 +23,7 @@ class FirstPersonController extends AComponent {
         this.rotationSpeed = rotationSpeed;
         this.movementSpeed = movementSpeed;
         this.euler = new THREE.Euler();
-        this.direction = {
-            left: 0,
-            right: 0,
-            forward: 0,
-            backward: 0
-        }
+        this.direction = { left: 0, right: 0, forward: 0, backward: 0 };
     }
 
     keyUp(keyEvent: KeyboardEvent) {
@@ -77,7 +72,7 @@ class FirstPersonController extends AComponent {
     }
 
     set jumping(jump: boolean) {
-        this.isJumping = false;
+        this.isJumping = jump;
     }
 }
 
