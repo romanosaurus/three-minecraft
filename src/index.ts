@@ -5,6 +5,7 @@ import CannonSystem from "./systems/CannonSystem";
 import FirstPersonSystem from "./systems/FirstPersonSystem";
 import WalkingPhysicsSystem from "./systems/WalkingPhysicsSystem";
 import WorldGenerationSystem from "./systems/WorldGenerationSystem";
+import PointerLock from "./components/PointerLock";
 
 class Window {
     run() : void {
@@ -24,7 +25,11 @@ class Window {
         document.addEventListener( 'mousemove', ( mouseEvent ) => { ecsWrapper.systemManager.setEvent("mouseEvent", mouseEvent); });
         document.addEventListener('keydown', (keyDown) => { ecsWrapper.systemManager.setEvent("keyDown", keyDown); });
         document.addEventListener('keyup', (keyUp) => { ecsWrapper.systemManager.setEvent("keyUp", keyUp); });
-        document.addEventListener( 'click', ( clickEvent ) => { ecsWrapper.systemManager.setEvent("click", clickEvent); });
+        document.addEventListener( 'click', ( clickEvent ) => {
+            ecsWrapper.entityManager.applyToEach(["PointerLock"], (entity) => {
+                entity.getComponent(PointerLock).lockPointer();
+            });
+        });
 
         ecsWrapper.systemManager.run();
     }

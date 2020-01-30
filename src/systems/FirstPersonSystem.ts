@@ -14,14 +14,8 @@ class FirstPersonSystem extends ASystem {
     onUpdate(elapsedTime: number): void {
         const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
 
-        ecsWrapper.entityManager.applyToEach(["PointerLock"], (entity) => {
-            const clickEvent = this.events["click"];
-            
-            if (clickEvent !== undefined)
-                entity.getComponent(PointerLock).lockPointer();
-        });
         ecsWrapper.entityManager.applyToEach(["Camera", "FirstPersonController", "PointerLock"], (entity) => {
-            if ( entity.getComponent(PointerLock).pointerLockActivated ) {
+            if (entity.getComponent(PointerLock).pointerLockActivated) {
 
                 const euler = new THREE.Euler(0, 0, 0, 'YXZ');
                 const mouseEvent = this.events["mouseEvent"];
