@@ -56,7 +56,7 @@ export default class PerlinGenerator {
 
                 for (let j = 0; j < this.height; ++j) {
                     for (let i = 0; i < this.width; ++i) {
-                        let val = sampler.getValue((i + startingHeight) * localPeriodInv, (j + startingWidth) * localPeriodInv);
+                        let val = sampler.getValue((i + startingWidth) * localPeriodInv, (j + startingHeight) * localPeriodInv);
                         raster[(i + j * this.width) * numChannels + k] += val * Math.pow(freqInv, this.spec.atten);
                     }
                 }

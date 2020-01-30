@@ -8,6 +8,7 @@ import FirstPersonController from "../components/FirstPersonController";
 import Box from "../components/Box";
 import Camera from "../components/Camera";
 import BoxCollider from "../components/BoxCollider";
+import PointerLock from "../components/PointerLock";
 
 import Voxel from "../components/Voxel";
 
@@ -46,7 +47,7 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<Box>(new Box(
             playerEntity,
             new THREE.Vector3(1, 3, 1),
-            new THREE.Vector3(10, 30, 10))
+            new THREE.Vector3(10, 50, 10))
         );
         playerEntity.assignComponent<Camera>(
             new Camera(
@@ -63,7 +64,9 @@ class ThreeSystem extends ASystem {
             playerEntity.getComponent(Box).getSize(),
             10
         ));
+        playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
+
 
         ecsWrapper.entityManager.applyToEach(["Box"], (entity) => {
             this.scene.add(entity.getComponent(Box).mesh);
