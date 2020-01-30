@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon';
 
 import PerlinImage from '../utils/PerlinImage';
+import PerlinGenerator from './PerlinGenerator';
 import AComponent from "../ecs/abstract/AComponent";
 import IEntity from "../ecs/interfaces/IEntity";
 
@@ -30,9 +31,13 @@ export default class Voxel extends AComponent
     private mesh : THREE.Mesh;
     private boxColliders : Array<BoxCollider>;
 
+    //a delete, generation preocedurale
+    private map;
     constructor(entity: IEntity, options : Options)
     {
         super(entity);
+        // a delete
+        this.map = new PerlinGenerator(options.cellSize, options.cellSize);
         this.cellSize = options.cellSize;
         this.tileSize = options.tileSize;
         this.tileTextureWidth = options.tileTextureWidth;
@@ -42,7 +47,7 @@ export default class Voxel extends AComponent
         this.cell = new Uint8Array(cellSize * cellSize * cellSize);
         this.cellSliceSize = cellSize * cellSize;
 
-        this.perlin = new PerlinImage("assets/perlin/perlin.png");
+//        this.perlin = new PerlinImage("assets/perlin/perlin.png");
         this.mesh = new THREE.Mesh();
         this.boxColliders = [];
 
@@ -159,7 +164,7 @@ export default class Voxel extends AComponent
     }
 
     public async displayVoxelWorld(scene : THREE.Scene) {
-        const perlinArray = await this.perlin.getArray();
+        const perlinArray = this.map.getData();
 
         const loader : THREE.TextureLoader = new THREE.TextureLoader();
         const texture : THREE.Texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/minecraft/flourish-cc-by-nc-sa.png');
@@ -171,13 +176,12 @@ export default class Voxel extends AComponent
 
         let counter : number = 0;
 
-        for (let y = 0; y < this.perlin.getTexture().image.height; ++y) {
-            for (let x = 0; x < this.perlin.getTexture().image.width; ++x) {
-                //compute height by red contrast
-                for (let height = perlinArray[counter][0] * 0.05; height >= 0; height--) {
+        console.log(this.tileSize);
+        for (let y = 0; y < this.map.getHeight(); ++y) {
+            for (let x = 0; x < this.map.getWidth(); ++x) {
+                for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--)
                     this.setVoxel(x, height, y, 14);
-                }
-                counter++;
+                counter += 4;
             }
         }
         const {positions, normals, uvs, indices} = this.generateGeometryDataForCell(0, 0, 0);
