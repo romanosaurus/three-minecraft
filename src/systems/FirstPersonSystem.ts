@@ -6,6 +6,7 @@ import Camera from "../components/Camera";
 import FirstPersonController from "../components/FirstPersonController";
 import Box from "../components/Box";
 import BoxCollider from "../components/BoxCollider";
+import PointerLock from '../components/PointerLock';
 
 class FirstPersonSystem extends ASystem {
     onInit() {}
@@ -13,23 +14,26 @@ class FirstPersonSystem extends ASystem {
     onUpdate(elapsedTime: number): void {
         const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
 
-        ecsWrapper.entityManager.applyToEach(["Camera", "FirstPersonController"], (entity) => {
-            const euler = new THREE.Euler(0, 0, 0, 'YXZ');
-            const mouseEvent = this.events["mouseEvent"];
-            let movementX: number = 0;
-            let movementY: number = 0;
+        ecsWrapper.entityManager.applyToEach(["Camera", "FirstPersonController", "PointerLock"], (entity) => {
+            if (entity.getComponent(PointerLock).pointerLockActivated) {
 
-            if (mouseEvent !== undefined) {
-                movementX = mouseEvent.movementX || mouseEvent.mozMovementX || mouseEvent.webkitMovementX || 0;
-                movementY = mouseEvent.movementY || mouseEvent.mozMovementY || mouseEvent.webkitMovementY || 0;
+                const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+                const mouseEvent = this.events["mouseEvent"];
+                let movementX: number = 0;
+                let movementY: number = 0;
+
+                if (mouseEvent !== undefined) {
+                    movementX = mouseEvent.movementX || mouseEvent.mozMovementX || mouseEvent.webkitMovementX || 0;
+                    movementY = mouseEvent.movementY || mouseEvent.mozMovementY || mouseEvent.webkitMovementY || 0;
+                }
+
+                euler.setFromQuaternion(entity.getComponent(Camera).camera.quaternion);
+                euler.y -= movementX * entity.getComponent(FirstPersonController).rotationSpeed.y;
+                euler.x -= movementY * entity.getComponent(FirstPersonController).rotationSpeed.x;
+
+                euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+                entity.getComponent(Camera).camera.quaternion.setFromEuler(euler);
             }
-
-            euler.setFromQuaternion(entity.getComponent(Camera).camera.quaternion);
-            euler.y -= movementX * entity.getComponent(FirstPersonController).rotationSpeed.y;
-            euler.x -= movementY * entity.getComponent(FirstPersonController).rotationSpeed.x;
-
-            euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
-            entity.getComponent(Camera).camera.quaternion.setFromEuler(euler);
         });
 
         ecsWrapper.entityManager.applyToEach(["Camera", "Box", "FirstPersonController", "BoxCollider"], (entity) => {
