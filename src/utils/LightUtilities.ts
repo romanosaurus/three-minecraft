@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export default class LightningUtilities
+export default class LightUtilities
 {
     public static AddLight(scene, x, y, z, color=0xFFFFFF)
     {

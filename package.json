@@ -36,8 +36,10 @@
   "dependencies": {
     "@avatsaev/three-orbitcontrols-ts": "^0.1.5",
     "@types/cannon": "^0.1.4",
+    "@types/stats.js": "^0.17.0",
     "@types/three": "latest",
     "cannon": "^0.6.2",
+    "stats.js": "^0.17.0",
     "three": "latest",
     "three-orbitcontrols-ts": "^0.1.2"
   }

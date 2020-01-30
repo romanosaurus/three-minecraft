@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
 
-import PerlinImage from './PerlinImage';
+import PerlinImage from '../utils/PerlinImage';
 import PerlinGenerator from './PerlinGenerator';
+import AComponent from "../ecs/abstract/AComponent";
+import IEntity from "../ecs/interfaces/IEntity";
 
 interface BoxCollider {
     position: CANNON.Vec3,
@@ -16,7 +18,7 @@ interface Options {
     tileTextureHeight: number
 }
 
-export default class Voxel
+export default class Voxel extends AComponent
 {
     private readonly cellSize: number;
     private readonly faces;
@@ -31,8 +33,9 @@ export default class Voxel
 
     //a delete, generation preocedurale
     private map;
-    constructor(options : Options)
+    constructor(entity: IEntity, options : Options)
     {
+        super(entity);
         // a delete
         this.map = new PerlinGenerator(32, 32);
         this.cellSize = options.cellSize;
@@ -314,7 +317,8 @@ export default class Voxel
             }
         }
         for (let i = 0; i < indexToDelete.length; i++) {
-            world.remove(this.boxColliders[indexToDelete[i]].body);
+            if (this.boxColliders[indexToDelete[i]] !== undefined)
+                world.remove(this.boxColliders[indexToDelete[i]].body);
             this.boxColliders.splice(indexToDelete[i], 1);
         }
     }
