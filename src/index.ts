@@ -29,7 +29,7 @@ class Window
     // Time handling
     private clock : THREE.Clock;
     private deltaTime : number;
-    private voxelGenerator : Voxel = new Voxel({cellSize: 128, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16});
+    private voxelGenerator : Voxel = new Voxel({cellSize: 32, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16});
 
     constructor() {
         this.scene = new THREE.Scene();
@@ -64,14 +64,14 @@ class Window
         this.physicsSystem.AddPhysicsObject(new Box({
             name: "First box",
             x: 10.5,
-            y: 13,
+            y: 23,
             z: 10.5,
             width: 1,
             height: 2,
             depth: 1,
             color: 0xFFFF00,
             rigid: true,
-            mass: 100
+            mass: 0
         }));
         this.physicsSystem.AddPhysicsObject(new Box({
             name: "Second box",
@@ -79,7 +79,7 @@ class Window
             y: 0,
             z: 8,
             width: 1.5,
-            height: 2.5,
+            height: 10,
             depth: 1,
             color: 0xFFFF00,
             rigid: true,

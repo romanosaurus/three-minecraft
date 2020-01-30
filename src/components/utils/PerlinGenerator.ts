@@ -1,95 +1,286 @@
 import * as THREE from 'three';
 
-export default class PerlinGenerator
-{
-    private p : Array<number>;
-    private permutation : Array<number>;
-    constructor(size : number) {
-        for (let i = 0; i < size * 2; i++)
-            this.p.push(0);
-        for (let i = 0; i < size; i++)
-            this.permutation.push(i);
-        for (let i = this.permutation.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * i);
-            const temp = this.permutation[i];
-            this.permutation[i] = this.permutation[j];
-            this.permutation[j] = temp;
+class Random {
+    private m : number;
+    private a : number;
+    private q : number;
+    private r : number;
+    private seed : number;
+    constructor() {
+        this.m = 2147483647; //2^31 - 1
+        this.a = 16807; //7^5; primitive root of m
+        this.q = 127773; // m / a
+        this.r = 2836; // m % a
+        this.seed = 1;
+    }
+    public setSeed(seed) {
+        if (seed <= 0) {
+            seed = -(seed % (this.m - 1)) + 1;
         }
-        for (let i = 0; i < size; i++) {
-            this.p[i] = this.permutation[i];
-            this.p[size + 1] = this.permutation[i];
+        if (seed > this.m - 1) {
+            seed = this.m - 1;
         }
+        this.seed = seed;
     }
-    private noiseTesting(x : number, y : number, z : number) {
-        let X : number = Math.floor(x) & 255;                  // FIND UNIT CUBE THAT
-        let Y : number= Math.floor(y) & 255;                  // CONTAINS POINT.
-        let Z : number= Math.floor(z) & 255;
-        x -= Math.floor(x);                                // FIND RELATIVE X,Y,Z
-        y -= Math.floor(y);                                // OF POINT IN CUBE.
-        z -= Math.floor(z);
-        let u : number = this.fade(x);                                // COMPUTE FADE CURVES
-        let v : number = this.fade(y);                                // FOR EACH OF X,Y,Z.
-        let w : number = this.fade(z);
-        let A : number = p[X] + Y;
-        let AA : number = p[A] + Z;
-        let AB : number = p[A + 1] + Z;      // HASH COORDINATES OF
-        let B : number = p[X + 1] + Y;
-        let BA : number = p[B]+Z;
-        let BB : number= p[B + 1]+Z;      // THE 8 CUBE CORNERS,
- 
-       return this.lerp(w, this.lerp(v, this.lerp(u, this.grad(p[AA  ], x  , y  , z   ),  // AND ADD
-                                      this.grad(p[BA  ], x-1, y  , z   )), // BLENDED
-                              this.lerp(u, this.grad(p[AB  ], x  , y-1, z   ),  // RESULTS
-                                      this.grad(p[BB  ], x-1, y-1, z   ))),// FROM  8
-                      this.lerp(v, this.lerp(u, this.grad(p[AA+1], x  , y  , z-1 ),  // CORNERS
-                                      this.grad(p[BA+1], x-1, y  , z-1 )), // OF CUBE
-                              this.lerp(u, this.grad(p[AB+1], x  , y-1, z-1 ),
-                                      this.grad(p[BB+1], x-1, y-1, z-1 ))));
+    private nextLong() {
+        let res = this.a * (this.seed % this.q) - this.r * Math.floor(this.seed / this.q);
+        if (res <= 0) {
+            res += this.m;
+        }
+        this.seed = res;
+        return res;
     }
-    private fade(t : number) {
-        return (t * t * t * (t * (t * 6 - 15) + 10));
+    public next() {
+        let res = this.nextLong();
+        return res / this.m;
     }
-    private lerp(t : number, a : number, b : number) {
-        return a + t * (b - a);
-    }
-    private grad(hash : number, x : number, y : number, z : number) {
-        let h : number = hash & 15;                      // CONVERT LO 4 BITS OF HASH CODE
-        let u : number = h < 8 ? x : y;                 // INTO 12 GRADIENT DIRECTIONS.
-        let v : number = h < 4 ? y : h ===12 || h === 14 ? x : z;
+};
 
-        return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
-     }
-    private Generate(size : number) {
-        let testArray : Array<Array<number>>;
-        let octaves : number = 8;
-        let persistence : number = 0.8;
-        let amplitude : number = 1.0;
-        let maxamplitude : number = 1.0;
-        for (let octave = 0; octave < octaves; octave++) {
-            amplitude *= persistence;
-            maxamplitude += amplitude;
-        }
-        for (let x = 0; x < size; x++) {
-            for (let y = 0; y < size; y++) {
-                let sc = size / (size / 16);
-                let frequency = 1.0;
-                let amplitude = 1.0;
-                let color = 0.0;
-                for (let octave = 0; octave < octaves; octave++) {
-                    sc *= frequency;
-                    let grey = this.noiseTesting(sc * x / size, sc * y / size, 0.0);
-                    grey = (grey + 1.0) / 2.0;
-                    grey *= amplitude;
-                    color += grey;
-                    frequency *= 2.0;
-                    amplitude *= persistence;
-                }
-                color /= maxamplitude;
-                color = Math.round(color*255.0);
-                testArray[x][y] = color;
-//                surface.set_at((x,y),(color,color,color))
+export default class PerlinGenerator {
+    private width : number;
+    private height : number;
+    private data;
+    private spec;
+    constructor(width : number, height : number) {
+        this.width = width;
+        this.height = height;
+        this.data = new Array(width * height * 4);
+        this.spec = {};
+        this.spec.randseed = 1;
+        this.spec.period = 32;
+        this.spec.levels = 3;
+        this.spec.atten = 0.1;
+        this.spec.absolute = false;
+        this.spec.color = false;
+        this.spec.alpha = false;
+        this.createTurbulence(this.spec);
+    }
+    public getWidth() {
+        return this.width;
+    }
+    public getHeight() {
+        return this.height;
+    }
+    public async getData() {
+        return this.data;
+    }
+    private setColor(x, y, color) {
+        var offset = ((y * this.width) + x) * 4;
+        
+        this.data[offset] = color.r;
+        this.data[offset + 1] = color.g;
+        this.data[offset + 2] = color.b;
+        this.data[offset + 3] = color.a;
+    }
+
+    private setRgba = function(x, y, r, g, b, a) {
+        var offset = ((y * this.width) + x) * 4;
+        
+        this.data[offset] = r;
+        this.data[offset + 1] = g;
+        this.data[offset + 2] = b;
+        this.data[offset + 3] = a;
+    }
+    private createPerlinNoise(period, randseed) {
+        var sampler = new PerlinSampler2D(Math.ceil(this.width / period), Math.ceil(this.height / period), randseed);
+        
+        for (var j = 0; j < this.height; ++j)
+        {
+            for (var i = 0; i < this.width; ++i)
+            {
+                var val = sampler.getValue(i / period, j / period);
+                var b = (val + 1) / 2 * 256;
+                
+                this.setRgba(i, j, 
+                b, b, b, 0xff);
             }
         }
-        return testArray;
     }
-}
+    public createTurbulence(spec) {
+        var numChannels = spec.color ? 3 : 1 + spec.alpha ? 1 : 0;
+        var raster = new Array(this.width * this.height * numChannels);
+        
+        for (var i = 0; i < raster.length; ++i)
+        {
+            raster[i] = 0;
+        }
+
+        for (var k = 0; k < numChannels; ++k)
+        {
+//            var localPeriod = spec.period;
+            var localPeriodInv = 1 / spec.period;
+            var freqInv = 1;
+            var atten = 1;
+            var weight = 0;
+            for (var lvlIdx = 0; lvlIdx < spec.levels; ++lvlIdx)
+            {
+                var sampler = new PerlinSampler2D(Math.ceil(this.width * localPeriodInv), Math.ceil(this.height * localPeriodInv), spec.randseed + k + lvlIdx);
+
+                for (var j = 0; j < this.height; ++j)
+                {
+                    for (var i = 0; i < this.width; ++i)
+                    {
+                        var val = sampler.getValue(i * localPeriodInv, j * localPeriodInv);
+                        raster[(i + j * this.width) * numChannels + k] += val * Math.pow(freqInv, spec.atten);
+                    }
+                }
+                weight += Math.pow(freqInv, spec.atten);
+                freqInv *= .5;
+                localPeriodInv *= 2;
+//                atten /= 2;
+                atten *= spec.atten;
+            }
+
+			var weightInv = 1 / weight;            
+			for (var j = 0; j < this.height; ++j)
+			{
+				for (var i = 0; i < this.width; ++i)
+				{
+					raster[(i + j * this.width) * numChannels + k] *= weightInv;
+				}
+			}
+            
+        }
+                
+        for (var j = 0; j < this.height; ++j)
+        {
+            for (var i = 0; i < this.width; ++i)
+            {
+                var offset = (i + j * this.width) * numChannels;
+//                var val = raster[offset];
+                var r, g, b, a;
+                
+                if (spec.color)
+                {
+                    r = raster[offset];
+                    g = raster[offset + 1];
+                    b = raster[offset + 2];
+                    a = spec.alpha ? raster[offset + 3] : 1;
+                }
+                else
+                {
+                    r = g = b = raster[offset];
+                    a = spec.alpha ? raster[offset + 1] : 1;
+                }
+                
+                if (spec.absolute)
+                {
+                    r = Math.abs(r) * 255;
+                    g = Math.abs(g) * 255;
+                    b = Math.abs(b) * 255;
+                    a = Math.abs(a) * 255;
+                }
+                else
+                {
+                    r = ((r + 1) / 2) * 255;
+                    g = ((g + 1) / 2) * 255;
+                    b = ((b + 1) / 2) * 255;
+                    a = ((a + 1) / 2) * 255;
+                }
+                
+                this.setRgba(i, j, 
+                r, g, b, a);
+            }
+        }
+    }
+    private createChecker(period) {
+        for (var j = 0; j < this.height; ++j)
+        {
+            for (var i = 0; i < this.width; ++i)
+            {
+                if ((Math.floor(j / period) + Math.floor(i / period)) % 2 === 0)
+                {
+                    this.setRgba(i, j, 0, 0, 0, 0xff);
+                }
+                else
+                {
+                    this.setRgba(i, j, 0xff, 0xff, 0xff, 0xff);
+                }
+            }
+        }
+    }
+    /*
+    private toImageContext(ctx) {
+        var imgData = ctx.createImageData(this.width, this.height);
+
+        for (var i = 0, len = width * height * 4; i < len; i++)
+        {
+            imgData.data[i] = this.data[i];
+        }
+        
+        return imgData;
+    }*/
+};
+/*
+function Color(r, g, b, a)
+{
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+}*/
+
+class PerlinSampler2D {
+    private width : number;
+    private height : number;
+    private randseed : number;
+    private gradients;
+    constructor(width, height, randseed) {
+        this.width = width;
+        this.height = height;
+        this.randseed = randseed;
+        this.gradients = new Array(width * height * 2);
+        this.sampler(randseed);
+    }
+    private sampler(randseed : number) {
+        let rand = new Random();
+        rand.setSeed(randseed);
+
+        for (let i = 0; i < this.gradients.length; i += 2) {
+            let x, y;
+            let angle = rand.next() * Math.PI * 2;
+            x = Math.sin(angle);
+            y = Math.cos(angle);
+            this.gradients[i] = x;
+            this.gradients[i + 1] = y;
+        }
+    }
+    private dot = function(cellX, cellY, vx, vy)
+    {
+        let offset = (cellX + cellY * this.width) * 2;
+        let wx = this.gradients[offset];
+        let wy = this.gradients[offset + 1];
+        return wx * vx + wy * vy;
+    }
+    private lerp(a, b, t) {
+        return a + t * (b - a);
+    }
+    
+    private sCurve(t) {
+        return t * t * (3 - 2 * t);
+    }
+    public getValue(x, y)
+    {
+        var xCell = Math.floor(x);
+        var yCell = Math.floor(y);
+        var xFrac = x - xCell;
+        var yFrac = y - yCell;
+        
+        var x0 = xCell;
+        var y0 = yCell;
+        var x1 = xCell === this.width - 1 ? 0 : xCell + 1;
+        var y1 = yCell === this.height - 1 ? 0 : yCell + 1;
+        
+        
+        
+        var v00 = this.dot(x0, y0, xFrac, yFrac);
+        var v10 = this.dot(x1, y0, xFrac - 1, yFrac);
+        var v01 = this.dot(x0, y1, xFrac, yFrac - 1);
+        var v11 = this.dot(x1, y1, xFrac - 1, yFrac - 1);
+        
+        var vx0 = this.lerp(v00, v10, this.sCurve(xFrac));
+        var vx1 = this.lerp(v01, v11, this.sCurve(xFrac));
+        
+        return this.lerp(vx0, vx1, this.sCurve(yFrac));
+    };
+};

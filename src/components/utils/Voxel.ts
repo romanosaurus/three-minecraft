@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon';
 
 import PerlinImage from './PerlinImage';
+import PerlinGenerator from './PerlinGenerator';
 
 interface BoxCollider {
     position: CANNON.Vec3,
@@ -28,8 +29,12 @@ export default class Voxel
     private mesh : THREE.Mesh;
     private boxColliders : Array<BoxCollider>;
 
+    //a delete, generation preocedurale
+    private map;
     constructor(options : Options)
     {
+        // a delete
+        this.map = new PerlinGenerator(32, 32);
         this.cellSize = options.cellSize;
         this.tileSize = options.tileSize;
         this.tileTextureWidth = options.tileTextureWidth;
@@ -39,7 +44,7 @@ export default class Voxel
         this.cell = new Uint8Array(cellSize * cellSize * cellSize);
         this.cellSliceSize = cellSize * cellSize;
 
-        this.perlin = new PerlinImage("assets/perlin/perlin.png");
+//        this.perlin = new PerlinImage("assets/perlin/perlin.png");
         this.mesh = new THREE.Mesh();
         this.boxColliders = [];
 
@@ -156,7 +161,7 @@ export default class Voxel
     }
 
     public async displayVoxelWorld(scene : THREE.Scene) {
-        const perlinArray = await this.perlin.getArray();
+        const perlinArray = await this.map.getData();
 
         const loader : THREE.TextureLoader = new THREE.TextureLoader();
         const texture : THREE.Texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/minecraft/flourish-cc-by-nc-sa.png');
@@ -167,14 +172,16 @@ export default class Voxel
             return;
 
         let counter : number = 0;
-
-        for (let y = 0; y < this.perlin.getTexture().image.height; ++y) {
-            for (let x = 0; x < this.perlin.getTexture().image.width; ++x) {
+        console.log(perlinArray);
+        for (let y = 0; y < this.map.getHeight(); ++y) {
+            for (let x = 0; x < this.map.getWidth(); ++x) {
                 //compute height by red contrast
-                for (let height = perlinArray[counter][0] * 0.05; height >= 0; height--) {
+//                console.log(perlinArray[counter] * 0.1);
+                for (let height = perlinArray[counter] * (32 / 255); height >= 0; height--) {
                     this.setVoxel(x, height, y, 14);
                 }
-                counter++;
+//                this.setVoxel(x, perlinArray[counter] * 0.1, y, 14);
+                counter += 4;
             }
         }
         const {positions, normals, uvs, indices} = this.generateGeometryDataForCell(0, 0, 0);
