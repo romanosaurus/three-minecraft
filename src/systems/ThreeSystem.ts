@@ -65,28 +65,12 @@ class ThreeSystem extends ASystem {
         ));
         playerEntity.getComponent(Camera).setPosition(-32 * .3, 32 * .8, -32 * .3);
 
-        ecsWrapper.entityManager.createEntity("world");
-
-        const worldEntity: IEntity = ecsWrapper.entityManager.getEntity("world");
-
-        worldEntity.assignComponent<Voxel>(
-            new Voxel(
-                worldEntity,
-                {cellSize: 128, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16}
-                )
-        );
-
         ecsWrapper.entityManager.applyToEach(["Box"], (entity) => {
             this.scene.add(entity.getComponent(Box).mesh);
         });
 
-        ecsWrapper.entityManager.applyToEach(["Voxel"], (entity) => {
-            entity.getComponent(Voxel).displayVoxelWorld(this.scene);
-        });
-
         ecsWrapper.entityManager.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
             entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {entity.getComponent(FirstPersonController).jumping = false});
-
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor('lightblue');
