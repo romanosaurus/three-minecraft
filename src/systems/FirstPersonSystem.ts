@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as CANNON from 'cannon';
 
 import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
@@ -9,10 +10,19 @@ import BoxCollider from "../components/BoxCollider";
 import PointerLock from '../components/PointerLock';
 
 class FirstPersonSystem extends ASystem {
+    private currentTime: number;
+    constructor(name: string) {
+        super(name);
+        this.currentTime = 0;
+    }
+
     onInit() {}
 
     onUpdate(elapsedTime: number): void {
         const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
+
+        const jumpingTime: number = 0.3;
+
 
         ecsWrapper.entityManager.applyToEach(["Camera", "FirstPersonController", "PointerLock"], (entity) => {
             if (entity.getComponent(PointerLock).pointerLockActivated) {
@@ -46,8 +56,20 @@ class FirstPersonSystem extends ASystem {
             if (keyDown)
                 firstPersonController.keyDown(keyDown);
 
-            if (firstPersonController.jumping) {
-                entity.getComponent(BoxCollider).body.position.y += (firstPersonController.movementSpeed.y * 20);
+            entity.getComponent(BoxCollider).body.mass = 10;
+            if (firstPersonController.jumping && this.currentTime < jumpingTime) {
+                if (this.currentTime < jumpingTime) {
+                    const force: number = 2;
+
+                    entity.getComponent(BoxCollider).body.mass = 0;
+                    entity.getComponent(BoxCollider).body.applyLocalImpulse(
+                        new CANNON.Vec3(0, force, 0),
+                        new CANNON.Vec3(0, 0, 0)
+                    );
+                    this.currentTime += (elapsedTime / 1000);
+                }
+            } else if (!firstPersonController.jumping && this.currentTime > jumpingTime) {
+                this.currentTime = 0;
             }
 
             let directionVector : THREE.Vector3 = new THREE.Vector3(
