@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
 
-import ACompoenent from "../ecs/abstract/AComponent";
 import IEntity from "../ecs/interfaces/IEntity";
 import AComponent from '../ecs/abstract/AComponent';
 
