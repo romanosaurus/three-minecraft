@@ -10,8 +10,6 @@ import Camera from "../components/Camera";
 import BoxCollider from "../components/BoxCollider";
 import PointerLock from "../components/PointerLock";
 
-import Voxel from "../components/Voxel";
-
 import Stats = require('stats.js');
 import LightUtilities from "../utils/LightUtilities";
 
@@ -34,9 +32,9 @@ class ThreeSystem extends ASystem {
         LightUtilities.AddLight(this.scene, -1,  2,  4);
         LightUtilities.AddLight(this.scene, 1, -1, -2);
 
-        ecsWrapper.entityManager.createEntity("Player");
+        ecsWrapper.entityManager.create("Player");
 
-        const playerEntity: IEntity = ecsWrapper.entityManager.getEntity("Player");
+        const playerEntity: IEntity = ecsWrapper.entityManager.getByName("Player")[0];
         playerEntity.assignComponent<FirstPersonController>(
             new FirstPersonController(
                 playerEntity,
@@ -73,7 +71,9 @@ class ThreeSystem extends ASystem {
         });
 
         ecsWrapper.entityManager.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
-            entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {entity.getComponent(FirstPersonController).jumping = false});
+            entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {
+                entity.getComponent(FirstPersonController).jumping = false
+            });
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor('lightblue');
@@ -95,7 +95,7 @@ class ThreeSystem extends ASystem {
 
         this.renderer.render(
             this.scene,
-            ECSWrapper.getInstance().entityManager.getEntity("Player").getComponent(Camera).camera
+            ECSWrapper.getInstance().entityManager.getByName("Player")[0].getComponent(Camera).camera
         );
     }
 

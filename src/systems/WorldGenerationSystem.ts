@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-
 import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import IEntity from "../ecs/interfaces/IEntity";
@@ -14,8 +12,8 @@ class WorldGenerationSystem extends ASystem {
     onInit(): void {
         const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
 
-        ecsWrapper.entityManager.createEntity("world");
-        const worldEntity: IEntity = ecsWrapper.entityManager.getEntity("world");
+        ecsWrapper.entityManager.create("world");
+        const worldEntity: IEntity = ecsWrapper.entityManager.getByName("world")[0];
 
         worldEntity.assignComponent<Voxel>(
             new Voxel(

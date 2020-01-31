@@ -3,7 +3,7 @@ import {ISystem, SystemState} from "../interfaces/ISystem";
 export default class ASystem implements ISystem {
     private readonly name : string;
     private state : SystemState;
-    public events : Object;
+    public events : Object | null;
 
     constructor(name : string) {
         this.name = name;
