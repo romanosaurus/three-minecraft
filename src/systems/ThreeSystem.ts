@@ -47,7 +47,7 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<Box>(new Box(
             playerEntity,
             new THREE.Vector3(1, 3, 1),
-            new THREE.Vector3(10, 50, 10))
+            new THREE.Vector3(128 * 2 + 10, 50, 128 * 2 + 10))
         );
         playerEntity.assignComponent<Camera>(
             new Camera(
