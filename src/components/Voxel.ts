@@ -299,7 +299,7 @@ export default class Voxel extends AComponent
         }
     }
 
-    public Update(player : CANNON.Body, world : CANNON.World, scene : THREE.Scene) {
+    public async Update(player : CANNON.Body, world : CANNON.World, scene : THREE.Scene) {
         let stock = [];
         const activeMesh = this.getActiveMesh(player.position.x, player.position.z);
         if (activeMesh === undefined)
@@ -355,14 +355,23 @@ export default class Voxel extends AComponent
         //updating mesh generation
         let currentHeightPos = Math.floor(player.position.z / this.cellSize);
         let currentWidthPos = Math.floor(player.position.x / this.cellSize);
+        let drawed = [];
         for (let height = currentHeightPos - 1; height <= currentHeightPos + 1; height++) {
             for (let width = currentWidthPos - 1; width <= currentWidthPos + 1; width++) {
-                const container = this.MeshContainer.getContainerAtPos(width + ',0,' + height);
+                const id : string = width + ',0,' + height;
+                const container = this.MeshContainer.getContainerAtPos(id);
+                if (container && !this.MeshContainer.isMeshDrawed(id)) {
+                    scene.add(container.drawableMesh);
+                    this.MeshContainer.setDrawedStatus(id, true);
+                }
                 if (!container) {
                     const mesh : MyMesh = new MyMesh(this.cellSize, height, width, this.generator);
                     this.displayVoxelWorld(scene, mesh);
                 }
+                drawed.push(id);
             }
         }
+        //delete to scene all drawed stuff that isn't in drawed
+        this.MeshContainer.deleteToSceneUselessDrawing(scene, drawed);
     }
 }
