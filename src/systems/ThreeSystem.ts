@@ -9,6 +9,7 @@ import Box from "../components/Box";
 import Camera from "../components/Camera";
 import BoxCollider from "../components/BoxCollider";
 import PointerLock from "../components/PointerLock";
+import FullScreen from "../utils/FullScreen";
 
 import Stats = require('stats.js');
 import LightUtilities from "../utils/LightUtilities";
@@ -84,9 +85,14 @@ class ThreeSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number): void {
+        const keyDown = this.events["keyDown"];
+
         this.stats.begin();
 
         this.stats.end();
+
+        if (keyDown)
+            FullScreen.keyDown(this.renderer, this.scene);
 
         requestAnimationFrame(() => {
             const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
