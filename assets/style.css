@@ -8,7 +8,8 @@ canvas {
 	display: block;
 }
 
-img {
+.image
+{
 	image-rendering: auto;
 	width: 90px;
 	height: 60px;
@@ -16,4 +17,74 @@ img {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+}
+
+.inventory-bar-table {
+	image-rendering: auto;
+	position: absolute;
+	top:99%;
+	left:50%;
+	margin-top:-25px;
+	margin-left:-150px;
+}
+
+.inventory-bar-row
+{
+    display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: flex-start;
+	align-content: flex-start;
+}
+
+.inventory-bar-cell
+{
+    width: 36px;
+    height: 36px;
+    
+    flex-shrink: 0;
+    
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+	
+	background-image: url('http://i.imgur.com/nOqKSbE.png');
+    background-position: -229px -331px;
+}
+
+.life-bar-table
+{
+	image-rendering: auto;
+	position: absolute;
+	top: 96%;
+	left: 50%;
+	margin-top: -25px;
+	margin-left: -150px;
+}
+
+.life-bar-raw
+{
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: flex-start;
+	align-content: flex-start;
+}
+
+.life-bar-cell
+{
+	width: 25px;
+	height: 23px;
+
+	flex-shrink: 0;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+
+	background-image: url("../assets/ui/thumbnail_life.png");
 }
