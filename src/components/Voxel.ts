@@ -180,14 +180,8 @@ export default class Voxel extends AComponent
     }
 
     public async displayMeshs(scene : THREE.Scene) {
-        let mesh : MyMesh = new MyMesh(this.cellSize, 1, 2, this.generator);
+        let mesh : MyMesh = new MyMesh(this.cellSize, 2, 2, this.generator);
         this.displayVoxelWorld(scene, mesh);
-        let mesh1 : MyMesh = new MyMesh(this.cellSize, 2, 2, this.generator);
-        this.displayVoxelWorld(scene, mesh1);
-        let mesh3 : MyMesh = new MyMesh(this.cellSize, 2, 3, this.generator);
-        this.displayVoxelWorld(scene, mesh3);
-        let mesh4 : MyMesh = new MyMesh(this.cellSize, 3, 2, this.generator);
-        this.displayVoxelWorld(scene, mesh4);
     }
     public async displayVoxelWorld(scene : THREE.Scene, mesh : MyMesh) {
         const perlinArray = mesh.getMeshData();
@@ -197,7 +191,7 @@ export default class Voxel extends AComponent
         texture.magFilter = THREE.NearestFilter;
         texture.minFilter = THREE.NearestFilter;
 
-        if (perlinArray == null)
+        if (perlinArray === null)
             return;
 
         let counter : number = 0;
@@ -205,10 +199,8 @@ export default class Voxel extends AComponent
         const startY = mesh.getHeightOffset() * this.cellSize;
         for (let y = 0; y < mesh.getMeshSize(); ++y) {
             for (let x = 0; x < mesh.getMeshSize(); ++x) {
-                for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--) {
+                for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--)
                     this.setVoxel(startX + x, height, startY + y, 14, mesh);
-
-                }
                 counter += 4;
             }
         }
@@ -361,7 +353,7 @@ export default class Voxel extends AComponent
                 const id : string = width + ',0,' + height;
                 const container = this.MeshContainer.getContainerAtPos(id);
                 if (container && !this.MeshContainer.isMeshDrawed(id)) {
-                    scene.add(container.drawableMesh);
+                    scene.add(container.drawedMesh);
                     this.MeshContainer.setDrawedStatus(id, true);
                 }
                 if (!container) {
