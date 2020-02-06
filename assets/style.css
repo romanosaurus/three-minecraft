@@ -1,0 +1,19 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+canvas {
+	display: block;
+}
+
+img {
+	image-rendering: auto;
+	width: 90px;
+	height: 60px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
