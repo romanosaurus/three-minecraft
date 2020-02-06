@@ -165,10 +165,7 @@ export default class Voxel extends AComponent
     public getActiveMesh(x : number, y : number) {
         const cellX = Math.floor(x / this.cellSize);
         const cellY = Math.floor(y / this.cellSize);
-        const id : string = cellX + ',0,' + cellY;
-        console.log(this.MeshContainer);
-        this.MeshContainer.getContainerAtPos(id).mesh;
-        return this.MeshContainer.getContainerAtPos(id).mesh;
+        return this.MeshContainer.getContainerAtPos(cellX + ',0,' + cellY).mesh;
     }
     public getVoxelPosition(x : number, y : number, z : number) : CANNON.Vec3 {
         return new CANNON.Vec3(x + 0.5, y + 0.5, z + 0.5)

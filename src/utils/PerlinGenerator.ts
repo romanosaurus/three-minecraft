@@ -13,8 +13,7 @@ export default class PerlinGenerator {
         this.height = height;
         this.data = new Array(width * height * 4);
         this.spec = {};
-//        this.spec.randseed = THREE.Math.randInt(0, 3000);
-        this.spec.randseed = 1;
+        this.spec.randseed = THREE.Math.randInt(0, 3000);
         this.spec.period = 32;
         this.spec.levels = 2;
         this.spec.atten = 0.1;
@@ -56,11 +55,11 @@ export default class PerlinGenerator {
             let atten = 1;
             let weight = 0;
             for (let lvlIdx = 0; lvlIdx < this.spec.levels; ++lvlIdx) {
-                let sampler = new PerlinSampler2D(Math.ceil((this.width + startingWidth) * localPeriodInv), Math.ceil((this.height + startingHeight) * localPeriodInv), this.spec.randseed + k + lvlIdx);
+                let sampler = new PerlinSampler2D(Math.ceil((this.width) * localPeriodInv), Math.ceil((this.height) * localPeriodInv), this.spec.randseed + k + lvlIdx);
 
                 for (let j = 0; j < this.height; ++j) {
                     for (let i = 0; i < this.width; ++i) {
-                        let val = sampler.getValue((i + startingHeight) * localPeriodInv, (j + startingHeight) * localPeriodInv);
+                        let val = sampler.getValue((i) * localPeriodInv, (j) * localPeriodInv);
                         raster[(i + j * this.width) * numChannels + k] += val * Math.pow(freqInv, this.spec.atten);
                     }
                 }
@@ -128,6 +127,7 @@ class PerlinSampler2D {
 
         for (let i = 0; i < this.gradients.length; i += 2) {
             let x, y;
+//            let angle = 2;
             let angle = rand.next() * Math.PI * 2;
             x = Math.sin(angle);
             y = Math.cos(angle);
@@ -135,7 +135,7 @@ class PerlinSampler2D {
             this.gradients[i + 1] = y;
         }
     }
-    private dot = function(cellX, cellY, vx, vy) {
+    private dot(cellX, cellY, vx, vy) {
         let offset = (cellX + cellY * this.width) * 2;
         let wx = this.gradients[offset];
         let wy = this.gradients[offset + 1];
