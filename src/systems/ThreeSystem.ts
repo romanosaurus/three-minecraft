@@ -12,7 +12,7 @@ import PointerLock from "../components/PointerLock";
 
 import Voxel from "../components/Voxel";
 
-import Stats = require('stats.js');
+import * as Stats from 'stats.js';
 import LightUtilities from "../utils/LightUtilities";
 
 class ThreeSystem extends ASystem {

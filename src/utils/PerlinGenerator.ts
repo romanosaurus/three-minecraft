@@ -13,7 +13,7 @@ export default class PerlinGenerator {
         this.height = height;
         this.data = new Array(width * height * 4);
         this.spec = {};
-        this.spec.randseed = THREE.Math.randInt(0, 3000);
+        this.spec.randseed = THREE.MathUtils.randInt(0, 3000);
         this.spec.period = 32;
         this.spec.levels = 2;
         this.spec.atten = 0.1;
@@ -37,7 +37,7 @@ export default class PerlinGenerator {
     }
     private setRgba(x, y, r, g, b, a) {
         let offset = ((y * this.width) + x) * 4;
-        
+
         this.data[offset] = r;
         this.data[offset + 1] = g;
         this.data[offset + 2] = b;
@@ -46,7 +46,7 @@ export default class PerlinGenerator {
     public createTurbulence(startingWidth : number, startingHeight : number) {
         let numChannels = this.spec.color ? 3 : 1 + this.spec.alpha ? 1 : 0;
         let raster = new Array(this.width * this.height * numChannels);
-        
+
         for (let i = 0; i < raster.length; ++i)
             raster[i] = 0;
         for (let k = 0; k < numChannels; ++k) {
@@ -68,7 +68,7 @@ export default class PerlinGenerator {
                 localPeriodInv *= 2;
                 atten *= this.spec.atten;
             }
-			let weightInv = 1 / weight;            
+			let weightInv = 1 / weight;
 			for (let j = 0; j < this.height; ++j)
 				for (let i = 0; i < this.width; ++i)
 					raster[(i + j * this.width) * numChannels + k] *= weightInv;
@@ -79,7 +79,7 @@ export default class PerlinGenerator {
             for (let i = 0; i < this.width; ++i) {
                 let offset = (i + j * this.width) * numChannels;
                 let r, g, b, a;
-                
+
                 if (this.spec.color) {
                     r = raster[offset];
                     g = raster[offset + 1];
@@ -100,7 +100,7 @@ export default class PerlinGenerator {
                     b = ((b + 1) / 2) * 255;
                     a = ((a + 1) / 2) * 255;
                 }
-                this.setRgba(i, j, 
+                this.setRgba(i, j,
                 r, g, b, a);
             }
         }
@@ -144,7 +144,7 @@ class PerlinSampler2D {
     private lerp(a, b, t) {
         return a + t * (b - a);
     }
-    
+
     private sCurve(t) {
         return t * t * (3 - 2 * t);
     }

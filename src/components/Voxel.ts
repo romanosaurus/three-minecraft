@@ -6,7 +6,7 @@ import AComponent from "../ecs/abstract/AComponent";
 import IEntity from "../ecs/interfaces/IEntity";
 import MyMesh from "../utils/Mesh";
 import MeshContainer from "../utils/MeshContainer";
-import { Container } from "../interface/Container";
+import { spawn, Thread, Worker, Transfer } from "threads";
 
 interface BoxCollider {
     position: CANNON.Vec3,
@@ -34,7 +34,7 @@ export default class Voxel extends AComponent
     private MeshContainer : MeshContainer;
 
     //generateur preocedural
-    private generator;
+    public generator;
     constructor(entity: IEntity, options : Options)
     {
         super(entity);
@@ -116,9 +116,9 @@ export default class Voxel extends AComponent
 
     private computeVoxelOffset(x : number, y : number, z : number) : number
     {
-        const voxelX : number = THREE.Math.euclideanModulo(x, this.cellSize) | 0;
-        const voxelY : number = THREE.Math.euclideanModulo(y, this.cellSize) | 0;
-        const voxelZ : number = THREE.Math.euclideanModulo(z, this.cellSize) | 0;
+        const voxelX : number = THREE.MathUtils.euclideanModulo(x, this.cellSize) | 0;
+        const voxelY : number = THREE.MathUtils.euclideanModulo(y, this.cellSize) | 0;
+        const voxelZ : number = THREE.MathUtils.euclideanModulo(z, this.cellSize) | 0;
 
         return voxelY * this.cellSliceSize +
             voxelZ * this.cellSize +
@@ -345,25 +345,11 @@ export default class Voxel extends AComponent
             this.boxColliders.splice(indexToDelete[i], 1);
         }
         //updating mesh generation
-        let currentHeightPos = Math.floor(player.position.z / this.cellSize);
-        let currentWidthPos = Math.floor(player.position.x / this.cellSize);
-        let drawed = [];
-        for (let height = currentHeightPos - 1; height <= currentHeightPos + 1; height++) {
-            for (let width = currentWidthPos - 1; width <= currentWidthPos + 1; width++) {
-                const id : string = width + ',0,' + height;
-                const container = this.MeshContainer.getContainerAtPos(id);
-                if (container && !this.MeshContainer.isMeshDrawed(id)) {
-                    scene.add(container.drawedMesh);
-                    this.MeshContainer.setDrawedStatus(id, true);
-                }
-                if (!container) {
-                    const mesh : MyMesh = new MyMesh(this.cellSize, height, width, this.generator);
-                    this.displayVoxelWorld(scene, mesh);
-                }
-                drawed.push(id);
-            }
-        }
-        //delete to scene all drawed stuff that isn't in drawed
-        this.MeshContainer.deleteToSceneUselessDrawing(scene, drawed);
+
+        const generation = await spawn(new Worker('../workers/generation.ts'));
+        const instance = {playerPosition: player.position, generator: this.generator, scene: scene, cellSize: this.cellSize, meshContainer: this.MeshContainer};
+        const gen = await generation.test(JSON.stringify(instance as any));
+        //console.log(gen);
+        await Thread.terminate(generation);
     }
 }

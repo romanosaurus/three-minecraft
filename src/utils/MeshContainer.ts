@@ -4,11 +4,19 @@ import MyMesh from "../utils/Mesh";
 
 export default class MeshContainer {
 
-    private meshArray;
+    public meshArray;
 
     constructor() {
         this.meshArray = {};
     }
+
+    public clone(): MeshContainer {
+        const newMeshContainer: MeshContainer = new MeshContainer();
+
+        newMeshContainer.meshArray = this.meshArray;
+        return newMeshContainer;
+    }
+
     public addMesh(id : string, meshToPush : MyMesh, drawableMeshToPush : Uint8Array) {
         const container : Container = {drawableMesh: drawableMeshToPush, mesh: meshToPush, drawedMesh: null, isDrawed: true};
         this.meshArray[id] = container;
