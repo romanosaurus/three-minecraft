@@ -148,7 +148,7 @@ export default class Voxel extends AComponent
     public setVoxel(x : number, y : number, z : number, v : number, mesh : MyMesh) : void
     {
         let cell = this.getCellForVoxel(x, y, z, mesh);
-        
+
         if (!cell) {
             cell = this.addCellForVoxel(x, y, z, mesh);
         }
@@ -188,12 +188,12 @@ export default class Voxel extends AComponent
         this.displayVoxelWorld(scene, mesh3);
         let mesh4 : MyMesh = new MyMesh(this.cellSize, 3, 2, this.generator);
         this.displayVoxelWorld(scene, mesh4);
-    }    
+    }
     public async displayVoxelWorld(scene : THREE.Scene, mesh : MyMesh) {
         const perlinArray = mesh.getMeshData();
 
         const loader : THREE.TextureLoader = new THREE.TextureLoader();
-        const texture : THREE.Texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/minecraft/flourish-cc-by-nc-sa.png');
+        const texture : THREE.Texture = loader.load('../../assets/textures/textures.png');
         texture.magFilter = THREE.NearestFilter;
         texture.minFilter = THREE.NearestFilter;
 
