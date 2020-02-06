@@ -4,5 +4,6 @@ import MyMesh from "../utils/Mesh";
 
 export interface Container {
     drawableMesh: Uint8Array,
-    mesh: MyMesh
+    mesh: MyMesh,
+    drawedMesh: THREE.Scene
 }

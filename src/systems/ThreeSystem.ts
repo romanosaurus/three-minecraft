@@ -62,7 +62,7 @@ class ThreeSystem extends ASystem {
             playerEntity,
             playerEntity.getComponent(Box).mesh.position,
             playerEntity.getComponent(Box).getSize(),
-            10
+            0
         ));
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
