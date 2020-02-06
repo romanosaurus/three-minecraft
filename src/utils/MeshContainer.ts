@@ -30,7 +30,7 @@ export default class MeshContainer {
         for (let i = 0; i < keys.length; i++) {
             if (this.meshArray[keys[i]].isDrawed === true && idToDelete.includes(keys[i]) === false) {
                 scene.remove(this.meshArray[keys[i]].drawedMesh);
-                this.meshArray[keys[i]].isDrawed = false;
+                this.setDrawedStatus(keys[i], false);
             }
         }
     }
