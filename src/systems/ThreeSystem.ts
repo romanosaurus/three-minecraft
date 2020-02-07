@@ -14,6 +14,7 @@ import Voxel from "../components/Voxel";
 
 import * as Stats from 'stats.js';
 import LightUtilities from "../utils/LightUtilities";
+import WalkingArea from "../components/WalkingArea";
 
 class ThreeSystem extends ASystem {
     private readonly scene : THREE.Scene;
@@ -64,6 +65,7 @@ class ThreeSystem extends ASystem {
             playerEntity.getComponent(Box).getSize(),
             10
         ));
+        playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity));
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
 

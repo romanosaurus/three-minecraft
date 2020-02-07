@@ -21,6 +21,10 @@ class BoxCollider extends AComponent {
     get body(): CANNON.Body {
         return this._body;
     }
+
+    public getPosition(): CANNON.Vec3 {
+        return this.body.position;
+    }
 }
 
 export default BoxCollider;

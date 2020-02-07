@@ -21,7 +21,7 @@ export default class MeshContainer {
         const container : Container = {drawableMesh: drawableMeshToPush, mesh: meshToPush, drawedMesh: null, isDrawed: true};
         this.meshArray[id] = container;
     }
-    public getContainerAtPos(id : string) {
+    public getContainerAtPos(id: string) {
         return this.meshArray[id];
     }
     public addMeshToSceneId(id : string, mesh : THREE.Mesh) {

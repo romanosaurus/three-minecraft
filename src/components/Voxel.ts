@@ -20,32 +20,44 @@ interface Options {
     tileTextureHeight: number
 }
 
+interface Face {
+    uvRow: number,
+    dir: Array<number>,
+    corners: {pos: Array<number>, uv: Array<number>}[]
+}
+
 export default class Voxel extends AComponent
 {
     private readonly cellSize: number;
-    private readonly faces;
-    private tileTextureWidth : number;
-    private tileTextureHeight : number;
-    private tileSize : number;
-    private FOV : number; /* rendering distance */
-    private cellSliceSize : number;
-    private boxColliders : Array<BoxCollider>;
-    private MeshContainer : MeshContainer;
-    public generator; /* procedural generator */
+    private readonly faces: Array<Face>;
+    private tileTextureWidth: number;
+    private tileTextureHeight: number;
+    private tileSize: number;
+    private FOV: number; /* rendering distance */
+    private cellSliceSize: number;
+    private boxColliders: Array<BoxCollider>;
+    private meshContainer: MeshContainer;
+    public generator: PerlinGenerator; /* procedural generator */
     private generatedArray; /* array of working workers by ID */
+    // Textures
+    private textureLoader: THREE.TextureLoader;
+    private texture: THREE.Texture;
+    private material: THREE.MeshLambertMaterial;
 
     constructor(entity: IEntity, options : Options)
     {
         super(entity);
+
+        // Initialize Perlin Generator
         this.generator = new PerlinGenerator(options.cellSize, options.cellSize, THREE.MathUtils.randInt(0, 3000));
-        this.MeshContainer = new MeshContainer();
+
+        this.meshContainer = new MeshContainer();
         this.cellSize = options.cellSize;
         this.tileSize = options.tileSize;
         this.tileTextureWidth = options.tileTextureWidth;
         this.tileTextureHeight = options.tileTextureHeight;
         this.FOV = 1;
-        const { cellSize } = this;
-        this.cellSliceSize = cellSize * cellSize;
+        this.cellSliceSize = this.cellSize * this.cellSize;
         this.boxColliders = [];
         this.generatedArray = {};
         this.faces = [
@@ -110,9 +122,22 @@ export default class Voxel extends AComponent
                 ],
             },
         ];
+
+        // Textures
+        this.textureLoader = new THREE.TextureLoader();
+        this.texture = this.textureLoader.load('../../assets/textures/textures.png');
+        this.texture.magFilter = THREE.NearestFilter;
+        this.texture.minFilter = THREE.NearestFilter;
+
+        this.material = new THREE.MeshLambertMaterial({
+            map: this.texture,
+            side: THREE.DoubleSide,
+            alphaTest: 0.1,
+            transparent: true
+        });
     }
 
-    private computeVoxelOffset(x : number, y : number, z : number) : number
+    private computeVoxelOffset(x: number, y: number, z: number): number
     {
         const voxelX : number = THREE.MathUtils.euclideanModulo(x, this.cellSize) | 0;
         const voxelY : number = THREE.MathUtils.euclideanModulo(y, this.cellSize) | 0;
@@ -121,38 +146,41 @@ export default class Voxel extends AComponent
         return voxelY * this.cellSliceSize + voxelZ * this.cellSize + voxelX;
     }
 
-    public getCellForVoxel(mesh : MyMesh) {
+    public getCellForVoxel(mesh: MyMesh): Uint8Array {
         let X = mesh.getWidthOffset();
         let Y = mesh.getHeightOffset();
-        const container = this.MeshContainer.getContainerAtPos(X + ',' + Y);
+        const container = this.meshContainer.getContainerAtPos(X + ',' + Y);
+
         if (!container)
             return null;
+
         return container.drawableMesh;
     }
 
-    public addCellForVoxel(mesh : MyMesh) {
+    public addCellForVoxel(mesh: MyMesh): MyMesh {
         const cellId = `${mesh.getWidthOffset()},${mesh.getHeightOffset()}`;
-        const container = this.MeshContainer.getContainerAtPos(cellId);
+        const container = this.meshContainer.getContainerAtPos(cellId);
+
         if (!container) {
-          const {cellSize} = this;
-          let cell = new Uint8Array(cellSize * cellSize * cellSize);
-          this.MeshContainer.addMesh(cellId, mesh, cell);
+            let cell = new Uint8Array(this.cellSize * this.cellSize * this.cellSize);
+
+            this.meshContainer.addMesh(cellId, mesh, cell);
         }
-        return this.MeshContainer.getContainerAtPos(cellId).mesh;
+        return this.meshContainer.getContainerAtPos(cellId).mesh;
     }
 
-    public setVoxel(x : number, y : number, z : number, v : number, mesh : MyMesh) : void
+    public setVoxel(x: number, y: number, z: number, v: number, mesh: MyMesh): void
     {
-        let cell = this.getCellForVoxel(mesh);
+        let cell: Uint8Array | MyMesh = this.getCellForVoxel(mesh);
 
-        if (!cell) {
+        if (!cell)
             cell = this.addCellForVoxel(mesh);
-        }
+
         const voxelOffset = this.computeVoxelOffset(x, y, z);
         cell[voxelOffset] = v;
     }
 
-    public getVoxel(x : number, y : number, z : number, mesh : MyMesh) {
+    public getVoxel(x: number, y: number, z: number, mesh: MyMesh): number {
         const cell = this.getCellForVoxel(mesh);
 
         if (!cell)
@@ -162,37 +190,36 @@ export default class Voxel extends AComponent
         return cell[voxelOffset];
     }
 
-    public getActiveMesh(x : number, y : number) {
+    public getActiveMesh(x: number, y: number): MyMesh {
         const cellX = Math.floor(x / this.cellSize);
         const cellY = Math.floor(y / this.cellSize);
         const id : string = cellX + ',' + cellY;
-        if (this.MeshContainer.getContainerAtPos(id) === undefined) {
+
+        if (this.meshContainer.getContainerAtPos(id) === undefined)
             return undefined;
-        }
-        return this.MeshContainer.getContainerAtPos(id).mesh;
+
+        return this.meshContainer.getContainerAtPos(id).mesh;
     }
-    public getVoxelPosition(x : number, y : number, z : number) : CANNON.Vec3 {
+
+    public getVoxelPosition(x: number, y: number, z: number): CANNON.Vec3 {
         return new CANNON.Vec3(x + 0.5, y + 0.5, z + 0.5)
     }
 
-    public async displayMeshs(scene : THREE.Scene) {
-        let mesh : MyMesh = new MyMesh(this.cellSize, 2, 2, this.generator);
+    public async displayMeshs(scene: THREE.Scene): Promise<void> {
+        let mesh: MyMesh = new MyMesh(this.cellSize, 2, 2, this.generator);
+
         this.displayVoxelWorld(scene, mesh);
     }
-    public async displayVoxelWorld(scene : THREE.Scene, mesh : MyMesh) {
-        const perlinArray = mesh.getMeshData();
 
-        const loader : THREE.TextureLoader = new THREE.TextureLoader();
-        const texture : THREE.Texture = loader.load('../../assets/textures/textures.png');
-        texture.magFilter = THREE.NearestFilter;
-        texture.minFilter = THREE.NearestFilter;
+    public async displayVoxelWorld(scene: THREE.Scene, mesh: MyMesh): Promise<void> {
+        const perlinArray = mesh.getMeshData();
 
         if (perlinArray === null)
             return;
 
-        let counter : number = 0;
-        const startX = mesh.getWidthOffset() * this.cellSize;
-        const startY = mesh.getHeightOffset() * this.cellSize;
+        let counter: number = 0;
+        const startX: number = mesh.getWidthOffset() * this.cellSize;
+        const startY: number = mesh.getHeightOffset() * this.cellSize;
         for (let y = 0; y < mesh.getMeshSize(); ++y) {
             for (let x = 0; x < mesh.getMeshSize(); ++x) {
                 for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--)
@@ -200,106 +227,51 @@ export default class Voxel extends AComponent
                 counter += 4;
             }
         }
+
+        // Generation workers start
         const generation = await spawn(new Worker('../workers/generation'));
-        let newObject = this.MeshContainer.serialize();
+        const serializedMeshArray = this.meshContainer.serialize();
         const {positions, normals, uvs, indices} = await generation.generateGeometryDataForCell(mesh.getWidthOffset(), 0, mesh.getHeightOffset(), mesh.size, mesh.data, {
             cellSize: this.cellSize,
             tileSize: this.tileSize,
             tileTextureWidth: this.tileTextureWidth,
             tileTextureHeight: this.tileTextureHeight,
-            meshArray: newObject,
+            meshArray: serializedMeshArray,
             cellSliceSize: this.cellSliceSize,
             faces: this.faces
         });
         await Thread.terminate(generation);
 
         const geometry : THREE.BufferGeometry = new THREE.BufferGeometry();
-        const material : THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial({
-            map: texture,
-            side: THREE.DoubleSide,
-            alphaTest: 0.1,
-            transparent: true,
-        });
 
-
-        const positionNumComponents : number= 3;
-        const normalNumComponents : number = 3;
-        const uvNumComponents : number = 2;
+        const numComponent: {position: number, normal: number, uv: number} = {
+            position: 3,
+            normal: 3,
+            uv: 2
+        }
 
         geometry.setAttribute(
             'position',
-            new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents)
+            new THREE.BufferAttribute(new Float32Array(positions), numComponent.position)
         );
         geometry.setAttribute(
             'normal',
-            new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents)
+            new THREE.BufferAttribute(new Float32Array(normals), numComponent.normal)
         );
         geometry.setAttribute(
             'uv',
-            new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
+            new THREE.BufferAttribute(new Float32Array(uvs), numComponent.uv));
         geometry.setIndex(indices);
 
-        let drawMesh = new THREE.Mesh(geometry, material);
+        const drawMesh = new THREE.Mesh(geometry, this.material);
         drawMesh.position.set(mesh.getWidthOffset() * this.cellSize, 0, mesh.getHeightOffset() * this.cellSize);
         scene.add(drawMesh);
-        this.MeshContainer.addMeshToSceneId(mesh.getWidthOffset() + ',' + mesh.getHeightOffset(), drawMesh);
+        this.meshContainer.addMeshToSceneId(mesh.getWidthOffset() + ',' + mesh.getHeightOffset(), drawMesh);
     }
 
     public async Update(player : CANNON.Body, world : CANNON.World, scene : THREE.Scene) {
-        let stock = [];
-        const activeMesh = this.getActiveMesh(player.position.x, player.position.z);
-        if (activeMesh === undefined)
-            return;
-        for (let physicZpos = Math.round(player.position.z) - 3; physicZpos <= Math.round(player.position.z) + 3; physicZpos++) {
-            for (let physicXpos = Math.round(player.position.x) - 3; physicXpos <= Math.round(player.position.x) + 3; physicXpos++) {
-                for (let physicYpos = Math.round(player.position.y) - 3; physicYpos <= Math.round(player.position.y) + 3; physicYpos++) {
-                    let cell = this.getVoxel(physicXpos, physicYpos, physicZpos, activeMesh);
-                    if (cell === 0)
-                        continue;
-                    let exist : boolean = false;
-                    let newBody = new CANNON.Body({mass: 0});
-
-                    newBody.position = this.getVoxelPosition(physicXpos, physicYpos, physicZpos);
-                    stock.push(newBody.position);
-                    newBody.addShape(new CANNON.Box(new CANNON.Vec3(1.25 / 2, 1.25 / 2, 1.25/2)));
-
-                    for (let col = 0;  col < this.boxColliders.length; col++) {
-                        let boxPosition = this.boxColliders[col].position;
-                        if (boxPosition.x === newBody.position.x && boxPosition.y === newBody.position.y && boxPosition.z === newBody.position.z)
-                            exist = true;
-                    }
-
-                    if (!exist) {
-                        this.boxColliders.push({position: newBody.position, body: newBody});
-                        world.addBody(newBody);
-                    }
-                }
-            }
-        }
-
-        let indexToDelete = [];
-
-        for (let i = 0; i < this.boxColliders.length; i++) {
-            let toPush = true;
-            for (let j = 0; j < stock.length; j++) {
-                let tmpPosition = this.boxColliders[i].position;
-
-                if (tmpPosition.x === stock[j].x && tmpPosition.y === stock[j].y && tmpPosition.z === stock[j].z) {
-                    toPush = false;
-                }
-            }
-
-            if (toPush === true) {
-                indexToDelete.push(i);
-            }
-        }
-        for (let i = 0; i < indexToDelete.length; i++) {
-            if (this.boxColliders[indexToDelete[i]] !== undefined)
-                world.remove(this.boxColliders[indexToDelete[i]].body);
-            this.boxColliders.splice(indexToDelete[i], 1);
-        }
         /* updating mesh generation */
-        if (this.MeshContainer.needToUpdate(Math.floor(player.position.z / this.cellSize), Math.floor(player.position.x / this.cellSize), this.FOV))
+        if (this.meshContainer.needToUpdate(Math.floor(player.position.z / this.cellSize), Math.floor(player.position.x / this.cellSize), this.FOV))
             this.updateMesh(player.position, scene);
     }
 
@@ -311,10 +283,10 @@ export default class Voxel extends AComponent
         for (let height = currentHeightPos - this.FOV; height <= currentHeightPos + this.FOV; height++) {
             for (let width = currentWidthPos - this.FOV; width <= currentWidthPos + this.FOV; width++) {
                 const id : string = width + ',' + height;
-                const container = this.MeshContainer.getContainerAtPos(id);
+                const container = this.meshContainer.getContainerAtPos(id);
                 if (container && !container.isDrawed) {
                     scene.add(container.drawedMesh);
-                    this.MeshContainer.setDrawedStatus(id, true);
+                    this.meshContainer.setDrawedStatus(id, true);
                 }
                 if (!container && (this.generatedArray[id] === undefined || this.generatedArray[id] !== true)) {
                     this.generatedArray[id] = true;
@@ -327,6 +299,6 @@ export default class Voxel extends AComponent
                 drawed.push(id);
             }
         }
-        this.MeshContainer.deleteToSceneUselessDrawing(scene, drawed);
+        this.meshContainer.deleteToSceneUselessDrawing(scene, drawed);
     }
 }
