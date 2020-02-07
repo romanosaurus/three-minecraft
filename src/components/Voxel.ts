@@ -7,6 +7,7 @@ import IEntity from "../ecs/interfaces/IEntity";
 import MyMesh from "../utils/Mesh";
 import MeshContainer from "../utils/MeshContainer";
 import { spawn, Thread, Worker, Transfer } from "threads";
+import ThreeSystem from '../systems/ThreeSystem';
 
 interface BoxCollider {
     position: CANNON.Vec3,
@@ -345,11 +346,45 @@ export default class Voxel extends AComponent
             this.boxColliders.splice(indexToDelete[i], 1);
         }
         //updating mesh generation
-
+//        if (this.MeshContainer.needToUpdate(Math.floor(player.position.z / this.cellSize), Math.floor(player.position.x / this.cellSize)) === false)
+//            return;
         const generation = await spawn(new Worker('../workers/generation.ts'));
-        const instance = {playerPosition: player.position, generator: this.generator, scene: scene, cellSize: this.cellSize, meshContainer: this.MeshContainer};
-        const gen = await generation.test(JSON.stringify(instance as any));
-        //console.log(gen);
+//        const meshArray = JSON.parse(JSON.stringify(this.MeshContainer.meshArray));
+        const gen = await generation.testGenerate(player.position);
         await Thread.terminate(generation);
+
+/*        for (let i = 0; i < gen["toReturnMesh"].length; i++) {
+            let mesh = new MyMesh(gen["toReturnMesh"][i].size, gen["toReturnMesh"][i].HeighOffset, gen["toReturnMesh"][i].WidthOffset, this.generator, gen["toReturnMesh"][i].data);
+            this.displayVoxelWorld(scene, mesh);
+        }
+
+        for (let i = 0; i < gen["toAddToScene"].length; i++) {
+            this.MeshContainer.setDrawedStatus(gen["toAddToScene"][i], true);
+            scene.add(this.MeshContainer.getContainerAtPos(gen["toAddToScene"][i]).drawedMesh);
+        }
+
+        this.MeshContainer.deleteToSceneUselessDrawing(scene, gen["drawed"]);*/
+    }
+    public updateMesh(playerPosition : CANNON.Vec3, scene : THREE.Scene) {
+        let currentHeightPos = Math.floor(playerPosition.z / this.cellSize);
+        let currentWidthPos = Math.floor(playerPosition.x / this.cellSize);
+        let drawed = [];
+
+        for (let height = currentHeightPos - 1; height <= currentHeightPos + 1; height++) {
+            for (let width = currentWidthPos - 1; width <= currentWidthPos + 1; width++) {
+                const id : string = width + ',0,' + height;
+                const container = this.MeshContainer.getContainerAtPos(id);
+                if (container && !container.isDrawed) {
+                    scene.add(container.drawedMesh);
+                    this.MeshContainer.setDrawedStatus(id, true);
+                }
+                if (!container) {
+                    const mesh : MyMesh = new MyMesh(this.cellSize, height, width, this.generator);
+                    this.displayVoxelWorld(scene, mesh);
+                }
+                drawed.push(id);
+            }
+        }
+        this.MeshContainer.deleteToSceneUselessDrawing(scene, drawed);
     }
 }

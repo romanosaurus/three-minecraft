@@ -8,6 +8,9 @@ export default class PerlinGenerator {
     private data;
     private spec;
 
+    static fromData(json) {
+        return new this(json.width, json.height);
+    }
     constructor(width : number, height : number) {
         this.width = width;
         this.height = height;

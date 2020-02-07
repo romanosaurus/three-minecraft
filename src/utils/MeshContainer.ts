@@ -42,4 +42,30 @@ export default class MeshContainer {
             }
         }
     }
+    public getDrawedMesh() {
+        let array = [];
+
+        const keys = Object.keys(this.meshArray);
+        for (let i = 0; i < keys.length; i++) {
+            if (this.meshArray[keys[i]].isDrawed === true) {
+                array.push(keys[i]);
+            }
+        }
+        return array;
+    }
+    public needToUpdate(currentHeightPos : number, currentWidthPos : number) {
+        let cmpArray = [];
+        for (let height = currentHeightPos - 1; height <= currentHeightPos + 1; height++) {
+            for (let width = currentWidthPos - 1; width <= currentWidthPos + 1; width++) {
+                const id : string = width + ',0,' + height;
+                cmpArray.push(id);
+            }
+        }
+        let drawedMesh = this.getDrawedMesh().sort();
+        cmpArray.sort();
+//        console.log(cmpArray, drawedMesh);
+        if (JSON.stringify(cmpArray) === JSON.stringify(drawedMesh))
+            return false;
+        return true;
+    }
 };

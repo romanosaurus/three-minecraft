@@ -25,9 +25,7 @@ class WorldGenerationSystem extends ASystem {
         );
 
         ecsWrapper.entityManager.applyToEach(["Voxel"], (entity) => {
-            //a delete
             entity.getComponent(Voxel).displayMeshs(ecsWrapper.systemManager.getSystem(ThreeSystem).getScene());
-//            entity.getComponent(Voxel).displayVoxelWorld(ecsWrapper.systemManager.getSystem(ThreeSystem).getScene());
         });
     }
 

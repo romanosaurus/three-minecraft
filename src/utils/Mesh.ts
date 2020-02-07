@@ -8,13 +8,13 @@ export default class MyMesh {
     /* Pos of the mesh if all mesh were in a two dimensionnal array */
     private HeightOffset : number;
     private WidthOffset : number;
-    private data;
+    public data;
 
-    constructor(size : number, HeightOffset : number, WidthOffset : number, generator : PerlinGenerator) {
+    constructor(size : number, HeightOffset : number, WidthOffset : number, generator : PerlinGenerator, data?: any) {
         this.size = size;
         this.HeightOffset = HeightOffset;
         this.WidthOffset = WidthOffset;
-        this.data = generator.createMesh(size, WidthOffset, HeightOffset)
+        this.data = data || generator.createMesh(size, WidthOffset, HeightOffset)
     }
     public getMeshSize() {
         return this.size;
