@@ -5,6 +5,7 @@ import CannonSystem from "./systems/CannonSystem";
 import FirstPersonSystem from "./systems/FirstPersonSystem";
 import WalkingPhysicsSystem from "./systems/WalkingPhysicsSystem";
 import WorldGenerationSystem from "./systems/WorldGenerationSystem";
+import LifeSystem from "./systems/LifeSystem";
 import PointerLock from "./components/PointerLock";
 
 class Window {
@@ -16,15 +17,18 @@ class Window {
         ecsWrapper.systemManager.newSystem<FirstPersonSystem>(new FirstPersonSystem("FirstPersonSystem"));
         ecsWrapper.systemManager.newSystem<WalkingPhysicsSystem>(new WalkingPhysicsSystem("WalkingPhysicsSystem"));
         ecsWrapper.systemManager.newSystem<WorldGenerationSystem>(new WorldGenerationSystem("WorldGenerationSystem"));
+        ecsWrapper.systemManager.newSystem<LifeSystem>(new LifeSystem("LifeSystem"));
         ecsWrapper.systemManager.startSystem("ThreeSystem");
         ecsWrapper.systemManager.startSystem("CannonSystem");
         ecsWrapper.systemManager.startSystem("WorldGenerationSystem");
         ecsWrapper.systemManager.startSystem("FirstPersonSystem");
         ecsWrapper.systemManager.startSystem("WalkingPhysicsSystem");
+        ecsWrapper.systemManager.startSystem("LifeSystem");
 
         document.addEventListener( 'mousemove', ( mouseEvent ) => { ecsWrapper.systemManager.setEvent("mouseEvent", mouseEvent); });
         document.addEventListener('keydown', (keyDown) => { ecsWrapper.systemManager.setEvent("keyDown", keyDown); });
         document.addEventListener('keyup', (keyUp) => { ecsWrapper.systemManager.setEvent("keyUp", keyUp); });
+        document.addEventListener('resize', (resize) => { ecsWrapper.systemManager.setEvent("resize", resize); });
         document.addEventListener( 'click', ( clickEvent ) => {
             ecsWrapper.entityManager.applyToEach(["PointerLock"], (entity) => {
                 entity.getComponent(PointerLock).lockPointer();
@@ -32,6 +36,7 @@ class Window {
         });
 
         ecsWrapper.systemManager.run();
+
     }
 }
 

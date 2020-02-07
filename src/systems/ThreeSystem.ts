@@ -9,6 +9,7 @@ import Box from "../components/Box";
 import Camera from "../components/Camera";
 import BoxCollider from "../components/BoxCollider";
 import PointerLock from "../components/PointerLock";
+import Life from "../components/Life";
 import FullScreen from "../utils/FullScreen";
 
 import Stats = require('stats.js');
@@ -66,6 +67,7 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
 
+        playerEntity.assignComponent<Life>(new Life(playerEntity, 9));
 
         ecsWrapper.entityManager.applyToEach(["Box"], (entity) => {
             this.scene.add(entity.getComponent(Box).mesh);
@@ -81,6 +83,7 @@ class ThreeSystem extends ASystem {
         document.body.appendChild(this.renderer.domElement);
 
         this.stats.showPanel(0);
+
         document.body.appendChild(this.stats.dom);
     }
 
