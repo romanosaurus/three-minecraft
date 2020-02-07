@@ -69,4 +69,11 @@ export default class MeshContainer {
         //console.log(cmpArray, drawedMesh);
         return true;
     }
+    public serialize() {
+        let serialized = Object.assign({}, this.meshArray);
+
+        for (let i = 0; i < serialized.size; i++)
+            serialized[i].mesh = null;
+        return serialized;
+    }
 };
