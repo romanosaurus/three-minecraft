@@ -16,7 +16,6 @@ expose({
     meshWorker(cellSize: number, height: number, width: number, generator: PerlinGenerator) {
         const mesh : MyMesh = new MyMesh(cellSize, height, width, PerlinGenerator.fromData(JSON.parse(JSON.stringify(generator))));
 
-        console.log(height, width);
         return mesh;
     },
     generateGeometryDataForCell(cellX: number, cellY: number, cellZ: number, meshSize: number, meshData: any, utils: any) {

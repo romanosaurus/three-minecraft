@@ -368,7 +368,6 @@ export default class Voxel extends AComponent
         }
         //updating mesh generation
         if (!this.MeshContainer.needToUpdate(Math.floor(player.position.z / this.cellSize), Math.floor(player.position.x / this.cellSize))) {
-            console.log('no need')
             return;
         }
 

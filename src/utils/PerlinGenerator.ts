@@ -9,7 +9,6 @@ export default class PerlinGenerator {
     private spec;
 
     static fromData(json) {
-        console.log(json);
         return new this(json.width, json.height, json.spec.randseed);
     }
     constructor(width : number, height : number, randseed : number) {
