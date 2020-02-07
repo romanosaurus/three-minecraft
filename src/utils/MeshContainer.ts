@@ -61,11 +61,12 @@ export default class MeshContainer {
                 cmpArray.push(id);
             }
         }
-        let drawedMesh = this.getDrawedMesh().sort();
-        cmpArray.sort();
-//        console.log(cmpArray, drawedMesh);
-        if (JSON.stringify(cmpArray) === JSON.stringify(drawedMesh))
-            return false;
+        let drawedMesh = this.getDrawedMesh();
+        for (let mesh of cmpArray) {
+            if (drawedMesh.indexOf(mesh) <= -1)
+                return false;
+        }
+        //console.log(cmpArray, drawedMesh);
         return true;
     }
 };

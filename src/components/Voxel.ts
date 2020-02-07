@@ -8,6 +8,7 @@ import MyMesh from "../utils/Mesh";
 import MeshContainer from "../utils/MeshContainer";
 import { spawn, Thread, Worker, Transfer } from "threads";
 import ThreeSystem from '../systems/ThreeSystem';
+import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 
 interface BoxCollider {
     position: CANNON.Vec3,
@@ -33,6 +34,7 @@ export default class Voxel extends AComponent
     private boxColliders : Array<BoxCollider>;
 
     private MeshContainer : MeshContainer;
+    private isGenerated: boolean;
 
     //generateur preocedural
     public generator;
@@ -50,6 +52,7 @@ export default class Voxel extends AComponent
         this.cellSliceSize = cellSize * cellSize;
 
         this.boxColliders = [];
+        this.isGenerated = false;
 
         this.faces = [
             { // left
@@ -205,7 +208,22 @@ export default class Voxel extends AComponent
                 counter += 4;
             }
         }
-        const {positions, normals, uvs, indices} = this.generateGeometryDataForCell(mesh.getWidthOffset(), 0, mesh.getHeightOffset(), mesh);
+        const { positions, normals, uvs, indices } = this.generateGeometryDataForCell(mesh.getWidthOffset(), 0, mesh.getHeightOffset(), mesh);
+        const generation = await spawn(new Worker('../workers/generation'));
+
+        /*const {positions, normals, uvs, indices} = await generation.generateGeometryDataForCell(mesh.getWidthOffset(), 0, mesh.getHeightOffset(), mesh.size, mesh.data, {
+            cellSize: this.cellSize,
+            tileSize: this.tileSize,
+            tileTextureWidth: this.tileTextureWidth,
+            tileTextureHeight: this.tileTextureHeight,
+            meshArray: this.MeshContainer.meshArray,
+            cellSliceSize: this.cellSliceSize,
+            faces: this.faces
+        });*/
+        //console.log(this.MeshContainer.meshArray)
+        await generation.test(Object.assign({}, this.MeshContainer.meshArray));
+        await Thread.terminate(generation);
+
         const geometry : THREE.BufferGeometry = new THREE.BufferGeometry();
         const material : THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial({
             map: texture,
@@ -346,12 +364,14 @@ export default class Voxel extends AComponent
             this.boxColliders.splice(indexToDelete[i], 1);
         }
         //updating mesh generation
-//        if (this.MeshContainer.needToUpdate(Math.floor(player.position.z / this.cellSize), Math.floor(player.position.x / this.cellSize)) === false)
-//            return;
-        const generation = await spawn(new Worker('../workers/generation.ts'));
-//        const meshArray = JSON.parse(JSON.stringify(this.MeshContainer.meshArray));
-        const gen = await generation.testGenerate(player.position);
-        await Thread.terminate(generation);
+        if (this.MeshContainer.needToUpdate(Math.floor(player.position.z / this.cellSize), Math.floor(player.position.x / this.cellSize))) {
+            return;
+        }
+        if (this.isGenerated === false) {
+            this.isGenerated = true;
+
+            this.updateMesh(player.position, scene);
+        }
 
 /*        for (let i = 0; i < gen["toReturnMesh"].length; i++) {
             let mesh = new MyMesh(gen["toReturnMesh"][i].size, gen["toReturnMesh"][i].HeighOffset, gen["toReturnMesh"][i].WidthOffset, this.generator, gen["toReturnMesh"][i].data);
@@ -365,7 +385,7 @@ export default class Voxel extends AComponent
 
         this.MeshContainer.deleteToSceneUselessDrawing(scene, gen["drawed"]);*/
     }
-    public updateMesh(playerPosition : CANNON.Vec3, scene : THREE.Scene) {
+    public async updateMesh(playerPosition : CANNON.Vec3, scene : THREE.Scene) {
         let currentHeightPos = Math.floor(playerPosition.z / this.cellSize);
         let currentWidthPos = Math.floor(playerPosition.x / this.cellSize);
         let drawed = [];
@@ -379,8 +399,11 @@ export default class Voxel extends AComponent
                     this.MeshContainer.setDrawedStatus(id, true);
                 }
                 if (!container) {
-                    const mesh : MyMesh = new MyMesh(this.cellSize, height, width, this.generator);
-                    this.displayVoxelWorld(scene, mesh);
+                    const generation = await spawn(new Worker('../workers/generation'));
+                    const gen = await generation.meshWorker(this.cellSize, 1, 1, this.generator);
+                    await Thread.terminate(generation);
+                    let test : MyMesh = new MyMesh(gen.size, gen.HeightOffset, gen.WidthOffset, this.generator, gen.data);
+                    this.displayVoxelWorld(scene, test);
                 }
                 drawed.push(id);
             }

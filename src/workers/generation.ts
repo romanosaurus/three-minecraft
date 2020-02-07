@@ -5,45 +5,103 @@ import Voxel from "../components/Voxel";
 import PerlinGenerator from "../utils/PerlinGenerator";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import ThreeSystem from "../systems/ThreeSystem";
+import AComponent from "../ecs/abstract/AComponent";
+import IEntity from "../ecs/interfaces/IEntity";
+import * as THREE from "three";
 
 expose({
-    test(lol: any) {
-        let test = PerlinGenerator.fromData(JSON.parse(lol));
-        console.log(test.getWidth());
+    test(test: any) {
+        test
     },
-    testGenerate(playerPosition : CANNON.Vec3) {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-        let scene = ecsWrapper.systemManager.getSystem(ThreeSystem).getScene();
-        ecsWrapper.entityManager.getEntity("world").getComponent(Voxel).updateMesh(playerPosition, scene);
+    meshWorker(cellSize: number, height: number, width: number, generator: PerlinGenerator) {
+        const mesh : MyMesh = new MyMesh(cellSize, height, width, PerlinGenerator.fromData(JSON.parse(JSON.stringify(generator))));
+
+        return mesh;
     },
-    generate(playerPosition: CANNON.Vec3, meshArray: any, cellSize: number, generator: any) {
-        let castedGenerator = PerlinGenerator.fromData(JSON.parse(generator));
+    generateGeometryDataForCell(cellX: number, cellY: number, cellZ: number, meshSize: number, meshData: any, utils: any) {
+        function computeVoxelOffset(x: number, y: number, z: number, cellSize: number, cellSliceSize: number) {
+            const voxelX : number = THREE.MathUtils.euclideanModulo(x, cellSize) | 0;
+            const voxelY : number = THREE.MathUtils.euclideanModulo(y, cellSize) | 0;
+            const voxelZ : number = THREE.MathUtils.euclideanModulo(z, cellSize) | 0;
 
-        let currentHeightPos = Math.floor(playerPosition.z / cellSize);
-        let currentWidthPos = Math.floor(playerPosition.x / cellSize);
-        let drawed = [];
+            return voxelY * cellSliceSize +
+                voxelZ * cellSize +
+                voxelX;
+        }
 
-        let toReturnMesh = [];
-        let toAddToScene = [];
-        for (let height = currentHeightPos - 1; height <= currentHeightPos + 1; height++) {
-            for (let width = currentWidthPos - 1; width <= currentWidthPos + 1; width++) {
-                const id : string = width + ',0,' + height;
-                const container = meshArray[id];
-                if (container && !meshArray[id].isDrawed) {
-                    //scene.add(container.drawedMesh);
-                    meshArray[id].isDrawed = true;
-                    toAddToScene.push(id);
+        function getCellForVoxel(x: number, y: number, z: number, mesh: MyMesh, meshArray: any) {
+            let newX = mesh.getWidthOffset();
+            let newY = mesh.getHeightOffset();
+
+            const container = meshArray[newX + ',0,' + newY];
+            if (!container)
+                return null;
+            return container.drawableMesh;
+        }
+
+        function getVoxel(x: number, y: number, z: number, mesh: MyMesh, meshArray: any, cellSize: number, cellSliceSize: number) {
+            const cell = getCellForVoxel(x, y, z, mesh, meshArray);
+
+            if (!cell)
+                return 0;
+
+            const voxelOffset: number = computeVoxelOffset(x, y, z, cellSize, cellSliceSize);
+            return cell[voxelOffset];
+        }
+
+        const newMesh: MyMesh = new MyMesh(meshSize, cellZ, cellX, null, meshData);
+        let { cellSize, tileSize, tileTextureWidth, tileTextureHeight, meshArray, cellSliceSize, faces } = utils;
+        const positions = [];
+        const normals = [];
+        const uvs = [];
+        const indices = [];
+        const startX = cellX * cellSize;
+        const startY = cellY * cellSize;
+        const startZ = cellZ * cellSize;
+
+        for (let y = 0; y < cellSize; y += 1) {
+            const voxY = startY + y;
+            for (let z = 0; z < cellSize; z += 1) {
+                const voxZ = startZ + z;
+                for (let x = 0; x < cellSize; x += 1) {
+                    const voxX = startX + x;
+                    const vox = getVoxel(voxX, voxY, voxZ, newMesh, meshArray, cellSize, cellSliceSize);
+                    if (vox) {
+                        const uvVoxel = vox - 1;
+                        for (const { dir, corners, uvRow } of faces) {
+                            const neighbor = getVoxel(
+                                voxX + dir[0],
+                                voxY + dir[1],
+                                voxZ + dir[2],
+                                newMesh,
+                                meshArray,
+                                cellSize,
+                                cellSliceSize);
+
+                            if (!neighbor) {
+                                const ndx = positions.length / 3;
+                                for (const { pos, uv } of corners) {
+                                    positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
+                                    normals.push(...dir);
+                                    uvs.push(
+                                        (uvVoxel +   uv[0]) * tileSize / tileTextureWidth,
+                                        1 - (uvRow + 1 - uv[1]) * tileSize / tileTextureHeight);
+                                }
+                                indices.push(
+                                    ndx, ndx + 1, ndx + 2,
+                                    ndx + 2, ndx + 1, ndx + 3,
+                                );
+                            }
+                        }
+                    }
                 }
-                if (!container) {
-                    const mesh : MyMesh = new MyMesh(cellSize, height, width, castedGenerator);
-                    toReturnMesh.push(mesh);
-                    //voxelComponent.displayVoxelWorld(scene, mesh);
-                }
-                drawed.push(id);
             }
         }
-        //delete to scene all drawed stuff that isn't in drawed
-        //meshContainer.deleteToSceneUselessDrawing(scene, drawed);
-        return { toReturnMesh, meshArray , drawed, toAddToScene};
+        return {
+            positions,
+            normals,
+            uvs,
+            indices,
+        }
     }
 });

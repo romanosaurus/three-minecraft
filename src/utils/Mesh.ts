@@ -4,13 +4,13 @@ import PerlinGenerator from './PerlinGenerator';
 
 export default class MyMesh {
 
-    private size : number;
+    public size : number;
     /* Pos of the mesh if all mesh were in a two dimensionnal array */
-    private HeightOffset : number;
-    private WidthOffset : number;
+    public HeightOffset : number;
+    public WidthOffset : number;
     public data;
 
-    constructor(size : number, HeightOffset : number, WidthOffset : number, generator : PerlinGenerator, data?: any) {
+    constructor(size : number, HeightOffset : number, WidthOffset : number, generator : PerlinGenerator |  null, data?: any) {
         this.size = size;
         this.HeightOffset = HeightOffset;
         this.WidthOffset = WidthOffset;
