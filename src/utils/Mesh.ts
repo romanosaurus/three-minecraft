@@ -14,7 +14,7 @@ export default class MyMesh {
         this.size = size;
         this.HeightOffset = HeightOffset;
         this.WidthOffset = WidthOffset;
-        this.data = data || generator.createMesh(size, WidthOffset, HeightOffset)
+        this.data = data || generator.createMesh();
     }
     public getMeshSize() {
         return this.size;

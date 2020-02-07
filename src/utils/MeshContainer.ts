@@ -53,21 +53,19 @@ export default class MeshContainer {
         }
         return array;
     }
-    public needToUpdate(currentHeightPos : number, currentWidthPos : number) {
+    public needToUpdate(currentHeightPos : number, currentWidthPos : number, fov : number) {
         let cmpArray = [];
-        for (let height = currentHeightPos - 1; height <= currentHeightPos + 1; height++) {
-            for (let width = currentWidthPos - 1; width <= currentWidthPos + 1; width++) {
+        for (let height = currentHeightPos - fov; height <= currentHeightPos + fov; height++) {
+            for (let width = currentWidthPos - fov; width <= currentWidthPos + fov; width++) {
                 const id : string = width + ',0,' + height;
                 cmpArray.push(id);
             }
         }
         let drawedMesh = this.getDrawedMesh();
-        //console.log(drawedMesh, cmpArray);
         for (let mesh of cmpArray) {
             if (drawedMesh.indexOf(mesh) <= -1)
                 return true;
         }
-        //console.log(cmpArray, drawedMesh);
         return false;
     }
 

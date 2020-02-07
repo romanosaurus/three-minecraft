@@ -1,20 +1,11 @@
 import { expose } from "threads/worker";
-import MeshContainer from "../utils/MeshContainer";
 import MyMesh from "../utils/Mesh";
-import Voxel from "../components/Voxel";
 import PerlinGenerator from "../utils/PerlinGenerator";
-import ECSWrapper from "../ecs/wrapper/ECSWrapper";
-import ThreeSystem from "../systems/ThreeSystem";
-import AComponent from "../ecs/abstract/AComponent";
-import IEntity from "../ecs/interfaces/IEntity";
 import * as THREE from "three";
 
 expose({
-    test(test: any) {
-        test
-    },
     meshWorker(cellSize: number, height: number, width: number, generator: PerlinGenerator) {
-        const mesh : MyMesh = new MyMesh(cellSize, height, width, PerlinGenerator.fromData(JSON.parse(JSON.stringify(generator))));
+        const mesh : MyMesh = new MyMesh(cellSize, height, width, PerlinGenerator.fromData(generator.width, generator.height, generator.spec.randseed));
 
         return mesh;
     },
@@ -33,7 +24,7 @@ expose({
             let newX = mesh.getWidthOffset();
             let newY = mesh.getHeightOffset();
 
-            const container = meshArray[newX + ',0,' + newY];
+            const container = meshArray[newX + ',' + newY];
             if (!container)
                 return null;
             return container.drawableMesh;

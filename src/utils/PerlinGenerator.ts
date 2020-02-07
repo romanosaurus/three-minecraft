@@ -1,15 +1,14 @@
-import * as THREE from 'three';
 import Random from "../utils/Random";
 
 export default class PerlinGenerator {
 
-    private width : number;
-    private height : number;
+    public width : number;
+    public height : number;
     private data;
-    private spec;
+    public spec;
 
-    static fromData(json) {
-        return new this(json.width, json.height, json.spec.randseed);
+    static fromData(width : number, height : number, randseed : number) {
+        return new this(width, height, randseed);
     }
     constructor(width : number, height : number, randseed : number) {
         this.width = width;
@@ -23,10 +22,10 @@ export default class PerlinGenerator {
         this.spec.absolute = false;
         this.spec.color = false;
         this.spec.alpha = false;
-        this.createTurbulence(0, 0);
+        this.createTurbulence();
     }
-    public createMesh(meshSize : number, offsetMeshWidth : number, offsetMeshHeight : number) {
-        this.createTurbulence(offsetMeshWidth * meshSize, offsetMeshHeight * meshSize);
+    public createMesh() {
+        this.createTurbulence();
         return this.data;
     }
     public getWidth() {
@@ -46,7 +45,7 @@ export default class PerlinGenerator {
         this.data[offset + 2] = b;
         this.data[offset + 3] = a;
     }
-    public createTurbulence(startingWidth : number, startingHeight : number) {
+    public createTurbulence() {
         let numChannels = this.spec.color ? 3 : 1 + this.spec.alpha ? 1 : 0;
         let raster = new Array(this.width * this.height * numChannels);
 
