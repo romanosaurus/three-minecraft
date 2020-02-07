@@ -9,14 +9,15 @@ export default class PerlinGenerator {
     private spec;
 
     static fromData(json) {
-        return new this(json.width, json.height);
+        console.log(json);
+        return new this(json.width, json.height, json.spec.randseed);
     }
-    constructor(width : number, height : number) {
+    constructor(width : number, height : number, randseed : number) {
         this.width = width;
         this.height = height;
         this.data = new Array(width * height * 4);
         this.spec = {};
-        this.spec.randseed = THREE.MathUtils.randInt(0, 3000);
+        this.spec.randseed = randseed;
         this.spec.period = 32;
         this.spec.levels = 2;
         this.spec.atten = 0.1;

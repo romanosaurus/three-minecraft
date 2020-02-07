@@ -38,10 +38,13 @@ export default class Voxel extends AComponent
 
     //generateur preocedural
     public generator;
+
+    //TODO modify
+    private generatedArray;
     constructor(entity: IEntity, options : Options)
     {
         super(entity);
-        this.generator = new PerlinGenerator(options.cellSize, options.cellSize);
+        this.generator = new PerlinGenerator(options.cellSize, options.cellSize, THREE.MathUtils.randInt(0, 3000));
         this.MeshContainer = new MeshContainer();
         this.cellSize = options.cellSize;
         this.tileSize = options.tileSize;
@@ -53,6 +56,9 @@ export default class Voxel extends AComponent
 
         this.boxColliders = [];
         this.isGenerated = false;
+
+        // TODO modify
+        this.generatedArray = {};
 
         this.faces = [
             { // left
@@ -365,12 +371,8 @@ export default class Voxel extends AComponent
             console.log('no need')
             return;
         }
-        console.log('need to update');
-        if (this.isGenerated === false) {
-            this.isGenerated = true;
 
-            this.updateMesh(player.position, scene);
-        }
+        this.updateMesh(player.position, scene);
 
 /*        for (let i = 0; i < gen["toReturnMesh"].length; i++) {
             let mesh = new MyMesh(gen["toReturnMesh"][i].size, gen["toReturnMesh"][i].HeighOffset, gen["toReturnMesh"][i].WidthOffset, this.generator, gen["toReturnMesh"][i].data);
@@ -397,9 +399,11 @@ export default class Voxel extends AComponent
                     scene.add(container.drawedMesh);
                     this.MeshContainer.setDrawedStatus(id, true);
                 }
-                if (!container) {
+                if (!container && (this.generatedArray[id] === undefined || this.generatedArray[id] !== true)) {
+                    this.generatedArray[id] = true;
+//                    console.log(this.generatedArray);
                     const generation = await spawn(new Worker('../workers/generation'));
-                    const gen = await generation.meshWorker(this.cellSize, 1, 1, this.generator);
+                    const gen = await generation.meshWorker(this.cellSize, height, width, this.generator);
                     await Thread.terminate(generation);
                     let test : MyMesh = new MyMesh(gen.size, gen.HeightOffset, gen.WidthOffset, this.generator, gen.data);
                     this.displayVoxelWorld(scene, test);
