@@ -62,18 +62,28 @@ export default class MeshContainer {
             }
         }
         let drawedMesh = this.getDrawedMesh();
+        //console.log(drawedMesh, cmpArray);
         for (let mesh of cmpArray) {
             if (drawedMesh.indexOf(mesh) <= -1)
-                return false;
+                return true;
         }
         //console.log(cmpArray, drawedMesh);
-        return true;
+        return false;
     }
-    public serialize() {
-        let serialized = Object.assign({}, this.meshArray);
 
-        for (let i = 0; i < serialized.size; i++)
-            serialized[i].mesh = null;
+    public serialize() {
+        let serialized = {};
+
+        for (let key of Object.keys(this.meshArray)) {
+            serialized[key] = {};
+            for (let jsonbKey of Object.keys(this.meshArray[key])) {
+                if (jsonbKey === "mesh" || jsonbKey === "drawedMesh") {
+                    serialized[key][jsonbKey] = null;
+                    continue;
+                }
+                serialized[key][jsonbKey] = this.meshArray[key][jsonbKey];
+            }
+        }
         return serialized;
     }
 };

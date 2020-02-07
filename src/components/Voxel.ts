@@ -208,20 +208,17 @@ export default class Voxel extends AComponent
                 counter += 4;
             }
         }
-        const { positions, normals, uvs, indices } = this.generateGeometryDataForCell(mesh.getWidthOffset(), 0, mesh.getHeightOffset(), mesh);
         const generation = await spawn(new Worker('../workers/generation'));
-
-        /*const {positions, normals, uvs, indices} = await generation.generateGeometryDataForCell(mesh.getWidthOffset(), 0, mesh.getHeightOffset(), mesh.size, mesh.data, {
+        let newObject = this.MeshContainer.serialize();
+        const {positions, normals, uvs, indices} = await generation.generateGeometryDataForCell(mesh.getWidthOffset(), 0, mesh.getHeightOffset(), mesh.size, mesh.data, {
             cellSize: this.cellSize,
             tileSize: this.tileSize,
             tileTextureWidth: this.tileTextureWidth,
             tileTextureHeight: this.tileTextureHeight,
-            meshArray: this.MeshContainer.meshArray,
+            meshArray: newObject,
             cellSliceSize: this.cellSliceSize,
             faces: this.faces
-        });*/
-        //console.log(this.MeshContainer.meshArray)
-        await generation.test(Object.assign({}, this.MeshContainer.meshArray));
+        });
         await Thread.terminate(generation);
 
         const geometry : THREE.BufferGeometry = new THREE.BufferGeometry();
@@ -364,9 +361,11 @@ export default class Voxel extends AComponent
             this.boxColliders.splice(indexToDelete[i], 1);
         }
         //updating mesh generation
-        if (this.MeshContainer.needToUpdate(Math.floor(player.position.z / this.cellSize), Math.floor(player.position.x / this.cellSize))) {
+        if (!this.MeshContainer.needToUpdate(Math.floor(player.position.z / this.cellSize), Math.floor(player.position.x / this.cellSize))) {
+            console.log('no need')
             return;
         }
+        console.log('need to update');
         if (this.isGenerated === false) {
             this.isGenerated = true;
 
