@@ -6,8 +6,6 @@ import AComponent from "../ecs/abstract/AComponent";
 import IEntity from "../ecs/interfaces/IEntity";
 import MyMesh from "../utils/Mesh";
 import MeshContainer from "../utils/MeshContainer";
-import { spawn, Thread, Worker } from "threads";
-import { Mesh } from 'three';
 
 interface Options {
     cellSize: number,
@@ -16,16 +14,9 @@ interface Options {
     tileTextureHeight: number
 }
 
-interface Face {
-    uvRow: number,
-    dir: Array<number>,
-    corners: {pos: Array<number>, uv: Array<number>}[]
-}
-
 export default class Voxel extends AComponent
 {
     private options: Options;
-    private readonly _faces: Array<Face>;
     private FOV: number; /* rendering distance */
     private _cellSliceSize: number;
     private _meshContainer: MeshContainer;
@@ -38,68 +29,6 @@ export default class Voxel extends AComponent
         this._meshContainer = new MeshContainer();
         this.FOV = 1;
         this._cellSliceSize = this.options.cellSize * this.options.cellSize;
-        this._faces = [
-            { // left
-                uvRow: 0,
-                dir: [ -1,  0,  0, ],
-                corners: [
-                    { pos: [ 0, 1, 0 ], uv: [ 0, 1 ], },
-                    { pos: [ 0, 0, 0 ], uv: [ 0, 0 ], },
-                    { pos: [ 0, 1, 1 ], uv: [ 1, 1 ], },
-                    { pos: [ 0, 0, 1 ], uv: [ 1, 0 ], },
-                ],
-            },
-            { // right
-                uvRow: 0,
-                dir: [  1,  0,  0, ],
-                corners: [
-                    { pos: [ 1, 1, 1 ], uv: [ 0, 1 ], },
-                    { pos: [ 1, 0, 1 ], uv: [ 0, 0 ], },
-                    { pos: [ 1, 1, 0 ], uv: [ 1, 1 ], },
-                    { pos: [ 1, 0, 0 ], uv: [ 1, 0 ], },
-                ],
-            },
-            { // bottom
-                uvRow: 1,
-                dir: [  0, -1,  0, ],
-                corners: [
-                    { pos: [ 1, 0, 1 ], uv: [ 1, 0 ], },
-                    { pos: [ 0, 0, 1 ], uv: [ 0, 0 ], },
-                    { pos: [ 1, 0, 0 ], uv: [ 1, 1 ], },
-                    { pos: [ 0, 0, 0 ], uv: [ 0, 1 ], },
-                ],
-            },
-            { // top
-                uvRow: 2,
-                dir: [  0,  1,  0, ],
-                corners: [
-                    { pos: [ 0, 1, 1 ], uv: [ 1, 1 ], },
-                    { pos: [ 1, 1, 1 ], uv: [ 0, 1 ], },
-                    { pos: [ 0, 1, 0 ], uv: [ 1, 0 ], },
-                    { pos: [ 1, 1, 0 ], uv: [ 0, 0 ], },
-                ],
-            },
-            { // back
-                uvRow: 0,
-                dir: [  0,  0, -1, ],
-                corners: [
-                    { pos: [ 1, 0, 0 ], uv: [ 0, 0 ], },
-                    { pos: [ 0, 0, 0 ], uv: [ 1, 0 ], },
-                    { pos: [ 1, 1, 0 ], uv: [ 0, 1 ], },
-                    { pos: [ 0, 1, 0 ], uv: [ 1, 1 ], },
-                ],
-            },
-            { // front
-                uvRow: 0,
-                dir: [  0,  0,  1, ],
-                corners: [
-                    { pos: [ 0, 0, 1 ], uv: [ 0, 0 ], },
-                    { pos: [ 1, 0, 1 ], uv: [ 1, 0 ], },
-                    { pos: [ 0, 1, 1 ], uv: [ 0, 1 ], },
-                    { pos: [ 1, 1, 1 ], uv: [ 1, 1 ], },
-                ],
-            },
-        ];
     }
 
     private computeVoxelOffset(x: number, y: number, z: number): number
@@ -174,10 +103,6 @@ export default class Voxel extends AComponent
 
     get meshContainer(): MeshContainer {
         return this._meshContainer;
-    }
-
-    get faces(): Array<Face> {
-        return this._faces;
     }
 
     get cellSize(): number {

@@ -11,6 +11,7 @@ import BoxCollider from '../components/BoxCollider';
 import MeshContainer from "../utils/MeshContainer";
 import MyMesh from '../utils/Mesh';
 import PerlinGenerator from '../utils/PerlinGenerator';
+import Faces from "../utils/Faces";
 
 class WorldGenerationSystem extends ASystem {
     private generatedArray: Object;
@@ -148,7 +149,7 @@ class WorldGenerationSystem extends ASystem {
             tileTextureHeight: this.worldOptions.tileTextureHeight,
             meshArray: serializedMeshArray,
             cellSliceSize: this.worldOptions.cellSize * this.worldOptions.cellSize,
-            faces: voxelComponent.faces
+            faces: Faces
         });
         await Thread.terminate(generation);
 
