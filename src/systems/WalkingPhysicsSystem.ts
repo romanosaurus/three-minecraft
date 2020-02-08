@@ -26,14 +26,14 @@ class WalkingPhysicsSystem extends ASystem {
     onUpdate(elapsedTime: number): void {
         const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
 
-        ecsWrapper.entityManager.applyToEach(["FirstPersonController", "BoxCollider", "WalkingArea"], (entity) => {
+        ecsWrapper.entityManager.applyToEach(["BoxCollider", "WalkingArea"], (entity) => {
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
             const walkingArea: WalkingArea = entity.getComponent(WalkingArea);
 
             ecsWrapper.entityManager.applyToEach(["Voxel"], (voxelEntities) => {
                 this.handleWalkingArea(boxCollider, walkingArea, voxelEntities);
                 this.handleDeletionOfWalkingArea(walkingArea);
-                voxelEntities.getComponent(Voxel).Update(entity.getComponent(BoxCollider).body, ecsWrapper.systemManager.getSystem(CannonSystem).world, ecsWrapper.systemManager.getSystem(ThreeSystem).getScene());
+                //voxelEntities.getComponent(Voxel).Update(entity.getComponent(BoxCollider).body, ecsWrapper.systemManager.getSystem(CannonSystem).world, ecsWrapper.systemManager.getSystem(ThreeSystem).getScene());
             })
         });
         this.stock = [];

@@ -35,10 +35,7 @@ export default class Voxel extends AComponent
     private tileSize: number;
     private FOV: number; /* rendering distance */
     private cellSliceSize: number;
-    private boxColliders: Array<BoxCollider>;
     private meshContainer: MeshContainer;
-    public generator: PerlinGenerator; /* procedural generator */
-    private generatedArray; /* array of working workers by ID */
     // Textures
     private textureLoader: THREE.TextureLoader;
     private texture: THREE.Texture;
@@ -48,9 +45,6 @@ export default class Voxel extends AComponent
     {
         super(entity);
 
-        // Initialize Perlin Generator
-        this.generator = new PerlinGenerator(options.cellSize, options.cellSize, THREE.MathUtils.randInt(0, 3000));
-
         this.meshContainer = new MeshContainer();
         this.cellSize = options.cellSize;
         this.tileSize = options.tileSize;
@@ -58,8 +52,6 @@ export default class Voxel extends AComponent
         this.tileTextureHeight = options.tileTextureHeight;
         this.FOV = 1;
         this.cellSliceSize = this.cellSize * this.cellSize;
-        this.boxColliders = [];
-        this.generatedArray = {};
         this.faces = [
             { // left
                 uvRow: 0,
@@ -205,8 +197,8 @@ export default class Voxel extends AComponent
         return new CANNON.Vec3(x + 0.5, y + 0.5, z + 0.5)
     }
 
-    public async displayMeshs(scene: THREE.Scene): Promise<void> {
-        let mesh: MyMesh = new MyMesh(this.cellSize, 2, 2, this.generator);
+    public async displayMeshs(scene: THREE.Scene, generator: PerlinGenerator): Promise<void> {
+        let mesh: MyMesh = new MyMesh(this.cellSize, 2, 2, generator);
 
         this.displayVoxelWorld(scene, mesh);
     }
@@ -269,36 +261,15 @@ export default class Voxel extends AComponent
         this.meshContainer.addMeshToSceneId(mesh.getWidthOffset() + ',' + mesh.getHeightOffset(), drawMesh);
     }
 
-    public async Update(player : CANNON.Body, world : CANNON.World, scene : THREE.Scene) {
-        /* updating mesh generation */
-        if (this.meshContainer.needToUpdate(Math.floor(player.position.z / this.cellSize), Math.floor(player.position.x / this.cellSize), this.FOV))
-            this.updateMesh(player.position, scene);
+    public getMeshContainer(): MeshContainer {
+        return this.meshContainer;
     }
 
-    public async updateMesh(playerPosition : CANNON.Vec3, scene : THREE.Scene) {
-        let currentHeightPos = Math.floor(playerPosition.z / this.cellSize);
-        let currentWidthPos = Math.floor(playerPosition.x / this.cellSize);
-        let drawed = [];
+    get CellSize(): number {
+        return this.cellSize;
+    }
 
-        for (let height = currentHeightPos - this.FOV; height <= currentHeightPos + this.FOV; height++) {
-            for (let width = currentWidthPos - this.FOV; width <= currentWidthPos + this.FOV; width++) {
-                const id : string = width + ',' + height;
-                const container = this.meshContainer.getContainerAtPos(id);
-                if (container && !container.isDrawed) {
-                    scene.add(container.drawedMesh);
-                    this.meshContainer.setDrawedStatus(id, true);
-                }
-                if (!container && (this.generatedArray[id] === undefined || this.generatedArray[id] !== true)) {
-                    this.generatedArray[id] = true;
-                    const generation = await spawn(new Worker('../workers/generation'));
-                    const gen = await generation.meshWorker(this.cellSize, height, width, this.generator);
-                    await Thread.terminate(generation);
-                    let test : MyMesh = new MyMesh(gen.size, gen.HeightOffset, gen.WidthOffset, this.generator, gen.data);
-                    this.displayVoxelWorld(scene, test);
-                }
-                drawed.push(id);
-            }
-        }
-        this.meshContainer.deleteToSceneUselessDrawing(scene, drawed);
+    get fov(): number {
+        return this.FOV;
     }
 }
