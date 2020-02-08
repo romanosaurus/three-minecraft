@@ -7,11 +7,7 @@ import IEntity from "../ecs/interfaces/IEntity";
 import MyMesh from "../utils/Mesh";
 import MeshContainer from "../utils/MeshContainer";
 import { spawn, Thread, Worker } from "threads";
-
-interface BoxCollider {
-    position: CANNON.Vec3,
-    body: CANNON.Body
-}
+import { Mesh } from 'three';
 
 interface Options {
     cellSize: number,
@@ -28,31 +24,21 @@ interface Face {
 
 export default class Voxel extends AComponent
 {
-    private readonly cellSize: number;
-    private readonly faces: Array<Face>;
-    private tileTextureWidth: number;
-    private tileTextureHeight: number;
-    private tileSize: number;
+    private options: Options;
+    private readonly _faces: Array<Face>;
     private FOV: number; /* rendering distance */
-    private cellSliceSize: number;
-    private meshContainer: MeshContainer;
-    // Textures
-    private textureLoader: THREE.TextureLoader;
-    private texture: THREE.Texture;
-    private material: THREE.MeshLambertMaterial;
+    private _cellSliceSize: number;
+    private _meshContainer: MeshContainer;
 
-    constructor(entity: IEntity, options : Options)
+    constructor(entity: IEntity, options: Options)
     {
         super(entity);
 
-        this.meshContainer = new MeshContainer();
-        this.cellSize = options.cellSize;
-        this.tileSize = options.tileSize;
-        this.tileTextureWidth = options.tileTextureWidth;
-        this.tileTextureHeight = options.tileTextureHeight;
+        this.options = options;
+        this._meshContainer = new MeshContainer();
         this.FOV = 1;
-        this.cellSliceSize = this.cellSize * this.cellSize;
-        this.faces = [
+        this._cellSliceSize = this.options.cellSize * this.options.cellSize;
+        this._faces = [
             { // left
                 uvRow: 0,
                 dir: [ -1,  0,  0, ],
@@ -114,34 +100,21 @@ export default class Voxel extends AComponent
                 ],
             },
         ];
-
-        // Textures
-        this.textureLoader = new THREE.TextureLoader();
-        this.texture = this.textureLoader.load('../../assets/textures/textures.png');
-        this.texture.magFilter = THREE.NearestFilter;
-        this.texture.minFilter = THREE.NearestFilter;
-
-        this.material = new THREE.MeshLambertMaterial({
-            map: this.texture,
-            side: THREE.DoubleSide,
-            alphaTest: 0.1,
-            transparent: true
-        });
     }
 
     private computeVoxelOffset(x: number, y: number, z: number): number
     {
-        const voxelX : number = THREE.MathUtils.euclideanModulo(x, this.cellSize) | 0;
-        const voxelY : number = THREE.MathUtils.euclideanModulo(y, this.cellSize) | 0;
-        const voxelZ : number = THREE.MathUtils.euclideanModulo(z, this.cellSize) | 0;
+        const voxelX : number = THREE.MathUtils.euclideanModulo(x, this.options.cellSize) | 0;
+        const voxelY : number = THREE.MathUtils.euclideanModulo(y, this.options.cellSize) | 0;
+        const voxelZ : number = THREE.MathUtils.euclideanModulo(z, this.options.cellSize) | 0;
 
-        return voxelY * this.cellSliceSize + voxelZ * this.cellSize + voxelX;
+        return voxelY * this._cellSliceSize + voxelZ * this.options.cellSize + voxelX;
     }
 
     public getCellForVoxel(mesh: MyMesh): Uint8Array {
         let X = mesh.getWidthOffset();
         let Y = mesh.getHeightOffset();
-        const container = this.meshContainer.getContainerAtPos(X + ',' + Y);
+        const container = this._meshContainer.getContainerAtPos(X + ',' + Y);
 
         if (!container)
             return null;
@@ -151,14 +124,14 @@ export default class Voxel extends AComponent
 
     public addCellForVoxel(mesh: MyMesh): MyMesh {
         const cellId = `${mesh.getWidthOffset()},${mesh.getHeightOffset()}`;
-        const container = this.meshContainer.getContainerAtPos(cellId);
+        const container = this._meshContainer.getContainerAtPos(cellId);
 
         if (!container) {
-            let cell = new Uint8Array(this.cellSize * this.cellSize * this.cellSize);
+            let cell = new Uint8Array(this.options.cellSize * this.options.cellSize * this.options.cellSize);
 
-            this.meshContainer.addMesh(cellId, mesh, cell);
+            this._meshContainer.addMesh(cellId, mesh, cell);
         }
-        return this.meshContainer.getContainerAtPos(cellId).mesh;
+        return this._meshContainer.getContainerAtPos(cellId).mesh;
     }
 
     public setVoxel(x: number, y: number, z: number, v: number, mesh: MyMesh): void
@@ -183,90 +156,32 @@ export default class Voxel extends AComponent
     }
 
     public getActiveMesh(x: number, y: number): MyMesh {
-        const cellX = Math.floor(x / this.cellSize);
-        const cellY = Math.floor(y / this.cellSize);
+        const cellX = Math.floor(x / this.options.cellSize);
+        const cellY = Math.floor(y / this.options.cellSize);
         const id : string = cellX + ',' + cellY;
 
-        if (this.meshContainer.getContainerAtPos(id) === undefined)
+        if (this._meshContainer.getContainerAtPos(id) === undefined)
             return undefined;
 
-        return this.meshContainer.getContainerAtPos(id).mesh;
+        return this._meshContainer.getContainerAtPos(id).mesh;
     }
 
     public getVoxelPosition(x: number, y: number, z: number): CANNON.Vec3 {
         return new CANNON.Vec3(x + 0.5, y + 0.5, z + 0.5)
     }
 
-    public async displayMeshs(scene: THREE.Scene, generator: PerlinGenerator): Promise<void> {
-        let mesh: MyMesh = new MyMesh(this.cellSize, 2, 2, generator);
+    // Getter
 
-        this.displayVoxelWorld(scene, mesh);
+    get meshContainer(): MeshContainer {
+        return this._meshContainer;
     }
 
-    public async displayVoxelWorld(scene: THREE.Scene, mesh: MyMesh): Promise<void> {
-        const perlinArray = mesh.getMeshData();
-
-        if (perlinArray === null)
-            return;
-
-        let counter: number = 0;
-        const startX: number = mesh.getWidthOffset() * this.cellSize;
-        const startY: number = mesh.getHeightOffset() * this.cellSize;
-        for (let y = 0; y < mesh.getMeshSize(); ++y) {
-            for (let x = 0; x < mesh.getMeshSize(); ++x) {
-                for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--)
-                    this.setVoxel(startX + x, height, startY + y, 14, mesh);
-                counter += 4;
-            }
-        }
-
-        // Generation workers start
-        const generation = await spawn(new Worker('../workers/generation'));
-        const serializedMeshArray = this.meshContainer.serialize();
-        const {positions, normals, uvs, indices} = await generation.generateGeometryDataForCell(mesh.getWidthOffset(), 0, mesh.getHeightOffset(), mesh.size, mesh.data, {
-            cellSize: this.cellSize,
-            tileSize: this.tileSize,
-            tileTextureWidth: this.tileTextureWidth,
-            tileTextureHeight: this.tileTextureHeight,
-            meshArray: serializedMeshArray,
-            cellSliceSize: this.cellSliceSize,
-            faces: this.faces
-        });
-        await Thread.terminate(generation);
-
-        const geometry : THREE.BufferGeometry = new THREE.BufferGeometry();
-
-        const numComponent: {position: number, normal: number, uv: number} = {
-            position: 3,
-            normal: 3,
-            uv: 2
-        }
-
-        geometry.setAttribute(
-            'position',
-            new THREE.BufferAttribute(new Float32Array(positions), numComponent.position)
-        );
-        geometry.setAttribute(
-            'normal',
-            new THREE.BufferAttribute(new Float32Array(normals), numComponent.normal)
-        );
-        geometry.setAttribute(
-            'uv',
-            new THREE.BufferAttribute(new Float32Array(uvs), numComponent.uv));
-        geometry.setIndex(indices);
-
-        const drawMesh = new THREE.Mesh(geometry, this.material);
-        drawMesh.position.set(mesh.getWidthOffset() * this.cellSize, 0, mesh.getHeightOffset() * this.cellSize);
-        scene.add(drawMesh);
-        this.meshContainer.addMeshToSceneId(mesh.getWidthOffset() + ',' + mesh.getHeightOffset(), drawMesh);
+    get faces(): Array<Face> {
+        return this._faces;
     }
 
-    public getMeshContainer(): MeshContainer {
-        return this.meshContainer;
-    }
-
-    get CellSize(): number {
-        return this.cellSize;
+    get cellSize(): number {
+        return this.options.cellSize;
     }
 
     get fov(): number {
