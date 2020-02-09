@@ -48,8 +48,8 @@ class WorldGenerationSystem extends ASystem {
 
         const scene: THREE.Scene = ecsWrapper.systemManager.getSystem(ThreeSystem).getScene();
 
-        ecsWrapper.entityManager.createEntity("world");
-        const worldEntity: IEntity = ecsWrapper.entityManager.getEntity("world");
+        ecsWrapper.entityManager.create("world");
+        const worldEntity: IEntity = ecsWrapper.entityManager.getByName("world")[0];
 
         worldEntity.assignComponent<Voxel>(
             new Voxel(
