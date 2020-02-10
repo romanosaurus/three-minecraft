@@ -4,7 +4,7 @@ import * as CANNON from 'cannon';
 import PerlinGenerator from '../utils/PerlinGenerator';
 import AComponent from "../ecs/abstract/AComponent";
 import IEntity from "../ecs/interfaces/IEntity";
-import MyMesh from "../utils/Mesh";
+import Chunk from "../utils/Chunk";
 import MeshContainer from "../utils/MeshContainer";
 
 interface Options {
@@ -40,9 +40,9 @@ export default class Voxel extends AComponent
         return voxelY * this._cellSliceSize + voxelZ * this.options.cellSize + voxelX;
     }
 
-    public getCellForVoxel(mesh: MyMesh): Uint8Array {
-        let X = mesh.getWidthOffset();
-        let Y = mesh.getHeightOffset();
+    public getCellForVoxel(chunk: Chunk): Uint8Array {
+        let X = chunk.getWidthOffset();
+        let Y = chunk.getHeightOffset();
         const container = this._meshContainer.getContainerAtPos(X + ',' + Y);
 
         if (!container)
@@ -51,31 +51,31 @@ export default class Voxel extends AComponent
         return container.drawableMesh;
     }
 
-    public addCellForVoxel(mesh: MyMesh): MyMesh {
-        const cellId = `${mesh.getWidthOffset()},${mesh.getHeightOffset()}`;
+    public addCellForVoxel(chunk: Chunk): Chunk {
+        const cellId = `${chunk.getWidthOffset()},${chunk.getHeightOffset()}`;
         const container = this._meshContainer.getContainerAtPos(cellId);
 
         if (!container) {
             let cell = new Uint8Array(this.options.cellSize * this.options.cellSize * this.options.cellSize);
 
-            this._meshContainer.addMesh(cellId, mesh, cell);
+            this._meshContainer.addMesh(cellId, chunk, cell);
         }
         return this._meshContainer.getContainerAtPos(cellId).mesh;
     }
 
-    public setVoxel(x: number, y: number, z: number, v: number, mesh: MyMesh): void
+    public setVoxel(x: number, y: number, z: number, v: number, chunk: Chunk): void
     {
-        let cell: Uint8Array | MyMesh = this.getCellForVoxel(mesh);
+        let cell: Uint8Array | Chunk = this.getCellForVoxel(chunk);
 
         if (!cell)
-            cell = this.addCellForVoxel(mesh);
+            cell = this.addCellForVoxel(chunk);
 
         const voxelOffset = this.computeVoxelOffset(x, y, z);
         cell[voxelOffset] = v;
     }
 
-    public getVoxel(x: number, y: number, z: number, mesh: MyMesh): number {
-        const cell = this.getCellForVoxel(mesh);
+    public getVoxel(x: number, y: number, z: number, chunk: Chunk): number {
+        const cell = this.getCellForVoxel(chunk);
 
         if (!cell)
             return 0;
@@ -84,7 +84,7 @@ export default class Voxel extends AComponent
         return cell[voxelOffset];
     }
 
-    public getActiveMesh(x: number, y: number): MyMesh {
+    public getActiveMesh(x: number, y: number): Chunk {
         const cellX = Math.floor(x / this.options.cellSize);
         const cellY = Math.floor(y / this.options.cellSize);
         const id : string = cellX + ',' + cellY;

@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 
-import MyMesh from "../utils/Mesh";
+import Chunk from "../utils/Chunk";
 
 export interface Container {
     drawableMesh: Uint8Array,
-    mesh: MyMesh,
+    mesh: Chunk,
     drawedMesh: THREE.Scene,
     isDrawed: boolean
 }

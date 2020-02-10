@@ -2,16 +2,15 @@ import * as THREE from "three";
 
 import { expose } from "threads/worker";
 
-import MyMesh from "../utils/Mesh";
+import Chunk from "../utils/Chunk";
 import PerlinGenerator from "../utils/PerlinGenerator";
-
 
 /**
  * Worker to handle the world generation
  */
 expose({
-    meshWorker(cellSize: number, height: number, width: number, generator: PerlinGenerator): MyMesh {
-        const mesh : MyMesh = new MyMesh(
+    meshWorker(cellSize: number, height: number, width: number, generator: PerlinGenerator): Chunk {
+        const chunk: Chunk = new Chunk(
             cellSize,
             height,
             width,
@@ -22,7 +21,7 @@ expose({
             )
         );
 
-        return mesh;
+        return chunk;
     },
     generateGeometryDataForCell(cellX: number, cellY: number, cellZ: number, meshSize: number, meshData: any, utils: any) {
 
@@ -36,9 +35,9 @@ expose({
                 voxelX;
         }
 
-        function getCellForVoxel(x: number, y: number, z: number, mesh: MyMesh, meshArray: any): Uint8Array {
-            let newX: number = mesh.getWidthOffset();
-            let newY: number = mesh.getHeightOffset();
+        function getCellForVoxel(x: number, y: number, z: number, chunk: Chunk, meshArray: any): Uint8Array {
+            let newX: number = chunk.getWidthOffset();
+            let newY: number = chunk.getHeightOffset();
 
             const container = meshArray[newX + ',' + newY];
 
@@ -48,8 +47,8 @@ expose({
             return container.drawableMesh;
         }
 
-        function getVoxel(x: number, y: number, z: number, mesh: MyMesh, meshArray: any, cellSize: number, cellSliceSize: number): number {
-            const cell: Uint8Array = getCellForVoxel(x, y, z, mesh, meshArray);
+        function getVoxel(x: number, y: number, z: number, chunk: Chunk, meshArray: any, cellSize: number, cellSliceSize: number): number {
+            const cell: Uint8Array = getCellForVoxel(x, y, z, chunk, meshArray);
 
             if (!cell)
                 return 0;
@@ -58,7 +57,7 @@ expose({
             return cell[voxelOffset];
         }
 
-        const newMesh: MyMesh = new MyMesh(meshSize, cellZ, cellX, null, meshData);
+        const newChunk: Chunk = new Chunk(meshSize, cellZ, cellX, null, meshData);
         const { cellSize, tileSize, tileTextureWidth, tileTextureHeight, meshArray, cellSliceSize, faces } = utils;
         const positions: Array<number> = [];
         const normals: Array<number> = [];
@@ -77,7 +76,7 @@ expose({
                 for (let x: number = 0; x < cellSize; x += 1) {
 
                     const voxX: number = startX + x;
-                    const vox: number = getVoxel(voxX, voxY, voxZ, newMesh, meshArray, cellSize, cellSliceSize);
+                    const vox: number = getVoxel(voxX, voxY, voxZ, newChunk, meshArray, cellSize, cellSliceSize);
 
                     if (vox) {
                         const uvVoxel: number = vox - 1;
@@ -86,7 +85,7 @@ expose({
                                 voxX + dir[0],
                                 voxY + dir[1],
                                 voxZ + dir[2],
-                                newMesh,
+                                newChunk,
                                 meshArray,
                                 cellSize,
                                 cellSliceSize);

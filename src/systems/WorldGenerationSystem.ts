@@ -9,14 +9,21 @@ import Voxel from "../components/Voxel";
 import ThreeSystem from "./ThreeSystem";
 import BoxCollider from '../components/BoxCollider';
 import MeshContainer from "../utils/MeshContainer";
-import MyMesh from '../utils/Mesh';
+import Chunk from '../utils/Chunk';
 import PerlinGenerator from '../utils/PerlinGenerator';
 import Faces from "../utils/Faces";
+
+interface WorldOptions {
+    cellSize: number,
+    tileTextureWidth: number,
+    tileTextureHeight: number,
+    tileSize: number
+};
 
 class WorldGenerationSystem extends ASystem {
     private generatedArray: Object;
     private perlinGenerator: PerlinGenerator;
-    private worldOptions: {cellSize: number, tileTextureWidth: number, tileTextureHeight: number, tileSize: number};
+    private worldOptions: WorldOptions;
 
     // Materials and textures
     private textureLoader: THREE.TextureLoader;
@@ -29,7 +36,7 @@ class WorldGenerationSystem extends ASystem {
         this.generatedArray = {};
         this.worldOptions = { cellSize: 128, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16 };
         this.perlinGenerator = new PerlinGenerator(this.worldOptions.cellSize, this.worldOptions.cellSize, THREE.MathUtils.randInt(0, 3000));
-    
+
         this.textureLoader = new THREE.TextureLoader();
         this.texture = this.textureLoader.load('../../assets/textures/textures.png');
         this.texture.magFilter = THREE.NearestFilter;
@@ -59,7 +66,7 @@ class WorldGenerationSystem extends ASystem {
         );
 
         ecsWrapper.entityManager.applyToEach(["Voxel"], (entity) => {
-            const mesh: MyMesh = new MyMesh(this.worldOptions.cellSize, 2, 2, this.perlinGenerator);
+            const mesh: Chunk = new Chunk(this.worldOptions.cellSize, 2, 2, this.perlinGenerator);
 
             this.displayWorld(worldEntity.getComponent(Voxel), scene, mesh);
         });
@@ -109,7 +116,7 @@ class WorldGenerationSystem extends ASystem {
                         const gen = await generation.meshWorker(voxelComponent.cellSize, z, x, this.perlinGenerator);
                         await Thread.terminate(generation);
 
-                        let meshFromWorker: MyMesh = new MyMesh(gen.size, gen.HeightOffset, gen.WidthOffset, this.perlinGenerator, gen.data);
+                        let meshFromWorker: Chunk = new Chunk(gen.size, gen.HeightOffset, gen.WidthOffset, this.perlinGenerator, gen.data);
                         this.displayWorld(voxelComponent, scene, meshFromWorker);
                     }
                     drawed.push(currentId);
@@ -120,21 +127,21 @@ class WorldGenerationSystem extends ASystem {
         }
     }
 
-    public async displayWorld(voxelComponent: Voxel, scene: THREE.Scene, mesh: MyMesh) {
-        const perlinArray: any = mesh.getMeshData();
+    public async displayWorld(voxelComponent: Voxel, scene: THREE.Scene, chunk: Chunk) {
+        const perlinArray: any = chunk.getMeshData();
         const counterOffset: number = 4;
 
         if (!perlinArray)
             return;
 
         let counter: number = 0;
-        const startX: number = mesh.getWidthOffset() * this.worldOptions.cellSize;
-        const startZ: number = mesh.getHeightOffset() * this.worldOptions.cellSize;
+        const startX: number = chunk.getWidthOffset() * this.worldOptions.cellSize;
+        const startZ: number = chunk.getHeightOffset() * this.worldOptions.cellSize;
 
-        for (let z = 0; z < mesh.getMeshSize(); z += 1) {
-            for (let x = 0; x < mesh.getMeshSize(); x += 1) {
+        for (let z = 0; z < chunk.getMeshSize(); z += 1) {
+            for (let x = 0; x < chunk.getMeshSize(); x += 1) {
                 for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--) {
-                    voxelComponent.setVoxel(startX + x, height, startZ + z, 14, mesh);
+                    voxelComponent.setVoxel(startX + x, height, startZ + z, 14, chunk);
                 }
                 counter += counterOffset;
             }
@@ -142,7 +149,7 @@ class WorldGenerationSystem extends ASystem {
 
         const generation = await spawn(new Worker('../workers/generation'));
         const serializedMeshArray = voxelComponent.meshContainer.serialize();
-        const {positions, normals, uvs, indices} = await generation.generateGeometryDataForCell(mesh.getWidthOffset(), 0, mesh.getHeightOffset(), mesh.size, mesh.data, {
+        const {positions, normals, uvs, indices} = await generation.generateGeometryDataForCell(chunk.getWidthOffset(), 0, chunk.getHeightOffset(), chunk.size, chunk.data, {
             cellSize: this.worldOptions.cellSize,
             tileSize: this.worldOptions.tileSize,
             tileTextureWidth: this.worldOptions.tileTextureWidth,
@@ -175,9 +182,9 @@ class WorldGenerationSystem extends ASystem {
         geometry.setIndex(indices);
 
         const drawMesh = new THREE.Mesh(geometry, this.material);
-        drawMesh.position.set(mesh.getWidthOffset() * this.worldOptions.cellSize, 0, mesh.getHeightOffset() * this.worldOptions.cellSize);
+        drawMesh.position.set(chunk.getWidthOffset() * this.worldOptions.cellSize, 0, chunk.getHeightOffset() * this.worldOptions.cellSize);
         scene.add(drawMesh);
-        voxelComponent.meshContainer.addMeshToSceneId(mesh.getWidthOffset() + ',' + mesh.getHeightOffset(), drawMesh);
+        voxelComponent.meshContainer.addMeshToSceneId(chunk.getWidthOffset() + ',' + chunk.getHeightOffset(), drawMesh);
     }
 }
 

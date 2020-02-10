@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import PerlinGenerator from './PerlinGenerator';
 
-export default class MyMesh {
+export default class Chunk {
 
     public size : number;
     /* Pos of the mesh if all mesh were in a two dimensionnal array */

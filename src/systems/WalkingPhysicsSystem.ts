@@ -7,7 +7,7 @@ import BoxCollider from "../components/BoxCollider";
 import CannonSystem from "./CannonSystem";
 import SystemManager from "../ecs/managers/SystemManager";
 import ThreeSystem from "./ThreeSystem";
-import MyMesh from "../utils/Mesh";
+import Chunk from "../utils/Chunk";
 import WalkingArea from "../components/WalkingArea";
 import IEntity from "../ecs/interfaces/IEntity";
 
@@ -33,8 +33,7 @@ class WalkingPhysicsSystem extends ASystem {
             ecsWrapper.entityManager.applyToEach(["Voxel"], (voxelEntities) => {
                 this.handleWalkingArea(boxCollider, walkingArea, voxelEntities);
                 this.handleDeletionOfWalkingArea(walkingArea);
-                //voxelEntities.getComponent(Voxel).Update(entity.getComponent(BoxCollider).body, ecsWrapper.systemManager.getSystem(CannonSystem).world, ecsWrapper.systemManager.getSystem(ThreeSystem).getScene());
-            })
+            });
         });
         this.stock = [];
     }
@@ -50,7 +49,7 @@ class WalkingPhysicsSystem extends ASystem {
         const physicsRadius: number = 3;
         const playerPosition: CANNON.Vec3 = boxCollider.getPosition();
         const voxelComponent: Voxel = voxelEntities.getComponent(Voxel);
-        const activeMesh: MyMesh = voxelComponent.getActiveMesh(playerPosition.x, playerPosition.z)
+        const activeMesh: Chunk = voxelComponent.getActiveMesh(playerPosition.x, playerPosition.z)
 
         if (activeMesh === undefined)
             return
