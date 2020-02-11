@@ -13,7 +13,7 @@ export default class PerlinGenerator {
         this.height = height;
         this.data = new Array(width * height * 4);
         this.spec = {};
-        this.spec.randseed = THREE.Math.randInt(0, 3000);
+        this.spec.randseed = THREE.MathUtils.randInt(0, 3000);
         this.spec.period = 32;
         this.spec.levels = 2;
         this.spec.atten = 0.1;

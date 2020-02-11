@@ -117,9 +117,9 @@ export default class Voxel extends AComponent
 
     private computeVoxelOffset(x : number, y : number, z : number) : number
     {
-        const voxelX : number = THREE.Math.euclideanModulo(x, this.cellSize) | 0;
-        const voxelY : number = THREE.Math.euclideanModulo(y, this.cellSize) | 0;
-        const voxelZ : number = THREE.Math.euclideanModulo(z, this.cellSize) | 0;
+        const voxelX : number = THREE.MathUtils.euclideanModulo(x, this.cellSize) | 0;
+        const voxelY : number = THREE.MathUtils.euclideanModulo(y, this.cellSize) | 0;
+        const voxelZ : number = THREE.MathUtils.euclideanModulo(z, this.cellSize) | 0;
 
         return voxelY * this.cellSliceSize +
             voxelZ * this.cellSize +
