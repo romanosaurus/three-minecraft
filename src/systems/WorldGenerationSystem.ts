@@ -55,12 +55,10 @@ class WorldGenerationSystem extends ASystem {
     }
 
     onInit(): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
+        const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
 
-        const scene: THREE.Scene = ecsWrapper.systemManager.getSystem(ThreeSystem).getScene();
-
-        ecsWrapper.entityManager.create("world");
-        const worldEntity: IEntity = ecsWrapper.entityManager.getByName("world")[0];
+        ECSWrapper.entities.create("world");
+        const worldEntity: IEntity = ECSWrapper.entities.getByName("world")[0];
 
         worldEntity.assignComponent<Voxel>(
             new Voxel(
@@ -69,7 +67,7 @@ class WorldGenerationSystem extends ASystem {
             )
         );
 
-        ecsWrapper.entityManager.applyToEach(["Voxel"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Voxel"], (entity) => {
             const mesh: Chunk = new Chunk(this.worldOptions.cellSize, 2, 2, this.perlinGenerator);
 
             this.displayWorld(worldEntity.getComponent(Voxel), scene, mesh);
@@ -77,13 +75,12 @@ class WorldGenerationSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-        const scene: THREE.Scene = ecsWrapper.systemManager.getSystem(ThreeSystem).getScene();
+        const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
 
-        ecsWrapper.entityManager.applyToEach(["BoxCollider"], (entity) => {
+        ECSWrapper.entities.applyToEach(["BoxCollider"], (entity) => {
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
 
-            ecsWrapper.entityManager.applyToEach(["Voxel"], (voxelEntity) => {
+            ECSWrapper.entities.applyToEach(["Voxel"], (voxelEntity) => {
                 const voxelComponent: Voxel = voxelEntity.getComponent(Voxel);
 
                 this.generateFromPlayerPosition(boxCollider.body.position, voxelComponent, scene);

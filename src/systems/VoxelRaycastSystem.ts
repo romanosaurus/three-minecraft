@@ -23,8 +23,7 @@ export default class VoxelRaycastSystem extends ASystem {
         this.raycaster = new THREE.Raycaster;
 
         this.size = new THREE.Vector2;
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-        const threeSystem = ecsWrapper.systemManager.getSystem(ThreeSystem);
+        const threeSystem = ECSWrapper.systems.get(ThreeSystem);
         threeSystem.Renderer.getSize(this.size);
         this.currentTime = 0;
     }
@@ -34,10 +33,8 @@ export default class VoxelRaycastSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
         const elapsedTimeAsSeconds: number = elapsedTime / 1000;
-        const playerEntity: IEntity = ecsWrapper.entityManager.getByName("Player")[0];
+        const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
         const x: number = ((this.size.x / 2) / this.size.x) * 2 - 1;
         const y: number = ((this.size.y / 2) / this.size.y) * -2 + 1;
 
@@ -47,7 +44,7 @@ export default class VoxelRaycastSystem extends ASystem {
         start.setFromMatrixPosition(playerEntity.getComponent(Camera).camera.matrixWorld);
         end.set(x, y, 1).unproject(playerEntity.getComponent(Camera).camera);
 
-        const worldEntity = ecsWrapper.entityManager.getByName("world")[0];
+        const worldEntity = ECSWrapper.entities.getByName("world")[0];
         const voxelComponent = worldEntity.getComponent(Voxel);
         const intersection = this.intersectRay(start, end, voxelComponent);
 
@@ -61,12 +58,12 @@ export default class VoxelRaycastSystem extends ASystem {
 
             const currentChunk: Chunk = voxelComponent.getMeshByPosition(pos.x, pos.z);
             voxelComponent.setVoxel(pos.x, pos.y, pos.z, voxelId, currentChunk);
-            ecsWrapper.systemManager.getSystem(WorldGenerationSystem).updateVoxelGeometry(pos.x, pos.y, pos.z, currentChunk, voxelComponent);
+            ECSWrapper.systems.get(WorldGenerationSystem).updateVoxelGeometry(pos.x, pos.y, pos.z, currentChunk, voxelComponent);
         }
                 /*if (this.currentTime > 1) {
             const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
 
-            const playerEntity = ecsWrapper.entityManager.getByName("Player")[0];
+            const playerEntity = ECSWrapper.entities.getByName("Player")[0];
             const threeSystem = ecsWrapper.systemManager.getSystem(ThreeSystem);
 
             const camera: THREE.Camera = playerEntity.getComponent(Camera).camera;

@@ -21,7 +21,6 @@ class ThreeSystem extends ASystem {
     private readonly scene : THREE.Scene;
     private readonly renderer : THREE.WebGLRenderer;
     private readonly stats : Stats;
-    private rayCaster= new THREE.Raycaster();
 
     constructor(name : string) {
         super(name);
@@ -32,14 +31,12 @@ class ThreeSystem extends ASystem {
     }
 
     onInit(): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
         LightUtilities.AddLight(this.scene, -1,  2,  4);
         LightUtilities.AddLight(this.scene, 1, -1, -2);
 
-        ecsWrapper.entityManager.create("Player");
+        ECSWrapper.entities.create("Player");
 
-        const playerEntity: IEntity = ecsWrapper.entityManager.getByName("Player")[0];
+        const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
         playerEntity.assignComponent<FirstPersonController>(
             new FirstPersonController(
                 playerEntity,
@@ -74,11 +71,11 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<Life>(new Life(playerEntity, 9));
 
 
-        ecsWrapper.entityManager.applyToEach(["Box"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Box"], (entity) => {
             this.scene.add(entity.getComponent(Box).mesh);
         });
 
-        ecsWrapper.entityManager.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
+        ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
             entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {
                 entity.getComponent(FirstPersonController).jumping = false
             });
@@ -103,13 +100,12 @@ class ThreeSystem extends ASystem {
             FullScreen.keyDown(this.renderer, this.scene);
 
         requestAnimationFrame(() => {
-            const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-            ecsWrapper.systemManager.run();
+            ECSWrapper.systems.run();
         });
 
         this.renderer.render(
             this.scene,
-            ECSWrapper.getInstance().entityManager.getByName("Player")[0].getComponent(Camera).camera
+            ECSWrapper.entities.getByName("Player")[0].getComponent(Camera).camera
         );
     }
 

@@ -19,12 +19,10 @@ class FirstPersonSystem extends ASystem {
     onInit() {}
 
     onUpdate(elapsedTime: number): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
         const jumpingTime: number = 0.3;
 
 
-        ecsWrapper.entityManager.applyToEach(["Camera", "FirstPersonController", "PointerLock"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Camera", "FirstPersonController", "PointerLock"], (entity) => {
             if (entity.getComponent(PointerLock).pointerLockActivated) {
 
                 const euler = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -46,7 +44,7 @@ class FirstPersonSystem extends ASystem {
             }
         });
 
-        ecsWrapper.entityManager.applyToEach(["Camera", "Box", "FirstPersonController", "BoxCollider"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Camera", "Box", "FirstPersonController", "BoxCollider"], (entity) => {
             const keyUp = this.events["keyUp"];
             const keyDown = this.events["keyDown"];
             const firstPersonController: FirstPersonController = entity.getComponent(FirstPersonController);
@@ -95,7 +93,7 @@ class FirstPersonSystem extends ASystem {
             entity.getComponent(BoxCollider).body.position.x += movementVector.x;
         });
 
-        ecsWrapper.entityManager.applyToEach(["Box", "Camera"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Box", "Camera"], (entity) => {
             entity.getComponent(Camera).camera.position.set(
                 entity.getComponent(Box).mesh.position.x,
                 entity.getComponent(Box).mesh.position.y,
