@@ -7,6 +7,7 @@ import WalkingPhysicsSystem from "./systems/WalkingPhysicsSystem";
 import WorldGenerationSystem from "./systems/WorldGenerationSystem";
 import LifeSystem from "./systems/LifeSystem";
 import CloudSystem from "./systems/CloudSystem";
+import CircadianRhythmSystem from "./systems/CircadianRhythmSystem";
 import PointerLock from "./components/PointerLock";
 
 class Window {
@@ -20,6 +21,7 @@ class Window {
         ecsWrapper.systemManager.newSystem<WorldGenerationSystem>(new WorldGenerationSystem("WorldGenerationSystem"));
         ecsWrapper.systemManager.newSystem<LifeSystem>(new LifeSystem("LifeSystem"));
         ecsWrapper.systemManager.newSystem<CloudSystem>(new CloudSystem("CloudSystem"));
+        ecsWrapper.systemManager.newSystem<CircadianRhythmSystem>(new CircadianRhythmSystem("CircadianRhythm"));
         ecsWrapper.systemManager.startSystem("ThreeSystem");
         ecsWrapper.systemManager.startSystem("CannonSystem");
         ecsWrapper.systemManager.startSystem("WorldGenerationSystem");
@@ -27,6 +29,7 @@ class Window {
         ecsWrapper.systemManager.startSystem("WalkingPhysicsSystem");
         ecsWrapper.systemManager.startSystem("LifeSystem");
         ecsWrapper.systemManager.startSystem("CloudSystem");
+        ecsWrapper.systemManager.startSystem("CircadianRhythm");
 
         document.addEventListener('mousemove', ( mouseEvent ) => { ecsWrapper.systemManager.setEvent("mouseEvent", mouseEvent); });
         document.addEventListener('keydown', (keyDown) => { ecsWrapper.systemManager.setEvent("keyDown", keyDown); });

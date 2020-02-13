@@ -6,6 +6,7 @@ import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import IEntity from "../ecs/interfaces/IEntity";
 import Voxel from "../components/Voxel";
+import CircadianRhythm from "../components/CircadianRhythm";
 import ThreeSystem from "./ThreeSystem";
 import BoxCollider from '../components/BoxCollider';
 import MeshContainer from "../utils/MeshContainer";
@@ -64,6 +65,8 @@ class WorldGenerationSystem extends ASystem {
                 this.worldOptions
             )
         );
+
+        worldEntity.assignComponent<CircadianRhythm>(new CircadianRhythm(worldEntity, 10));
 
         ecsWrapper.entityManager.applyToEach(["Voxel"], (entity) => {
             const mesh: Chunk = new Chunk(this.worldOptions.cellSize, 2, 2, this.perlinGenerator);
@@ -182,6 +185,8 @@ class WorldGenerationSystem extends ASystem {
         geometry.setIndex(indices);
 
         const drawMesh = new THREE.Mesh(geometry, this.material);
+        drawMesh.castShadow = true;
+        drawMesh.receiveShadow = true;
         drawMesh.position.set(chunk.getWidthOffset() * this.worldOptions.cellSize, 0, chunk.getHeightOffset() * this.worldOptions.cellSize);
         scene.add(drawMesh);
         voxelComponent.meshContainer.addMeshToSceneId(chunk.getWidthOffset() + ',' + chunk.getHeightOffset(), drawMesh);
