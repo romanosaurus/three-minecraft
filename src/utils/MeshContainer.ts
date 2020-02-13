@@ -18,7 +18,7 @@ export default class MeshContainer {
     }
 
     public addMesh(id: string, chunkToPush: Chunk, drawableMeshToPush: Uint8Array) {
-        const container : Container = {drawableMesh: drawableMeshToPush, mesh: chunkToPush, drawedMesh: null, isDrawed: true};
+        const container : Container = {drawableMesh: drawableMeshToPush, mesh: chunkToPush, drawedMesh: null, isDrawed: true, geometry: null};
         this.meshArray[id] = container;
     }
 
@@ -26,8 +26,9 @@ export default class MeshContainer {
         return this.meshArray[id];
     }
 
-    public addMeshToSceneId(id: string, mesh: THREE.Mesh): void {
+    public addMeshToSceneId(id: string, mesh: THREE.Mesh, geometry: THREE.BufferGeometry): void {
         this.meshArray[id].drawedMesh = mesh;
+        this.meshArray[id].geometry = geometry;
     }
 
     public isMeshDrawed(id: string): boolean {
@@ -83,7 +84,7 @@ export default class MeshContainer {
         for (let key of Object.keys(this.meshArray)) {
             serialized[key] = {};
             for (let jsonbKey of Object.keys(this.meshArray[key])) {
-                if (jsonbKey === "mesh" || jsonbKey === "drawedMesh") {
+                if (jsonbKey === "mesh" || jsonbKey === "drawedMesh" || jsonbKey === "geometry") {
                     serialized[key][jsonbKey] = null;
                     continue;
                 }

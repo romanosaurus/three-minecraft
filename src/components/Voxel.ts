@@ -45,8 +45,9 @@ export default class Voxel extends AComponent
         let Y = chunk.getHeightOffset();
         const container = this._meshContainer.getContainerAtPos(X + ',' + Y);
 
-        if (!container)
+        if (!container) {
             return null;
+        }
 
         return container.drawableMesh;
     }

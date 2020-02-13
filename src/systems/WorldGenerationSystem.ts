@@ -184,23 +184,71 @@ class WorldGenerationSystem extends ASystem {
             'uv',
             new THREE.BufferAttribute(new Float32Array(uvs), numComponent.uv));
         geometry.setIndex(indices);
+        geometry.computeBoundingSphere();
 
         const drawMesh = new THREE.Mesh(geometry, this.material);
         drawMesh.position.set(chunk.getWidthOffset() * this.worldOptions.cellSize, 0, chunk.getHeightOffset() * this.worldOptions.cellSize);
         scene.add(drawMesh);
-        voxelComponent.meshContainer.addMeshToSceneId(chunk.getWidthOffset() + ',' + chunk.getHeightOffset(), drawMesh);
+        voxelComponent.meshContainer.addMeshToSceneId(chunk.getWidthOffset() + ',' + chunk.getHeightOffset(), drawMesh, geometry);
     }
 
-    /*private updateChunkGeometry(x: number, y: number, z: number, voxelComponent: Voxel) {
+    private async updateChunkGeometry(x: number, y: number, z: number, voxelComponent: Voxel) {
         const cellX: number = Math.floor(x / this.worldOptions.cellSize);
         const cellY: number = Math.floor(y / this.worldOptions.cellSize);
         const cellZ: number = Math.floor(z / this.worldOptions.cellSize);
 
         const chunk: Chunk = voxelComponent.getMeshByPosition(cellX, cellZ);
-        const geometry: Uint8Array = voxelComponent.meshContainer.getContainerAtPos(`${cellX},${cellZ}`).drawableMesh;
+        const geometry: THREE.BufferGeometry = voxelComponent.meshContainer.getContainerAtPos(`${cellX},${cellZ}`).geometry;
 
+        const generation = await spawn(new Worker('../workers/generation'));
+        const serializedMeshArray = voxelComponent.meshContainer.serialize();
+        const {positions, normals, uvs, indices} = await generation.generateGeometryDataForCell(chunk.getWidthOffset(), 0, chunk.getHeightOffset(), chunk.size, chunk.data, {
+            cellSize: this.worldOptions.cellSize,
+            tileSize: this.worldOptions.tileSize,
+            tileTextureWidth: this.worldOptions.tileTextureWidth,
+            tileTextureHeight: this.worldOptions.tileTextureHeight,
+            meshArray: serializedMeshArray,
+            cellSliceSize: this.worldOptions.cellSize * this.worldOptions.cellSize,
+            faces: Faces
+        });
+        await Thread.terminate(generation);
 
-    }*/
+        const positionNumComponents = 3;
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
+        const normalNumComponents = 3;
+        geometry.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
+        const uvNumComponents = 2;
+        geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
+        geometry.setIndex(indices);
+        geometry.computeBoundingSphere();
+    }
+
+    public async updateVoxelGeometry(x, y, z, chunk, voxelComponent) {
+        const updatedCellIds = {};
+
+        const neighborOffsets = [
+            [ 0,  0,  0], // self
+            [-1,  0,  0], // left
+            [ 1,  0,  0], // right
+            [ 0, -1,  0], // down
+            [ 0,  1,  0], // up
+            [ 0,  0, -1], // back
+            [ 0,  0,  1], // front
+        ];
+        for (const offset of neighborOffsets) {
+            const updatedCellIds = {};
+            for (const offset of neighborOffsets) {
+                const ox = x + offset[0];
+                const oy = y + offset[1];
+                const oz = z + offset[2];
+                const cellId = `${chunk.getWidthOffset()},${chunk.getHeightOffset()}`;
+                if (!updatedCellIds[cellId]) {
+                    updatedCellIds[cellId] = true;
+                    this.updateChunkGeometry(ox, oy, oz, voxelComponent);
+                }
+            }
+        }
+    }
 }
 
 export default WorldGenerationSystem;
