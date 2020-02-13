@@ -84,7 +84,7 @@ export default class Voxel extends AComponent
         return cell[voxelOffset];
     }
 
-    public getActiveMesh(x: number, y: number): Chunk {
+    public getMeshByPosition(x: number, y: number): Chunk {
         const cellX = Math.floor(x / this.options.cellSize);
         const cellY = Math.floor(y / this.options.cellSize);
         const id : string = cellX + ',' + cellY;

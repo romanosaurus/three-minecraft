@@ -49,7 +49,7 @@ class WalkingPhysicsSystem extends ASystem {
         const physicsRadius: number = 3;
         const playerPosition: CANNON.Vec3 = boxCollider.getPosition();
         const voxelComponent: Voxel = voxelEntities.getComponent(Voxel);
-        const activeMesh: Chunk = voxelComponent.getActiveMesh(playerPosition.x, playerPosition.z)
+        const activeMesh: Chunk = voxelComponent.getMeshByPosition(playerPosition.x, playerPosition.z)
 
         if (activeMesh === undefined)
             return
