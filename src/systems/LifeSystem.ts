@@ -39,8 +39,6 @@ class LifeSystem extends ASystem {
             let globalLife = LifeComponent.globalLife;
             let currentLife = LifeComponent.currentLife;
 
-            if (currentLife === 0)
-                LifeComponent.isDead = true;
             if (currentLife <= globalLife) {
                 for (let index = 1; index <= globalLife; index++) {
                     if (index > currentLife) {
@@ -51,6 +49,9 @@ class LifeSystem extends ASystem {
                         fullheart.style.backgroundPositionY = "0px";
                     }
                 }
+            }
+            if (currentLife === 0) {
+                LifeComponent.isDead = true;
             }
         });
 
