@@ -60,7 +60,7 @@ class VoxelRaycastSystem extends ASystem {
             let steppedIndex: number = -1;
 
             while (t <= len) {
-                const voxel = voxelComponent.getVoxel(i.x, i.y, i.z, voxelComponent.getActiveMesh(i.x, i.z));
+                const voxel = voxelComponent.getVoxel(i.x, i.y, i.z, voxelComponent.getMeshByPosition(i.x, i.z));
 
                 if (voxel) {
                     return {
