@@ -1,21 +1,36 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <title>Three.js Starter</title>
+    <link rel="stylesheet" type="text/css" href="../assets/style.css" />
 </head>
 <body style="block-size: auto;">
+
+    <!-- Player cursor -->
     <img class="image" src="../assets/cursor/Cursor.png"/>
+
 </body>
-<style>
-    .image {
-        image-rendering: auto;
-        width: 90px;
-        height: 60px;
-        position: fixed; /* postulat de départ */
-        top: 50%; left: 50%; /* à 50%/50% du parent référent */
-        transform: translate(-50%, -50%); /* décalage de 50% de sa propre taille */
-    }
-</style>
+
+    <!-- Player inentory bar -->
+    <div class="inventory-bar-table">
+        <div class="inventory-bar-row">
+            <div class="inventory-bar-cell"></div>
+            <div class="inventory-bar-cell"></div>
+            <div class="inventory-bar-cell"></div>
+            <div class="inventory-bar-cell"></div>
+            <div class="inventory-bar-cell"></div>
+            <div class="inventory-bar-cell"></div>
+            <div class="inventory-bar-cell"></div>
+            <div class="inventory-bar-cell"></div>
+            <div class="inventory-bar-cell"></div>
+        </div>
+    </div>
+
+    <!-- Player life bar -->
+    <div class="life-bar-table">
+        <div id="life_div" class="life-bar-raw">
+        </div>
+    </div>
+    
 </html>

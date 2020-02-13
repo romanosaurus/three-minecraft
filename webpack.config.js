@@ -71,6 +71,6 @@ module.exports = {
             }
         ]
     },
-    resolve: { extensions: [".web.ts", ".web.js", ".ts", ".js"] },
+    resolve: { extensions: [".web.ts", ".web.js", ".ts", ".js", ".css"] },
     plugins: [HTMLWebpackPluginConfig, BrowserSyncPluginConfig, ProgressBarPluginConfig, new ThreadsPlugin()]
 }
