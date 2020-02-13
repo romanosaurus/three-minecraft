@@ -12,8 +12,9 @@ import PointerLock from "../components/PointerLock";
 import Life from "../components/Life";
 import FullScreen from "../utils/FullScreen";
 
-import Stats = require('stats.js');
+import * as Stats from 'stats.js';
 import LightUtilities from "../utils/LightUtilities";
+import WalkingArea from "../components/WalkingArea";
 
 class ThreeSystem extends ASystem {
     private readonly scene : THREE.Scene;
@@ -47,7 +48,7 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<Box>(new Box(
             playerEntity,
             new THREE.Vector3(1, 3, 1),
-            new THREE.Vector3(10, 50, 10))
+            new THREE.Vector3(128 * 2 + 10, 50, 128 * 2 + 10))
         );
         playerEntity.assignComponent<Camera>(
             new Camera(
@@ -64,6 +65,7 @@ class ThreeSystem extends ASystem {
             playerEntity.getComponent(Box).getSize(),
             10
         ));
+        playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity));
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
 

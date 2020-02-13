@@ -1,13 +1,14 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "module": "commonjs",
+        "module": "esnext",
         "moduleResolution": "node",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
-        "outDir": "./lib/"
+        "outDir": "./lib/",
+        "lib": ["webworker", "es6", "scripthost"]
     },
     "awesomeTypescriptLoaderOptions": {
         "useWebpackText": true,
