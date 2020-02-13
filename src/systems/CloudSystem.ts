@@ -23,13 +23,6 @@ export default class CloudSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number) {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
-        for (let i = 0; i < 50; i++) {
-            const skyEntity = ecsWrapper.entityManager.getByName(`Cloud${i}`)[0];
-            skyEntity.assignComponent<Cloud>(new Cloud(skyEntity));
-            skyEntity.getComponent(Cloud).mesh.position.set(skyEntity.getComponent(Cloud).mesh.position.x + ( elapsedTime / 1000), 60, skyEntity.getComponent(Cloud).mesh.position.z);
-        }
     }
 
     onClose() {
