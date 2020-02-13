@@ -1,4 +1,5 @@
 /* Configure HTMLWebpack plugin */
+const ThreadsPlugin = require('threads-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
     template: __dirname + '/src/index.html',
@@ -71,5 +72,5 @@ module.exports = {
         ]
     },
     resolve: { extensions: [".web.ts", ".web.js", ".ts", ".js"] },
-    plugins: [HTMLWebpackPluginConfig, BrowserSyncPluginConfig, ProgressBarPluginConfig]
+    plugins: [HTMLWebpackPluginConfig, BrowserSyncPluginConfig, ProgressBarPluginConfig, new ThreadsPlugin()]
 }
