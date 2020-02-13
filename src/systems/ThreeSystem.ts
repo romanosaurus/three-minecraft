@@ -15,11 +15,13 @@ import FullScreen from "../utils/FullScreen";
 import * as Stats from 'stats.js';
 import LightUtilities from "../utils/LightUtilities";
 import WalkingArea from "../components/WalkingArea";
+import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
 
 class ThreeSystem extends ASystem {
     private readonly scene : THREE.Scene;
     private readonly renderer : THREE.WebGLRenderer;
     private readonly stats : Stats;
+    private rayCaster= new THREE.Raycaster();
 
     constructor(name : string) {
         super(name);
@@ -71,6 +73,7 @@ class ThreeSystem extends ASystem {
 
         playerEntity.assignComponent<Life>(new Life(playerEntity, 9));
 
+
         ecsWrapper.entityManager.applyToEach(["Box"], (entity) => {
             this.scene.add(entity.getComponent(Box).mesh);
         });
@@ -116,6 +119,10 @@ class ThreeSystem extends ASystem {
 
     getScene(): THREE.Scene {
         return this.scene;
+    }
+
+    get Renderer(): THREE.WebGLRenderer {
+        return this.renderer;
     }
 }
 

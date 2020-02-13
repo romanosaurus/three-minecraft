@@ -12,6 +12,7 @@ import MeshContainer from "../utils/MeshContainer";
 import Chunk from '../utils/Chunk';
 import PerlinGenerator from '../utils/PerlinGenerator';
 import Faces from "../utils/Faces";
+import Mouse from '../components/Mouse';
 
 interface WorldOptions {
     cellSize: number,
@@ -29,6 +30,8 @@ class WorldGenerationSystem extends ASystem {
     private textureLoader: THREE.TextureLoader;
     private texture: THREE.Texture;
     private material: THREE.MeshLambertMaterial;
+
+    private mouse: {x: number, y: number};
 
     constructor(name: string) {
         super(name);
@@ -48,6 +51,7 @@ class WorldGenerationSystem extends ASystem {
             alphaTest: 0.1,
             transparent: true
         });
+        this.mouse = { x: 0, y: 0 };
     }
 
     onInit(): void {
@@ -186,6 +190,17 @@ class WorldGenerationSystem extends ASystem {
         scene.add(drawMesh);
         voxelComponent.meshContainer.addMeshToSceneId(chunk.getWidthOffset() + ',' + chunk.getHeightOffset(), drawMesh);
     }
+
+    /*private updateChunkGeometry(x: number, y: number, z: number, voxelComponent: Voxel) {
+        const cellX: number = Math.floor(x / this.worldOptions.cellSize);
+        const cellY: number = Math.floor(y / this.worldOptions.cellSize);
+        const cellZ: number = Math.floor(z / this.worldOptions.cellSize);
+
+        const chunk: Chunk = voxelComponent.getMeshByPosition(cellX, cellZ);
+        const geometry: Uint8Array = voxelComponent.meshContainer.getContainerAtPos(`${cellX},${cellZ}`).drawableMesh;
+
+
+    }*/
 }
 
 export default WorldGenerationSystem;

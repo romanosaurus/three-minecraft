@@ -5,16 +5,57 @@ import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 
 import Voxel from "../components/Voxel";
 import Raycast from "../components/Raycast";
+import PointerLock from "../components/PointerLock";
+import Camera from '../components/Camera';
+import ThreeSystem from './ThreeSystem';
+import IEntity from '../ecs/interfaces/IEntity';
+import Chunk from '../utils/Chunk';
 
-class VoxelRaycastSystem extends ASystem {
+export default class VoxelRaycastSystem extends ASystem {
+    private raycaster: THREE.Raycaster;
+    private size: THREE.Vector2;
+    private currentTime: number;
+
+    constructor(name: string) {
+        super(name);
+
+        this.raycaster = new THREE.Raycaster;
+
+        this.size = new THREE.Vector2;
+        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
+        const threeSystem = ecsWrapper.systemManager.getSystem(ThreeSystem);
+        threeSystem.Renderer.getSize(this.size);
+        this.currentTime = 0;
+    }
     onInit(): void {
-
+        this.raycaster.near = 1;
+        this.raycaster.far = 5;
     }
 
     onUpdate(elapsedTime: number): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
+        const elapsedTimeAsSeconds: number = elapsedTime / 1000;
 
-        ecsWrapper.entityManager.applyToEach(["Voxel", "Raycast"], (entity) => {
+        if (this.currentTime > 1) {
+            const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
+
+            const playerEntity = ecsWrapper.entityManager.getByName("Player")[0];
+            const threeSystem = ecsWrapper.systemManager.getSystem(ThreeSystem);
+
+            const camera: THREE.Camera = playerEntity.getComponent(Camera).camera;
+            this.raycaster.setFromCamera(new THREE.Vector2(this.size.width / 2, this.size.height / 2), camera);
+
+            let intersects = this.raycaster.intersectObjects(threeSystem.getScene().children);
+
+            if (intersects.length > 0) {
+                let intersect = intersects[0];
+                let face = intersect.face;
+
+                console.log(face);
+            }
+            this.currentTime = 0;
+        }
+        this.currentTime += elapsedTimeAsSeconds;
+        /*ecsWrapper.entityManager.applyToEach(["Voxel", "Raycast"], (entity) => {
             const voxelComponent: Voxel = entity.getComponent(Voxel);
             const raycastComponent: Raycast = entity.getComponent(Raycast);
 
@@ -105,7 +146,7 @@ class VoxelRaycastSystem extends ASystem {
                 }
                 return null;
             }
-        });
+        });*/
     }
 
     onClose(): void {

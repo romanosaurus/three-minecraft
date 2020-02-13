@@ -7,7 +7,10 @@ import WalkingPhysicsSystem from "./systems/WalkingPhysicsSystem";
 import WorldGenerationSystem from "./systems/WorldGenerationSystem";
 import LifeSystem from "./systems/LifeSystem";
 import CloudSystem from "./systems/CloudSystem";
+import VoxelRaycastSystem from "./systems/VoxelRaycastSystem";
 import PointerLock from "./components/PointerLock";
+import Mouse from "./components/Mouse";
+import IEntity from "./ecs/interfaces/IEntity";
 
 class Window {
     run() : void {
@@ -20,6 +23,7 @@ class Window {
         ecsWrapper.systemManager.newSystem<WorldGenerationSystem>(new WorldGenerationSystem("WorldGenerationSystem"));
         ecsWrapper.systemManager.newSystem<LifeSystem>(new LifeSystem("LifeSystem"));
         ecsWrapper.systemManager.newSystem<CloudSystem>(new CloudSystem("CloudSystem"));
+        ecsWrapper.systemManager.newSystem<VoxelRaycastSystem>(new VoxelRaycastSystem("VoxelRaycastSystem"));
         ecsWrapper.systemManager.startSystem("ThreeSystem");
         ecsWrapper.systemManager.startSystem("CannonSystem");
         ecsWrapper.systemManager.startSystem("WorldGenerationSystem");
@@ -27,12 +31,14 @@ class Window {
         ecsWrapper.systemManager.startSystem("WalkingPhysicsSystem");
         ecsWrapper.systemManager.startSystem("LifeSystem");
         ecsWrapper.systemManager.startSystem("CloudSystem");
+        ecsWrapper.systemManager.startSystem("VoxelRaycastSystem");
 
         document.addEventListener('mousemove', ( mouseEvent ) => { ecsWrapper.systemManager.setEvent("mouseEvent", mouseEvent); });
         document.addEventListener('keydown', (keyDown) => { ecsWrapper.systemManager.setEvent("keyDown", keyDown); });
         document.addEventListener('keyup', (keyUp) => { ecsWrapper.systemManager.setEvent("keyUp", keyUp); });
         document.addEventListener('resize', (resize) => { ecsWrapper.systemManager.setEvent("resize", resize); });
         document.addEventListener('click', ( clickEvent ) => {
+            ecsWrapper.systemManager.setEvent("click", clickEvent);
             ecsWrapper.entityManager.applyToEach(["PointerLock"], (entity) => {
                 entity.getComponent(PointerLock).lockPointer();
             });
