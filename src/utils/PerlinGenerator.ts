@@ -1,26 +1,32 @@
-import * as THREE from 'three';
 import Random from "../utils/Random";
 
 export default class PerlinGenerator {
 
-    private width : number;
-    private height : number;
+    public width : number;
+    public height : number;
     private data;
-    private spec;
+    public spec;
 
-    constructor(width : number, height : number) {
+    static fromData(width : number, height : number, randseed : number) {
+        return new this(width, height, randseed);
+    }
+    constructor(width : number, height : number, randseed : number) {
         this.width = width;
         this.height = height;
         this.data = new Array(width * height * 4);
         this.spec = {};
-        this.spec.randseed = THREE.Math.randInt(0, 3000);
+        this.spec.randseed = randseed;
         this.spec.period = 32;
         this.spec.levels = 2;
         this.spec.atten = 0.1;
         this.spec.absolute = false;
         this.spec.color = false;
         this.spec.alpha = false;
-        this.createTurbulence(this.spec);
+        this.createTurbulence();
+    }
+    public createMesh() {
+        this.createTurbulence();
+        return this.data;
     }
     public getWidth() {
         return this.width;
@@ -31,59 +37,61 @@ export default class PerlinGenerator {
     public getData() {
         return this.data;
     }
-    private setRgba = function(x, y, r, g, b, a) {
+    private setRgba(x, y, r, g, b, a) {
         let offset = ((y * this.width) + x) * 4;
-        
+
         this.data[offset] = r;
         this.data[offset + 1] = g;
         this.data[offset + 2] = b;
         this.data[offset + 3] = a;
     }
-    public createTurbulence(spec) {
-        let numChannels = spec.color ? 3 : 1 + spec.alpha ? 1 : 0;
+    public createTurbulence() {
+        let numChannels = this.spec.color ? 3 : 1 + this.spec.alpha ? 1 : 0;
         let raster = new Array(this.width * this.height * numChannels);
-        
+
         for (let i = 0; i < raster.length; ++i)
             raster[i] = 0;
         for (let k = 0; k < numChannels; ++k) {
-            let localPeriodInv = 1 / spec.period;
+            let localPeriodInv = 1 / this.spec.period;
             let freqInv = 1;
             let atten = 1;
             let weight = 0;
-            for (let lvlIdx = 0; lvlIdx < spec.levels; ++lvlIdx) {
-                let sampler = new PerlinSampler2D(Math.ceil(this.width * localPeriodInv), Math.ceil(this.height * localPeriodInv), spec.randseed + k + lvlIdx);
+            for (let lvlIdx = 0; lvlIdx < this.spec.levels; ++lvlIdx) {
+                let sampler = new PerlinSampler2D(Math.ceil((this.width) * localPeriodInv), Math.ceil((this.height) * localPeriodInv), this.spec.randseed + k + lvlIdx);
 
                 for (let j = 0; j < this.height; ++j) {
                     for (let i = 0; i < this.width; ++i) {
-                        let val = sampler.getValue(i * localPeriodInv, j * localPeriodInv);
-                        raster[(i + j * this.width) * numChannels + k] += val * Math.pow(freqInv, spec.atten);
+                        let val = sampler.getValue((i) * localPeriodInv, (j) * localPeriodInv);
+                        raster[(i + j * this.width) * numChannels + k] += val * Math.pow(freqInv, this.spec.atten);
                     }
                 }
-                weight += Math.pow(freqInv, spec.atten);
+                weight += Math.pow(freqInv, this.spec.atten);
                 freqInv *= .5;
                 localPeriodInv *= 2;
-                atten *= spec.atten;
+                atten *= this.spec.atten;
             }
-			let weightInv = 1 / weight;            
+			let weightInv = 1 / weight;
 			for (let j = 0; j < this.height; ++j)
 				for (let i = 0; i < this.width; ++i)
 					raster[(i + j * this.width) * numChannels + k] *= weightInv;
         }
+
+
         for (let j = 0; j < this.height; ++j) {
             for (let i = 0; i < this.width; ++i) {
                 let offset = (i + j * this.width) * numChannels;
                 let r, g, b, a;
-                
-                if (spec.color) {
+
+                if (this.spec.color) {
                     r = raster[offset];
                     g = raster[offset + 1];
                     b = raster[offset + 2];
-                    a = spec.alpha ? raster[offset + 3] : 1;
+                    a = this.spec.alpha ? raster[offset + 3] : 1;
                 } else {
                     r = g = b = raster[offset];
-                    a = spec.alpha ? raster[offset + 1] : 1;
+                    a = this.spec.alpha ? raster[offset + 1] : 1;
                 }
-                if (spec.absolute) {
+                if (this.spec.absolute) {
                     r = Math.abs(r) * 255;
                     g = Math.abs(g) * 255;
                     b = Math.abs(b) * 255;
@@ -94,7 +102,7 @@ export default class PerlinGenerator {
                     b = ((b + 1) / 2) * 255;
                     a = ((a + 1) / 2) * 255;
                 }
-                this.setRgba(i, j, 
+                this.setRgba(i, j,
                 r, g, b, a);
             }
         }
@@ -121,6 +129,7 @@ class PerlinSampler2D {
 
         for (let i = 0; i < this.gradients.length; i += 2) {
             let x, y;
+//            let angle = 2;
             let angle = rand.next() * Math.PI * 2;
             x = Math.sin(angle);
             y = Math.cos(angle);
@@ -128,7 +137,7 @@ class PerlinSampler2D {
             this.gradients[i + 1] = y;
         }
     }
-    private dot = function(cellX, cellY, vx, vy) {
+    private dot(cellX, cellY, vx, vy) {
         let offset = (cellX + cellY * this.width) * 2;
         let wx = this.gradients[offset];
         let wy = this.gradients[offset + 1];
@@ -137,7 +146,7 @@ class PerlinSampler2D {
     private lerp(a, b, t) {
         return a + t * (b - a);
     }
-    
+
     private sCurve(t) {
         return t * t * (3 - 2 * t);
     }
