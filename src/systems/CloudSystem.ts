@@ -5,15 +5,19 @@ import ThreeSystem from "./ThreeSystem";
 import Cloud from "../components/Cloud";
 
 export default class CloudSystem extends ASystem {
+    private _cloudNumber: number;
+
     constructor(name: string) {
-        super(name);    }
+        super(name);
+        this._cloudNumber = 50;
+    }
 
     onInit() {
         const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
 
         const scene: THREE.Scene = ecsWrapper.systemManager.getSystem(ThreeSystem).getScene();
 
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < this._cloudNumber; i++) {
             ecsWrapper.entityManager.create(`Cloud${i}`);
             const skyEntity = ecsWrapper.entityManager.getByName(`Cloud${i}`)[0];
             skyEntity.assignComponent<Cloud>(new Cloud(skyEntity));
