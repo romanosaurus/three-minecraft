@@ -189,12 +189,12 @@ class WorldGenerationSystem extends ASystem {
         voxelComponent.meshContainer.addMeshToSceneId(chunk.getWidthOffset() + ',' + chunk.getHeightOffset(), drawMesh, geometry);
     }
 
-    private async updateChunkGeometry(x: number, y: number, z: number, voxelComponent: Voxel) {
+    private async updateChunkGeometry(x: number, y: number, z: number, voxelComponent: Voxel,chunk: Chunk) {
+
         const cellX: number = Math.floor(x / this.worldOptions.cellSize);
         const cellY: number = Math.floor(y / this.worldOptions.cellSize);
         const cellZ: number = Math.floor(z / this.worldOptions.cellSize);
 
-        const chunk: Chunk = voxelComponent.getMeshByPosition(cellX, cellZ);
         const geometry: THREE.BufferGeometry = voxelComponent.meshContainer.getContainerAtPos(`${cellX},${cellZ}`).geometry;
 
         const generation = await spawn(new Worker('../workers/generation'));
@@ -220,7 +220,7 @@ class WorldGenerationSystem extends ASystem {
         geometry.computeBoundingSphere();
     }
 
-    public async updateVoxelGeometry(x, y, z, chunk, voxelComponent) {
+    public async updateVoxelGeometry(x, y, z, chunk: Chunk, voxelComponent) {
         const updatedCellIds = {};
 
         const neighborOffsets = [
@@ -233,16 +233,13 @@ class WorldGenerationSystem extends ASystem {
             [ 0,  0,  1], // front
         ];
         for (const offset of neighborOffsets) {
-            const updatedCellIds = {};
-            for (const offset of neighborOffsets) {
-                const ox = x + offset[0];
-                const oy = y + offset[1];
-                const oz = z + offset[2];
-                const cellId = `${chunk.getWidthOffset()},${chunk.getHeightOffset()}`;
-                if (!updatedCellIds[cellId]) {
-                    updatedCellIds[cellId] = true;
-                    this.updateChunkGeometry(ox, oy, oz, voxelComponent);
-                }
+            const ox = x + offset[0];
+            const oy = y + offset[1];
+            const oz = z + offset[2];
+            const cellId = `${chunk.getWidthOffset()},${chunk.getHeightOffset()}`;
+            if (!updatedCellIds[cellId]) {
+                updatedCellIds[cellId] = true;
+                this.updateChunkGeometry(ox, oy, oz, voxelComponent, chunk);
             }
         }
     }
