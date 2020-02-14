@@ -24,13 +24,11 @@ class WalkingPhysicsSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
-        ecsWrapper.entityManager.applyToEach(["BoxCollider", "WalkingArea"], (entity) => {
+        ECSWrapper.entities.applyToEach(["BoxCollider", "WalkingArea"], (entity) => {
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
             const walkingArea: WalkingArea = entity.getComponent(WalkingArea);
 
-            ecsWrapper.entityManager.applyToEach(["Voxel"], (voxelEntities) => {
+            ECSWrapper.entities.applyToEach(["Voxel"], (voxelEntities) => {
                 this.handleWalkingArea(boxCollider, walkingArea, voxelEntities);
                 this.handleDeletionOfWalkingArea(walkingArea);
             });
@@ -43,8 +41,6 @@ class WalkingPhysicsSystem extends ASystem {
     }
 
     private handleWalkingArea(boxCollider: BoxCollider, walkingArea: WalkingArea, voxelEntities: IEntity): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
         const boxColliderSize: number = 1.25;
         const physicsRadius: number = 3;
         const playerPosition: CANNON.Vec3 = boxCollider.getPosition();
@@ -74,7 +70,7 @@ class WalkingPhysicsSystem extends ASystem {
                         exist = true;
                     if (!exist) {
                         walkingArea.newArea(newBody.position, newBody);
-                        ecsWrapper.systemManager.getSystem(CannonSystem).world.addBody(newBody);
+                        ECSWrapper.systems.get(CannonSystem).world.addBody(newBody);
                     }
                 }
             }
@@ -82,8 +78,6 @@ class WalkingPhysicsSystem extends ASystem {
     }
 
     private handleDeletionOfWalkingArea(walkingArea: WalkingArea): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
         let indexToDelete: Array<number> = [];
 
         for (let i = 0; i < walkingArea.area.length; i++) {
@@ -101,7 +95,7 @@ class WalkingPhysicsSystem extends ASystem {
         }
         for (let i = 0; i < indexToDelete.length; i += 1) {
             if (walkingArea.area[indexToDelete[i]] !== undefined)
-                ecsWrapper.systemManager.getSystem(CannonSystem).world.remove(walkingArea.area[indexToDelete[i]].body);
+                ECSWrapper.systems.get(CannonSystem).world.remove(walkingArea.area[indexToDelete[i]].body);
             walkingArea.area.splice(indexToDelete[i], 1);
         }
     }

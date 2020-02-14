@@ -63,3 +63,4 @@ typings/
 .awcache/
 .idea/
 dist/
+.DS_Store

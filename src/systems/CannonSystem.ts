@@ -17,7 +17,7 @@ class CannonSystem extends ASystem {
         this.world = new CANNON.World();
         this.debuggerActivated = false;
         this.debugger = new CannonDebugRenderer(
-            ECSWrapper.getInstance().systemManager.getSystem(ThreeSystem).getScene(),
+            ECSWrapper.systems.get(ThreeSystem).getScene(),
             this.world,
             null
         );
@@ -32,8 +32,6 @@ class CannonSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
         this.world.step(1 / 60);
 
         if (this.debuggerActivated) {
@@ -46,11 +44,11 @@ class CannonSystem extends ASystem {
             }
         }
 
-        ecsWrapper.entityManager.applyToEach(["BoxCollider"], (entity) => {
+        ECSWrapper.entities.applyToEach(["BoxCollider"], (entity) => {
             this.world.addBody(entity.getComponent(BoxCollider).body);
         });
 
-        ecsWrapper.entityManager.applyToEach(["Box", "BoxCollider"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Box", "BoxCollider"], (entity) => {
             const box: Box = entity.getComponent(Box);
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
 

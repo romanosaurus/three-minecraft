@@ -45,8 +45,9 @@ export default class Voxel extends AComponent
         let Y = chunk.getHeightOffset();
         const container = this._meshContainer.getContainerAtPos(X + ',' + Y);
 
-        if (!container)
+        if (!container) {
             return null;
+        }
 
         return container.drawableMesh;
     }
@@ -74,17 +75,17 @@ export default class Voxel extends AComponent
         cell[voxelOffset] = v;
     }
 
-    public getVoxel(x: number, y: number, z: number, chunk: Chunk): number {
+    public getVoxel(x: number, y: number, z: number, chunk: Chunk, debug = false): number {
         const cell = this.getCellForVoxel(chunk);
 
-        if (!cell)
+        if (!cell)  
             return 0;
 
         const voxelOffset : number = this.computeVoxelOffset(x, y, z);
         return cell[voxelOffset];
     }
 
-    public getMeshByPosition(x: number, y: number): Chunk {
+    public getMeshByPosition(x: number, y: number, debug=false): Chunk {
         const cellX = Math.floor(x / this.options.cellSize);
         const cellY = Math.floor(y / this.options.cellSize);
         const id : string = cellX + ',' + cellY;
