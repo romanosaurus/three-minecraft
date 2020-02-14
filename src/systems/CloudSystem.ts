@@ -3,6 +3,7 @@ import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import ThreeSystem from "./ThreeSystem";
 import Cloud from "../components/Cloud";
+import IEntity from "../ecs/interfaces/IEntity";
 
 export default class CloudSystem extends ASystem {
     private _cloudNumber: number;
@@ -13,16 +14,14 @@ export default class CloudSystem extends ASystem {
     }
 
     onInit() {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
-        const scene: THREE.Scene = ecsWrapper.systemManager.getSystem(ThreeSystem).getScene();
+        const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
 
         for (let i = 0; i < this._cloudNumber; i++) {
-            ecsWrapper.entityManager.create(`Cloud${i}`);
-            const skyEntity = ecsWrapper.entityManager.getByName(`Cloud${i}`)[0];
-            skyEntity.assignComponent<Cloud>(new Cloud(skyEntity));
-            skyEntity.getComponent(Cloud).mesh.position.set(Math.floor(Math.random() * 300) + 10, 60, Math.floor(Math.random() * 300) + 10);
-            scene.add(skyEntity.getComponent(Cloud).mesh);
+            ECSWrapper.entities.create(`Cloud${i}`);
+            const cloudEntity: IEntity = ECSWrapper.entities.getByName(`Cloud${i}`)[0];
+            cloudEntity.assignComponent<Cloud>(new Cloud(cloudEntity));
+            cloudEntity.getComponent(Cloud).mesh.position.set(Math.floor(Math.random() * 300) + 10, 60, Math.floor(Math.random() * 300) + 10);
+            scene.add(cloudEntity.getComponent(Cloud).mesh);
         }
     }
 

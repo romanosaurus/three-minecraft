@@ -35,7 +35,7 @@ class WorldGenerationSystem extends ASystem {
         super(name);
 
         this.generatedArray = {};
-        this.worldOptions = { cellSize: 128, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16 };
+        this.worldOptions = { cellSize: 64, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16 };
         this.perlinGenerator = new PerlinGenerator(this.worldOptions.cellSize, this.worldOptions.cellSize, THREE.MathUtils.randInt(0, 3000));
 
         this.textureLoader = new THREE.TextureLoader();
@@ -52,12 +52,10 @@ class WorldGenerationSystem extends ASystem {
     }
 
     onInit(): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
+        const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
 
-        const scene: THREE.Scene = ecsWrapper.systemManager.getSystem(ThreeSystem).getScene();
-
-        ecsWrapper.entityManager.create("world");
-        const worldEntity: IEntity = ecsWrapper.entityManager.getByName("world")[0];
+        ECSWrapper.entities.create("world");
+        const worldEntity: IEntity = ECSWrapper.entities.getByName("world")[0];
 
         worldEntity.assignComponent<Voxel>(
             new Voxel(
@@ -66,9 +64,8 @@ class WorldGenerationSystem extends ASystem {
             )
         );
 
-        worldEntity.assignComponent<CircadianRhythm>(new CircadianRhythm(worldEntity, 10));
-
-        ecsWrapper.entityManager.applyToEach(["Voxel"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Voxel"], (entity) => {
+        //worldEntity.assignComponent<CircadianRhythm>(new CircadianRhythm(worldEntity, 10));
             const mesh: Chunk = new Chunk(this.worldOptions.cellSize, 2, 2, this.perlinGenerator);
 
             this.displayWorld(worldEntity.getComponent(Voxel), scene, mesh);
@@ -76,13 +73,12 @@ class WorldGenerationSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-        const scene: THREE.Scene = ecsWrapper.systemManager.getSystem(ThreeSystem).getScene();
+        const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
 
-        ecsWrapper.entityManager.applyToEach(["BoxCollider"], (entity) => {
+        ECSWrapper.entities.applyToEach(["BoxCollider"], (entity) => {
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
 
-            ecsWrapper.entityManager.applyToEach(["Voxel"], (voxelEntity) => {
+            ECSWrapper.entities.applyToEach(["Voxel"], (voxelEntity) => {
                 const voxelComponent: Voxel = voxelEntity.getComponent(Voxel);
 
                 this.generateFromPlayerPosition(boxCollider.body.position, voxelComponent, scene);
@@ -183,13 +179,69 @@ class WorldGenerationSystem extends ASystem {
             'uv',
             new THREE.BufferAttribute(new Float32Array(uvs), numComponent.uv));
         geometry.setIndex(indices);
+        geometry.computeBoundingSphere();
 
         const drawMesh = new THREE.Mesh(geometry, this.material);
         drawMesh.castShadow = true;
         drawMesh.receiveShadow = true;
         drawMesh.position.set(chunk.getWidthOffset() * this.worldOptions.cellSize, 0, chunk.getHeightOffset() * this.worldOptions.cellSize);
         scene.add(drawMesh);
-        voxelComponent.meshContainer.addMeshToSceneId(chunk.getWidthOffset() + ',' + chunk.getHeightOffset(), drawMesh);
+        voxelComponent.meshContainer.addMeshToSceneId(chunk.getWidthOffset() + ',' + chunk.getHeightOffset(), drawMesh, geometry);
+    }
+
+    private async updateChunkGeometry(x: number, y: number, z: number, voxelComponent: Voxel,chunk: Chunk) {
+
+        const cellX: number = Math.floor(x / this.worldOptions.cellSize);
+        const cellY: number = Math.floor(y / this.worldOptions.cellSize);
+        const cellZ: number = Math.floor(z / this.worldOptions.cellSize);
+
+        const geometry: THREE.BufferGeometry = voxelComponent.meshContainer.getContainerAtPos(`${cellX},${cellZ}`).geometry;
+
+        const generation = await spawn(new Worker('../workers/generation'));
+        const serializedMeshArray = voxelComponent.meshContainer.serialize();
+        const {positions, normals, uvs, indices} = await generation.generateGeometryDataForCell(chunk.getWidthOffset(), 0, chunk.getHeightOffset(), chunk.size, chunk.data, {
+            cellSize: this.worldOptions.cellSize,
+            tileSize: this.worldOptions.tileSize,
+            tileTextureWidth: this.worldOptions.tileTextureWidth,
+            tileTextureHeight: this.worldOptions.tileTextureHeight,
+            meshArray: serializedMeshArray,
+            cellSliceSize: this.worldOptions.cellSize * this.worldOptions.cellSize,
+            faces: Faces
+        });
+        await Thread.terminate(generation);
+
+        const positionNumComponents = 3;
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
+        const normalNumComponents = 3;
+        geometry.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
+        const uvNumComponents = 2;
+        geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
+        geometry.setIndex(indices);
+        geometry.computeBoundingSphere();
+    }
+
+    public async updateVoxelGeometry(x: number, y: number, z: number, chunk: Chunk, voxelComponent) {
+        const updatedCellIds = {};
+
+        const neighborOffsets = [
+            [ 0,  0,  0], // self
+            [-1,  0,  0], // left
+            [ 1,  0,  0], // right
+            [ 0, -1,  0], // down
+            [ 0,  1,  0], // up
+            [ 0,  0, -1], // back
+            [ 0,  0,  1], // front
+        ];
+        for (const offset of neighborOffsets) {
+            const ox = x + offset[0];
+            const oy = y + offset[1];
+            const oz = z + offset[2];
+            const cellId = `${chunk.getWidthOffset()},${chunk.getHeightOffset()}`;
+            if (!updatedCellIds[cellId]) {
+                updatedCellIds[cellId] = true;
+                this.updateChunkGeometry(ox, oy, oz, voxelComponent, chunk);
+            }
+        }
     }
 }
 

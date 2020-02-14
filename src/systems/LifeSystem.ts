@@ -12,9 +12,7 @@ class LifeSystem extends ASystem {
     }
 
     onInit() {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
-        ecsWrapper.entityManager.applyToEach(["Life", "FirstPersonController"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Life", "FirstPersonController"], (entity) => {
             const LifeComponent = entity.getComponent(Life);
             var currentDiv = document.getElementById('life-bar-cell');
             let globalLife = LifeComponent.globalLife;
@@ -32,9 +30,7 @@ class LifeSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
-        ecsWrapper.entityManager.applyToEach(["Life", "FirstPersonController"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Life", "FirstPersonController"], (entity) => {
             const LifeComponent = entity.getComponent(Life);
             let globalLife = LifeComponent.globalLife;
             let currentLife = LifeComponent.currentLife;

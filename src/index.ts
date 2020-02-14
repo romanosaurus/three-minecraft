@@ -7,41 +7,41 @@ import WalkingPhysicsSystem from "./systems/WalkingPhysicsSystem";
 import WorldGenerationSystem from "./systems/WorldGenerationSystem";
 import LifeSystem from "./systems/LifeSystem";
 import CloudSystem from "./systems/CloudSystem";
+import VoxelRaycastSystem from "./systems/VoxelRaycastSystem";
 import CircadianRhythmSystem from "./systems/CircadianRhythmSystem";
 import PointerLock from "./components/PointerLock";
 
 class Window {
     run() : void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
+        ECSWrapper.systems.initialize<ThreeSystem>(new ThreeSystem("ThreeSystem"));
+        ECSWrapper.systems.initialize<CannonSystem>(new CannonSystem("CannonSystem"));
+        ECSWrapper.systems.initialize<FirstPersonSystem>(new FirstPersonSystem("FirstPersonSystem"));
+        ECSWrapper.systems.initialize<WalkingPhysicsSystem>(new WalkingPhysicsSystem("WalkingPhysicsSystem"));
+        ECSWrapper.systems.initialize<WorldGenerationSystem>(new WorldGenerationSystem("WorldGenerationSystem"));
+        ECSWrapper.systems.initialize<LifeSystem>(new LifeSystem("LifeSystem"));
+        ECSWrapper.systems.initialize<CloudSystem>(new CloudSystem("CloudSystem"));
+        ECSWrapper.systems.initialize<VoxelRaycastSystem>(new VoxelRaycastSystem("VoxelRaycastSystem"));
+        ECSWrapper.systems.start("ThreeSystem");
+        ECSWrapper.systems.start("CannonSystem");
+        ECSWrapper.systems.start("WorldGenerationSystem");
+        ECSWrapper.systems.start("FirstPersonSystem");
+        ECSWrapper.systems.start("WalkingPhysicsSystem");
+        ECSWrapper.systems.start("LifeSystem");
+        ECSWrapper.systems.start("CloudSystem");
+        ECSWrapper.systems.start("VoxelRaycastSystem");
 
-        ecsWrapper.systemManager.newSystem<ThreeSystem>(new ThreeSystem("ThreeSystem"));
-        ecsWrapper.systemManager.newSystem<CannonSystem>(new CannonSystem("CannonSystem"));
-        ecsWrapper.systemManager.newSystem<FirstPersonSystem>(new FirstPersonSystem("FirstPersonSystem"));
-        ecsWrapper.systemManager.newSystem<WalkingPhysicsSystem>(new WalkingPhysicsSystem("WalkingPhysicsSystem"));
-        ecsWrapper.systemManager.newSystem<WorldGenerationSystem>(new WorldGenerationSystem("WorldGenerationSystem"));
-        ecsWrapper.systemManager.newSystem<LifeSystem>(new LifeSystem("LifeSystem"));
-        ecsWrapper.systemManager.newSystem<CloudSystem>(new CloudSystem("CloudSystem"));
-        ecsWrapper.systemManager.newSystem<CircadianRhythmSystem>(new CircadianRhythmSystem("CircadianRhythm"));
-        ecsWrapper.systemManager.startSystem("ThreeSystem");
-        ecsWrapper.systemManager.startSystem("CannonSystem");
-        ecsWrapper.systemManager.startSystem("WorldGenerationSystem");
-        ecsWrapper.systemManager.startSystem("FirstPersonSystem");
-        ecsWrapper.systemManager.startSystem("WalkingPhysicsSystem");
-        ecsWrapper.systemManager.startSystem("LifeSystem");
-        ecsWrapper.systemManager.startSystem("CloudSystem");
-        ecsWrapper.systemManager.startSystem("CircadianRhythm");
-
-        document.addEventListener('mousemove', ( mouseEvent ) => { ecsWrapper.systemManager.setEvent("mouseEvent", mouseEvent); });
-        document.addEventListener('keydown', (keyDown) => { ecsWrapper.systemManager.setEvent("keyDown", keyDown); });
-        document.addEventListener('keyup', (keyUp) => { ecsWrapper.systemManager.setEvent("keyUp", keyUp); });
-        document.addEventListener('resize', (resize) => { ecsWrapper.systemManager.setEvent("resize", resize); });
+        document.addEventListener('mousemove', ( mouseEvent ) => { ECSWrapper.systems.setEvent("mouseEvent", mouseEvent); });
+        document.addEventListener('keydown', (keyDown) => { ECSWrapper.systems.setEvent("keyDown", keyDown); });
+        document.addEventListener('keyup', (keyUp) => { ECSWrapper.systems.setEvent("keyUp", keyUp); });
+        document.addEventListener('resize', (resize) => { ECSWrapper.systems.setEvent("resize", resize); });
         document.addEventListener('click', ( clickEvent ) => {
-            ecsWrapper.entityManager.applyToEach(["PointerLock"], (entity) => {
+            ECSWrapper.systems.setEvent("click", clickEvent);
+            ECSWrapper.entities.applyToEach(["PointerLock"], (entity) => {
                 entity.getComponent(PointerLock).lockPointer();
             });
         });
 
-        ecsWrapper.systemManager.run();
+        ECSWrapper.systems.run();
     }
 }
 

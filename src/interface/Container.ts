@@ -6,5 +6,6 @@ export interface Container {
     drawableMesh: Uint8Array,
     mesh: Chunk,
     drawedMesh: THREE.Scene,
-    isDrawed: boolean
+    isDrawed: boolean,
+    geometry: THREE.BufferGeometry
 }

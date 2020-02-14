@@ -16,15 +16,19 @@ export default class Chunk {
         this.WidthOffset = WidthOffset;
         this.data = data || generator.createMesh();
     }
+
     public getMeshSize() {
         return this.size;
     }
+
     public getHeightOffset() {
         return this.HeightOffset;
     }
+
     public getWidthOffset() {
         return this.WidthOffset;
     }
+
     public getMeshData() {
         return this.data;
     }

@@ -15,6 +15,7 @@ import FullScreen from "../utils/FullScreen";
 import * as Stats from 'stats.js';
 import LightUtilities from "../utils/LightUtilities";
 import WalkingArea from "../components/WalkingArea";
+import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
 
 class ThreeSystem extends ASystem {
     private readonly scene : THREE.Scene;
@@ -30,17 +31,15 @@ class ThreeSystem extends ASystem {
     }
 
     onInit(): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
         LightUtilities.AddLight(this.scene, -1,  2,  4);
         LightUtilities.AddLight(this.scene, 1, -1, -2);
 
+        ECSWrapper.entities.create("Player");
         this.renderer.shadowMapEnabled = true;
         this.renderer.shadowMapCullFace = THREE.CullFaceBack;
 
-        ecsWrapper.entityManager.create("Player");
 
-        const playerEntity: IEntity = ecsWrapper.entityManager.getByName("Player")[0];
+        const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
         playerEntity.assignComponent<FirstPersonController>(
             new FirstPersonController(
                 playerEntity,
@@ -51,7 +50,7 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<Box>(new Box(
             playerEntity,
             new THREE.Vector3(1, 3, 1),
-            new THREE.Vector3(128 * 2 + 10, 50, 128 * 2 + 10))
+            new THREE.Vector3(64 * 2 + 10, 60, 64 * 2 + 10))
         );
         playerEntity.assignComponent<Camera>(
             new Camera(
@@ -74,11 +73,12 @@ class ThreeSystem extends ASystem {
 
         playerEntity.assignComponent<Life>(new Life(playerEntity, 9));
 
-        ecsWrapper.entityManager.applyToEach(["Box"], (entity) => {
+
+        ECSWrapper.entities.applyToEach(["Box"], (entity) => {
             this.scene.add(entity.getComponent(Box).mesh);
         });
 
-        ecsWrapper.entityManager.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
+        ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
             entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {
                 entity.getComponent(FirstPersonController).jumping = false
             });
@@ -102,13 +102,12 @@ class ThreeSystem extends ASystem {
             FullScreen.keyDown(this.renderer, this.scene);
 
         requestAnimationFrame(() => {
-            const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-            ecsWrapper.systemManager.run();
+            ECSWrapper.systems.run();
         });
 
         this.renderer.render(
             this.scene,
-            ECSWrapper.getInstance().entityManager.getByName("Player")[0].getComponent(Camera).camera
+            ECSWrapper.entities.getByName("Player")[0].getComponent(Camera).camera
         );
     }
 
@@ -120,7 +119,7 @@ class ThreeSystem extends ASystem {
         return this.scene;
     }
 
-    getRenderer(): THREE.WebGLRenderer {
+    get Renderer(): THREE.WebGLRenderer {
         return this.renderer;
     }
 }

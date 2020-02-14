@@ -18,14 +18,13 @@ export default class CircadianRhythmSystem extends ASystem {
     }
 
     onInit() {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
         this._isDay = true;
         this._isNight = false;
         this._dirLight = new THREE.DirectionalLight(0xffffff, 1);
 
-        ecsWrapper.entityManager.applyToEach(["CircadianRhythm"], (entity) => {
-            const scene: THREE.Scene = ecsWrapper.systemManager.getSystem(ThreeSystem).getScene();
-            const renderer: THREE.WebGLRenderer = ecsWrapper.systemManager.getSystem(ThreeSystem).getRenderer();
+        ECSWrapper.entities.applyToEach(["CircadianRhythm"], (entity) => {
+            const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
+            const renderer: THREE.WebGLRenderer = ECSWrapper.systems.get(ThreeSystem).Renderer;
 
             // add hemiLight
             var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.05);
@@ -54,11 +53,9 @@ export default class CircadianRhythmSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number): void {
-        const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
-
-        ecsWrapper.entityManager.applyToEach(["CircadianRhythm"], (entity) => {
-            const scene: THREE.Scene = ecsWrapper.systemManager.getSystem(ThreeSystem).getScene();
-            const renderer: THREE.WebGLRenderer = ecsWrapper.systemManager.getSystem(ThreeSystem).getRenderer();
+        ECSWrapper.entities.applyToEach(["CircadianRhythm"], (entity) => {
+            const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
+            const renderer: THREE.WebGLRenderer = ECSWrapper.systems.get(ThreeSystem).Renderer;
             const CircadianRhythmComponent = entity.getComponent(CircadianRhythm);
 
             CircadianRhythmComponent.time = elapsedTime + CircadianRhythmComponent.istime;
