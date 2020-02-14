@@ -64,9 +64,7 @@ export default class VoxelRaycastSystem extends ASystem {
         }
     }
 
-    onClose(): void {
-
-    }
+    onClose(): void {}
 
     private intersectRay(start: THREE.Vector3, end: THREE.Vector3, voxelComponent: Voxel): any {
         let dx = end.x - start.x;
