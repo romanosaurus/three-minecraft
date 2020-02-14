@@ -8,6 +8,7 @@ import WorldGenerationSystem from "./systems/WorldGenerationSystem";
 import LifeSystem from "./systems/LifeSystem";
 import CloudSystem from "./systems/CloudSystem";
 import VoxelRaycastSystem from "./systems/VoxelRaycastSystem";
+import CircadianRhythmSystem from "./systems/CircadianRhythmSystem";
 import PointerLock from "./components/PointerLock";
 
 class Window {
