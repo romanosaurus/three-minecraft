@@ -35,6 +35,9 @@ class ThreeSystem extends ASystem {
         LightUtilities.AddLight(this.scene, -1,  2,  4);
         LightUtilities.AddLight(this.scene, 1, -1, -2);
 
+        this.renderer.shadowMapEnabled = true;
+        this.renderer.shadowMapCullFace = THREE.CullFaceBack;
+
         ecsWrapper.entityManager.create("Player");
 
         const playerEntity: IEntity = ecsWrapper.entityManager.getByName("Player")[0];
@@ -86,8 +89,6 @@ class ThreeSystem extends ASystem {
         document.body.appendChild(this.renderer.domElement);
 
         this.stats.showPanel(0);
-
-        document.body.appendChild(this.stats.dom);
     }
 
     onUpdate(elapsedTime: number): void {
@@ -117,6 +118,10 @@ class ThreeSystem extends ASystem {
 
     getScene(): THREE.Scene {
         return this.scene;
+    }
+
+    getRenderer(): THREE.WebGLRenderer {
+        return this.renderer;
     }
 }
 

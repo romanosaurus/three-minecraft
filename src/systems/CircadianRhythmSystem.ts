@@ -11,7 +11,10 @@ import { cornflowerblue } from "color-name";
 export default class CircadianRhythmSystem extends ASystem {
     private _isDay: boolean;
     private _isNight: boolean;
+<<<<<<< HEAD
     private _hemiLight: number;
+=======
+>>>>>>> origin/master
     private _dirLight: THREE.DirectionalLight;
 
     constructor(name: string) {
@@ -22,7 +25,10 @@ export default class CircadianRhythmSystem extends ASystem {
         const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
         this._isDay = true;
         this._isNight = false;
+<<<<<<< HEAD
         this._hemiLight = 0.1;
+=======
+>>>>>>> origin/master
         this._dirLight = new THREE.DirectionalLight(0xffffff, 1);
 
         ecsWrapper.entityManager.applyToEach(["CircadianRhythm"], (entity) => {
@@ -30,7 +36,11 @@ export default class CircadianRhythmSystem extends ASystem {
             const renderer: THREE.WebGLRenderer = ecsWrapper.systemManager.getSystem(ThreeSystem).getRenderer();
 
             // add hemiLight
+<<<<<<< HEAD
             var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, this._hemiLight);
+=======
+            var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.05);
+>>>>>>> origin/master
             hemiLight.color.setHSL(0.6, 1, 0.6);
             hemiLight.groundColor.setHSL(0.095, 1, 0.75);
             hemiLight.position.set(0, 500, 0);
