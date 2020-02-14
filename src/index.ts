@@ -9,8 +9,6 @@ import LifeSystem from "./systems/LifeSystem";
 import CloudSystem from "./systems/CloudSystem";
 import VoxelRaycastSystem from "./systems/VoxelRaycastSystem";
 import PointerLock from "./components/PointerLock";
-import Mouse from "./components/Mouse";
-import IEntity from "./ecs/interfaces/IEntity";
 
 class Window {
     run() : void {

@@ -12,7 +12,6 @@ import MeshContainer from "../utils/MeshContainer";
 import Chunk from '../utils/Chunk';
 import PerlinGenerator from '../utils/PerlinGenerator';
 import Faces from "../utils/Faces";
-import Mouse from '../components/Mouse';
 
 interface WorldOptions {
     cellSize: number,

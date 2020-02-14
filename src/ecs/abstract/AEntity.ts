@@ -18,7 +18,7 @@ export default class AEntity implements IEntity {
      */
     assignComponent<T extends IComponent>(value: T): void {
         if (this.hasComponent(value.constructor.name))
-            throw "Component already exists";
+            throw new Error("Component already exists");
         this.components.push(value);
     }
 

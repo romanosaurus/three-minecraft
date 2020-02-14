@@ -4,8 +4,6 @@ import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 
 import Voxel from "../components/Voxel";
-import Raycast from "../components/Raycast";
-import PointerLock from "../components/PointerLock";
 import Camera from '../components/Camera';
 import ThreeSystem from './ThreeSystem';
 import IEntity from '../ecs/interfaces/IEntity';
@@ -13,33 +11,30 @@ import Chunk from '../utils/Chunk';
 import WorldGenerationSystem from './WorldGenerationSystem';
 
 export default class VoxelRaycastSystem extends ASystem {
-    private raycaster: THREE.Raycaster;
     private size: THREE.Vector2;
-    private currentTime: number;
+    private far: number;
 
     constructor(name: string) {
         super(name);
 
-        this.raycaster = new THREE.Raycaster;
-
         this.size = new THREE.Vector2;
         const threeSystem = ECSWrapper.systems.get(ThreeSystem);
         threeSystem.Renderer.getSize(this.size);
-        this.currentTime = 0;
+
+        this.far = 5;
     }
+
     onInit(): void {
-        this.raycaster.near = 1;
-        this.raycaster.far = 5;
     }
 
     onUpdate(elapsedTime: number): void {
         const elapsedTimeAsSeconds: number = elapsedTime / 1000;
 
-        if (this.events["click"] && this.currentTime > 1) {
-            let voxelId = 1;
+        if (this.events["click"]) {
+            let voxelId = 0;
 
             if (this.events["keyDown"])
-                if (this.events["click"] && this.events["keyDown"].key === "Shift")
+                if (this.events["keyDown"].key === "Shift")
                     voxelId = 0;
             const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
             const x: number = ((this.size.x / 2) / this.size.x) * 2 - 1;
@@ -50,6 +45,8 @@ export default class VoxelRaycastSystem extends ASystem {
 
             start.setFromMatrixPosition(playerEntity.getComponent(Camera).camera.matrixWorld);
             end.set(x, y, 1).unproject(playerEntity.getComponent(Camera).camera);
+
+            console.log(start, end);
 
             const worldEntity = ECSWrapper.entities.getByName("world")[0];
             const voxelComponent = worldEntity.getComponent(Voxel);
@@ -64,9 +61,7 @@ export default class VoxelRaycastSystem extends ASystem {
                 voxelComponent.setVoxel(pos[0], pos[1], pos[2], voxelId, currentChunk);
                 ECSWrapper.systems.get(WorldGenerationSystem).updateVoxelGeometry(pos[0], pos[1], pos[2], currentChunk, voxelComponent);
             }
-            this.currentTime = 0;
         }
-        this.currentTime += elapsedTimeAsSeconds
     }
 
     onClose(): void {
@@ -79,7 +74,6 @@ export default class VoxelRaycastSystem extends ASystem {
         let dz = end.z - start.z;
         const lenSq = dx * dx + dy * dy + dz * dz;
         const len = Math.sqrt(lenSq);
-
         dx /= len;
         dy /= len;
         dz /= len;
@@ -109,7 +103,8 @@ export default class VoxelRaycastSystem extends ASystem {
         let steppedIndex = -1;
 
     // main loop along raycast vector
-        while (t <= len) {
+        while (t <= this.far) {
+            console.log(t);
             const voxel = voxelComponent.getVoxel(ix, iy, iz, voxelComponent.getMeshByPosition(ix, iz));
             if (voxel) {
                 return {
