@@ -2,6 +2,7 @@ import ECSWrapper from "../wrapper/ECSWrapper";
 import IEntity from "../interfaces/IEntity";
 import AComponent from "../abstract/AComponent";
 
+/*
 test('get entity without entities', () => {
     const ecsWrapper: ECSWrapper = ECSWrapper.getInstance();
 
@@ -50,3 +51,5 @@ test('has component with the component', () => {
     playerEntity.assignComponent<Transform>(new Transform(playerEntity));
     expect(playerEntity.hasComponent("Transform")).toBe(true);
 });
+
+*/
