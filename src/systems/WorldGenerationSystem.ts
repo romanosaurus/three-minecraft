@@ -31,8 +31,6 @@ class WorldGenerationSystem extends ASystem {
     private texture: THREE.Texture;
     private material: THREE.MeshLambertMaterial;
 
-    private mouse: {x: number, y: number};
-
     constructor(name: string) {
         super(name);
 
@@ -51,7 +49,6 @@ class WorldGenerationSystem extends ASystem {
             alphaTest: 0.1,
             transparent: true
         });
-        this.mouse = { x: 0, y: 0 };
     }
 
     onInit(): void {
@@ -138,7 +135,7 @@ class WorldGenerationSystem extends ASystem {
         let counter: number = 0;
         const startX: number = chunk.getWidthOffset() * this.worldOptions.cellSize;
         const startZ: number = chunk.getHeightOffset() * this.worldOptions.cellSize;
-        
+
         for (let z = 0; z < chunk.getMeshSize(); z += 1) {
             for (let x = 0; x < chunk.getMeshSize(); x += 1) {
                 for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--) {
