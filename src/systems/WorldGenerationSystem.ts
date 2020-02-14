@@ -37,7 +37,7 @@ class WorldGenerationSystem extends ASystem {
         super(name);
 
         this.generatedArray = {};
-        this.worldOptions = { cellSize: 128, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16 };
+        this.worldOptions = { cellSize: 64, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16 };
         this.perlinGenerator = new PerlinGenerator(this.worldOptions.cellSize, this.worldOptions.cellSize, THREE.MathUtils.randInt(0, 3000));
 
         this.textureLoader = new THREE.TextureLoader();
@@ -138,7 +138,7 @@ class WorldGenerationSystem extends ASystem {
         let counter: number = 0;
         const startX: number = chunk.getWidthOffset() * this.worldOptions.cellSize;
         const startZ: number = chunk.getHeightOffset() * this.worldOptions.cellSize;
-
+        
         for (let z = 0; z < chunk.getMeshSize(); z += 1) {
             for (let x = 0; x < chunk.getMeshSize(); x += 1) {
                 for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--) {
@@ -220,7 +220,7 @@ class WorldGenerationSystem extends ASystem {
         geometry.computeBoundingSphere();
     }
 
-    public async updateVoxelGeometry(x, y, z, chunk: Chunk, voxelComponent) {
+    public async updateVoxelGeometry(x: number, y: number, z: number, chunk: Chunk, voxelComponent) {
         const updatedCellIds = {};
 
         const neighborOffsets = [
