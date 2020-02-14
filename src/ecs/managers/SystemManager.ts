@@ -1,5 +1,5 @@
 import {ISystem, SystemState, RegisteredEvent} from "../interfaces/ISystem";
-
+const EventEmitter = require('events');
 export default class SystemManager {
     private readonly systems: Array<ISystem>;
     private lastTime: number;
@@ -57,14 +57,11 @@ export default class SystemManager {
         return <T>this.systems.filter((elem) => TCtor.name === elem.constructor.name)[0];
     }
 
-    public dispatch(eventName: string, event: Event) {
+    public dispatch(eventName: string, eventObject: Event) {
         this.systems.forEach((system) => {
             const currentEvent: RegisteredEvent[] = system.getRegisteredEvents();
 
-            currentEvent.forEach((ev) => {
-                if (ev.name === eventName)
-                    ev.callback(event);
-            });
+            currentEvent.filter((eventToFilter) => eventToFilter.name === eventName).forEach((event) => { event.callback(eventObject) });
         })
     }
 }

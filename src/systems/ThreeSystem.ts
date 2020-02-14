@@ -68,7 +68,7 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<BoxCollider>(new BoxCollider(
             playerEntity,
             playerEntity.getComponent(Box).mesh.position,
-            playerEntity.getComponent(Box).getSize(),
+            playerEntity.getComponent(Box).size,
             10
         ));
         playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity));

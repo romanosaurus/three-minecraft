@@ -47,7 +47,7 @@ class WorldGenerationSystem extends ASystem {
             map: this.texture,
             side: THREE.DoubleSide,
             alphaTest: 0.1,
-            transparent: true
+            transparent: false
         });
     }
 
@@ -137,8 +137,8 @@ class WorldGenerationSystem extends ASystem {
         const startX: number = chunk.getWidthOffset() * this.worldOptions.cellSize;
         const startZ: number = chunk.getHeightOffset() * this.worldOptions.cellSize;
 
-        for (let z = 0; z < chunk.getMeshSize(); z += 1) {
-            for (let x = 0; x < chunk.getMeshSize(); x += 1) {
+        for (let z = 0; z < chunk.size; z += 1) {
+            for (let x = 0; x < chunk.size; x += 1) {
                 for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--) {
                     voxelComponent.setVoxel(startX + x, height, startZ + z, 14, chunk);
                 }

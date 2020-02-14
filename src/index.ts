@@ -1,3 +1,10 @@
+/*
+    .-. .-. .----..-.  .-..----..-.
+    | | | |/  {}  \\ \/ / | {_  | |
+    \ \_/ /\      // /\ \ | {__ | `--.
+    `---'  `----'`-'  `-'`----'`----'
+*/
+
 import ECSWrapper from "./ecs/wrapper/ECSWrapper";
 
 import ThreeSystem from "./systems/ThreeSystem";

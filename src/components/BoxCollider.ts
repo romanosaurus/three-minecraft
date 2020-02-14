@@ -22,7 +22,7 @@ class BoxCollider extends AComponent {
         return this._body;
     }
 
-    public getPosition(): CANNON.Vec3 {
+    get position(): CANNON.Vec3 {
         return this.body.position;
     }
 }

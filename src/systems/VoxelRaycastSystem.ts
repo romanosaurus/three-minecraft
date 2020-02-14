@@ -19,6 +19,7 @@ interface Intersection {
 export default class VoxelRaycastSystem extends ASystem {
     private size: THREE.Vector2;
     private far: number;
+    private voxelId: number;
 
     constructor(name: string) {
         super(name);
@@ -28,9 +29,19 @@ export default class VoxelRaycastSystem extends ASystem {
         threeSystem.Renderer.getSize(this.size);
 
         this.far = 5;
+        this.voxelId = 0;
 
         this.registerEvent("click", (event) => {
             this.launchRaycast();
+        })
+
+        this.registerEvent("keyDown", (event: any) => {
+            if (event.key === "p") {
+                if (this.voxelId === 16)
+                    this.voxelId = 0;
+                else
+                    this.voxelId++;
+            }
         })
     }
 
@@ -137,8 +148,6 @@ export default class VoxelRaycastSystem extends ASystem {
     }
 
     private launchRaycast() {
-        let voxelId = 0;
-
         const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
         const x: number = ((this.size.x / 2) / this.size.x) * 2 - 1;
         const y: number = ((this.size.y / 2) / this.size.y) * -2 + 1;
@@ -151,10 +160,10 @@ export default class VoxelRaycastSystem extends ASystem {
         const intersection: Intersection | null = this.intersectRay(start, end, voxelComponent);
         if (intersection) {
             const pos = intersection.position.map((v, ndx) => {
-                return v + intersection.normal[ndx] * (voxelId > 0 ? 0.5 : -0.5)
+                return v + intersection.normal[ndx] * (this.voxelId > 0 ? 0.5 : -0.5)
             });
             const currentChunk: Chunk = voxelComponent.getMeshByPosition(pos[0], pos[2], true);
-            voxelComponent.setVoxel(pos[0], pos[1], pos[2], voxelId, currentChunk);
+            voxelComponent.setVoxel(pos[0], pos[1], pos[2], this.voxelId, currentChunk);
             ECSWrapper.systems.get(WorldGenerationSystem).updateVoxelGeometry(pos[0], pos[1], pos[2], currentChunk, voxelComponent);
         }
     }
