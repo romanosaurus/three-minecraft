@@ -21,6 +21,10 @@ class CannonSystem extends ASystem {
             this.world,
             null
         );
+        this.registerEvent("keyDown", (event: any) => {
+            if (event.key === "b")
+                this.toggleDebugging();
+        })
     }
 
     onInit(): void {
@@ -36,12 +40,6 @@ class CannonSystem extends ASystem {
 
         if (this.debuggerActivated) {
             this.debugger.update();
-        }
-
-        if (this.events["keyDown"]) {
-            if (this.events["keyDown"].key === 'b') {
-                this.toggleDebugging();
-            }
         }
 
         ECSWrapper.entities.applyToEach(["BoxCollider"], (entity) => {
@@ -62,7 +60,7 @@ class CannonSystem extends ASystem {
     }
 
     toggleDebugging(): void {
-        this.debuggerActivated = !this.debuggerActivated;
+        this.debuggerActivated = true;
     }
 }
 

@@ -28,44 +28,16 @@ export default class VoxelRaycastSystem extends ASystem {
         threeSystem.Renderer.getSize(this.size);
 
         this.far = 5;
+
+        this.registerEvent("click", (event) => {
+            this.launchRaycast();
+        })
     }
 
     onInit(): void {
     }
 
-    onUpdate(elapsedTime: number): void {
-        if (this.events["click"]) {
-            let voxelId = 0;
-
-            if (this.events["keyDown"])
-                if (this.events["keyDown"].key === "Shift")
-                    voxelId = 0;
-
-            const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
-            const x: number = ((this.size.x / 2) / this.size.x) * 2 - 1;
-            const y: number = ((this.size.y / 2) / this.size.y) * -2 + 1;
-
-            const start: THREE.Vector3 = new THREE.Vector3();
-            const end: THREE.Vector3 = new THREE.Vector3();
-
-            start.setFromMatrixPosition(playerEntity.getComponent(Camera).camera.matrixWorld);
-            end.set(x, y, 1).unproject(playerEntity.getComponent(Camera).camera);
-
-            const worldEntity: IEntity = ECSWrapper.entities.getByName("world")[0];
-            const voxelComponent: Voxel = worldEntity.getComponent(Voxel);
-            const intersection: Intersection | null = this.intersectRay(start, end, voxelComponent);
-
-            if (intersection) {
-                const pos = intersection.position.map((v, ndx) => {
-                    return v + intersection.normal[ndx] * (voxelId > 0 ? 0.5 : -0.5)
-                });
-
-                const currentChunk: Chunk = voxelComponent.getMeshByPosition(pos[0], pos[2], true);
-                voxelComponent.setVoxel(pos[0], pos[1], pos[2], voxelId, currentChunk);
-                ECSWrapper.systems.get(WorldGenerationSystem).updateVoxelGeometry(pos[0], pos[1], pos[2], currentChunk, voxelComponent);
-            }
-        }
-    }
+    onUpdate(elapsedTime: number): void {}
 
     onClose(): void {}
 
@@ -162,5 +134,28 @@ export default class VoxelRaycastSystem extends ASystem {
             }
         }
         return null;
+    }
+
+    private launchRaycast() {
+        let voxelId = 0;
+
+        const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
+        const x: number = ((this.size.x / 2) / this.size.x) * 2 - 1;
+        const y: number = ((this.size.y / 2) / this.size.y) * -2 + 1;
+        const start: THREE.Vector3 = new THREE.Vector3();
+        const end: THREE.Vector3 = new THREE.Vector3();
+        start.setFromMatrixPosition(playerEntity.getComponent(Camera).camera.matrixWorld);
+        end.set(x, y, 1).unproject(playerEntity.getComponent(Camera).camera);
+        const worldEntity: IEntity = ECSWrapper.entities.getByName("world")[0];
+        const voxelComponent: Voxel = worldEntity.getComponent(Voxel);
+        const intersection: Intersection | null = this.intersectRay(start, end, voxelComponent);
+        if (intersection) {
+            const pos = intersection.position.map((v, ndx) => {
+                return v + intersection.normal[ndx] * (voxelId > 0 ? 0.5 : -0.5)
+            });
+            const currentChunk: Chunk = voxelComponent.getMeshByPosition(pos[0], pos[2], true);
+            voxelComponent.setVoxel(pos[0], pos[1], pos[2], voxelId, currentChunk);
+            ECSWrapper.systems.get(WorldGenerationSystem).updateVoxelGeometry(pos[0], pos[1], pos[2], currentChunk, voxelComponent);
+        }
     }
 }

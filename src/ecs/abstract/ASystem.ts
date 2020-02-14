@@ -1,39 +1,46 @@
-import {ISystem, SystemState} from "../interfaces/ISystem";
+import { ISystem, SystemState, RegisteredEvent } from "../interfaces/ISystem";
+
+const events = require('events');
 
 export default class ASystem implements ISystem {
     private readonly name : string;
     private state : SystemState;
-    public events : Object | null;
+    private emitter: NodeJS.EventEmitter;
+    private _registeredEvents: RegisteredEvent[];
 
     constructor(name : string) {
         this.name = name;
         this.state = SystemState.STOPPED;
-        this.events = {};
+        this.emitter = new events();
+        this._registeredEvents = [];
     }
 
-    onInit(): void {}
+    public onInit(): void {}
 
-    onUpdate(elapsedTime: number): void {}
+    public onUpdate(elapsedTime: number): void {}
 
-    onClose(): void {}
+    public onClose(): void {}
 
-    getName(): string {
+    public getName(): string {
         return this.name;
     }
 
-    getState(): SystemState {
+    public getState(): SystemState {
         return this.state;
     }
 
-    setState(newState: SystemState): void {
+    public setState(newState: SystemState): void {
         this.state = newState;
     }
 
-    setEvent(name: string, value: any): void {
-        this.events[name] = value;
+    public registerEvent(eventName: string, callback: (event: Event) => void) {
+        const eventTuple: RegisteredEvent = { name: eventName, callback: callback };
+
+        this._registeredEvents.push(eventTuple);
+        this.emitter.on(eventName, callback);
     }
 
-    clearEvent(): void {
-        this.events = {};
+    public getRegisteredEvents(): RegisteredEvent[] {
+        return this._registeredEvents;
     }
 }

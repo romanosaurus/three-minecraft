@@ -11,9 +11,13 @@ import PointerLock from '../components/PointerLock';
 
 class FirstPersonSystem extends ASystem {
     private currentTime: number;
+
     constructor(name: string) {
         super(name);
+
         this.currentTime = 0;
+        this.setupMouseEvent();
+        this.setupKeyEvents();
     }
 
     onInit() {}
@@ -21,38 +25,8 @@ class FirstPersonSystem extends ASystem {
     onUpdate(elapsedTime: number): void {
         const jumpingTime: number = 0.3;
 
-
-        ECSWrapper.entities.applyToEach(["Camera", "FirstPersonController", "PointerLock"], (entity) => {
-            if (entity.getComponent(PointerLock).pointerLockActivated) {
-
-                const euler = new THREE.Euler(0, 0, 0, 'YXZ');
-                const mouseEvent = this.events["mouseEvent"];
-                let movementX: number = 0;
-                let movementY: number = 0;
-
-                if (mouseEvent !== undefined) {
-                    movementX = mouseEvent.movementX || mouseEvent.mozMovementX || mouseEvent.webkitMovementX || 0;
-                    movementY = mouseEvent.movementY || mouseEvent.mozMovementY || mouseEvent.webkitMovementY || 0;
-                }
-
-                euler.setFromQuaternion(entity.getComponent(Camera).camera.quaternion);
-                euler.y -= movementX * entity.getComponent(FirstPersonController).rotationSpeed.y;
-                euler.x -= movementY * entity.getComponent(FirstPersonController).rotationSpeed.x;
-
-                euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
-                entity.getComponent(Camera).camera.quaternion.setFromEuler(euler);
-            }
-        });
-
         ECSWrapper.entities.applyToEach(["Camera", "Box", "FirstPersonController", "BoxCollider"], (entity) => {
-            const keyUp = this.events["keyUp"];
-            const keyDown = this.events["keyDown"];
             const firstPersonController: FirstPersonController = entity.getComponent(FirstPersonController);
-
-            if (keyUp)
-                firstPersonController.keyUp(keyUp);
-            if (keyDown)
-                firstPersonController.keyDown(keyDown);
 
             entity.getComponent(BoxCollider).body.mass = 10;
             if (firstPersonController.jumping && this.currentTime < jumpingTime) {
@@ -103,6 +77,46 @@ class FirstPersonSystem extends ASystem {
     }
 
     onClose(): void {}
+
+    private setupMouseEvent() {
+        this.registerEvent("mouseEvent", (event: any) => {
+            ECSWrapper.entities.applyToEach(["Camera", "FirstPersonController", "PointerLock"], (entity) => {
+                if (entity.getComponent(PointerLock).pointerLockActivated) {
+
+                    const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+                    let movementX: number = 0;
+                    let movementY: number = 0;
+
+                    if (event !== undefined) {
+                        movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+                        movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+                    }
+
+                    euler.setFromQuaternion(entity.getComponent(Camera).camera.quaternion);
+                    euler.y -= movementX * entity.getComponent(FirstPersonController).rotationSpeed.y;
+                    euler.x -= movementY * entity.getComponent(FirstPersonController).rotationSpeed.x;
+
+                    euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+                    entity.getComponent(Camera).camera.quaternion.setFromEuler(euler);
+                }
+            });
+        });
+    }
+
+    private setupKeyEvents() {
+        this.registerEvent("keyDown", (event: any) => {
+            ECSWrapper.entities.applyToEach(["FirstPersonController"], (entity) => {
+                entity.getComponent(FirstPersonController).keyDown(event);
+            });
+        });
+
+
+        this.registerEvent("keyUp", (event: any) => {
+            ECSWrapper.entities.applyToEach(["FirstPersonController"], (entity) => {
+                entity.getComponent(FirstPersonController).keyUp(event);
+            });
+        })
+    }
 }
 
 export default FirstPersonSystem;
