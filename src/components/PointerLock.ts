@@ -29,7 +29,7 @@ class PointerLock extends AComponent {
         return this._controls;
     }
 
-    lockPointer(): void {
+    public lockPointer(): void {
         this.controls.lock();
     }
 }

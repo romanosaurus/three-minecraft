@@ -28,6 +28,10 @@ class ThreeSystem extends ASystem {
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer();
         this.stats = new Stats();
+
+        this.registerEvent("keyDown", (event: any) => {
+            FullScreen.keyDown(this.renderer, this.scene);
+        });
     }
 
     onInit(): void {
@@ -64,7 +68,7 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<BoxCollider>(new BoxCollider(
             playerEntity,
             playerEntity.getComponent(Box).mesh.position,
-            playerEntity.getComponent(Box).getSize(),
+            playerEntity.getComponent(Box).size,
             10
         ));
         playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity));
@@ -89,17 +93,13 @@ class ThreeSystem extends ASystem {
         document.body.appendChild(this.renderer.domElement);
 
         this.stats.showPanel(0);
+        document.body.appendChild( this.stats.dom );
     }
 
     onUpdate(elapsedTime: number): void {
-        const keyDown = this.events["keyDown"];
-
         this.stats.begin();
 
         this.stats.end();
-
-        if (keyDown)
-            FullScreen.keyDown(this.renderer, this.scene);
 
         requestAnimationFrame(() => {
             ECSWrapper.systems.run();

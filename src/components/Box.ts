@@ -8,6 +8,9 @@ class Box extends AComponent {
     private readonly _material: THREE.MeshBasicMaterial;
     private readonly _mesh: THREE.Mesh;
 
+    private _size: THREE.Vector3;
+    private _position: THREE.Vector3;
+
     constructor(entity: IEntity, size: THREE.Vector3, position: THREE.Vector3) {
         super(entity);
 
@@ -15,14 +18,17 @@ class Box extends AComponent {
         this._material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         this._mesh = new THREE.Mesh(this._geometry, this._material);
         this._mesh.position.set(position.x, position.y, position.z);
+
+        this._size = size;
+        this._position = position;
     }
 
-    getSize(): THREE.Vector3 {
-        return new THREE.Vector3(
-            this._geometry.parameters.width,
-            this._geometry.parameters.height,
-            this._geometry.parameters.depth
-        );
+    get size(): THREE.Vector3 {
+        return this._size;
+    }
+
+    get position(): THREE.Vector3 {
+        return this._position;
     }
 
     get mesh(): THREE.Mesh {
