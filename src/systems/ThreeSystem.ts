@@ -39,8 +39,8 @@ class ThreeSystem extends ASystem {
         LightUtilities.AddLight(this.scene, 1, -1, -2);
 
         ECSWrapper.entities.create("Player");
-        this.renderer.shadowMapEnabled = true;
-        this.renderer.shadowMapCullFace = THREE.CullFaceBack;
+        this.renderer.shadowMap.enabled = true;
+        //this.renderer.shadowSide = THREE.CullFaceBack;
 
 
         const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
@@ -89,7 +89,7 @@ class ThreeSystem extends ASystem {
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         // TODO setClearColor with the 0x222233 and increase alpha float
-        this.renderer.setClearColor(0x3498db, 100);
+        this.renderer.setClearColor('lightblue');
         document.body.appendChild(this.renderer.domElement);
 
         this.stats.showPanel(0);

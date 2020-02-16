@@ -7,6 +7,7 @@ import ThreeSystem from "./ThreeSystem";
 import Box from "../components/Box";
 import BoxCollider from "../components/BoxCollider";
 import { Animal } from '../components/Animal';
+import Model from '../components/Model';
 
 class CannonSystem extends ASystem {
     public readonly world: CANNON.World;
@@ -51,16 +52,29 @@ class CannonSystem extends ASystem {
             const box: Box = entity.getComponent(Box);
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
 
-            box.mesh.position.copy(boxCollider.body.position as any);
+            const positionOffsetted: CANNON.Vec3 = new CANNON.Vec3(
+                boxCollider.body.position.x + boxCollider.offset.x,
+                boxCollider.body.position.y + boxCollider.offset.y,
+                boxCollider.body.position.z + boxCollider.offset.z
+            );
+            box.mesh.position.copy(positionOffsetted as any);
             box.mesh.quaternion.copy(boxCollider.body.quaternion as any);
         });
 
-        ECSWrapper.entities.applyToEach(["Animal", "BoxCollider"], (entity) => {
-            const box: Animal = entity.getComponent(Animal);
+        ECSWrapper.entities.applyToEach(["Model", "BoxCollider"], (entity) => {
+            const box: Model = entity.getComponent(Model);
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
 
-            box.mesh.position.copy(boxCollider.body.position as any);
-            box.mesh.quaternion.copy(boxCollider.body.quaternion as any);
+            const positionOffsetted: CANNON.Vec3 = new CANNON.Vec3(
+                boxCollider.body.position.x + boxCollider.offset.x,
+                boxCollider.body.position.y + boxCollider.offset.y,
+                boxCollider.body.position.z + boxCollider.offset.z
+            );
+            box.getObject().then((object) => {
+                object.position.copy(positionOffsetted as any);
+                object.quaternion.copy(boxCollider.body.quaternion as any);
+            });
+            
         });
     }
 

@@ -1,30 +1,25 @@
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { OBJLoader2 } from 'three/examples/jsm/loaders/OBJLoader2';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
+import { MtlObjBridge} from "three/examples/jsm/loaders/obj2/bridge/MtlObjBridge"
 
 export default class ModelLoader
 {
-    private objLoader: OBJLoader;
+    private objLoader: OBJLoader2;
     private textureLoader: MTLLoader;
 
     constructor()
     {
-        this.objLoader = new OBJLoader();
+        this.objLoader = new OBJLoader2();
         this.textureLoader = new MTLLoader();
     }
 
-    public load(modelName: string, texturePath: string, scene: THREE.Scene)
+    public load(modelName: string, texturePath: string)
     {
-        this.textureLoader.load(texturePath, (materials) => {
-            materials.preload();
-            this.objLoader.setMaterials(materials);
+        return this.textureLoader.load(texturePath, (materials) => {
+            const mat = MtlObjBridge.addMaterialsFromMtlLoader(materials);
+            this.objLoader.addMaterials(mat, false);
             this.objLoader.load(modelName, function(object) {
-                object.scale.x = 0.2;
-                object.scale.y = 0.2;
-                object.scale.z = 0.2;
-
-                object.position.y = 20;
-                scene.add(object);
             }, onprogress, onerror);
         });
     }

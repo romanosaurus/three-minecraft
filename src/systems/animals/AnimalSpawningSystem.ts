@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { Animal, AnimalRenderer, AnimalType } from "../../components/Animal";
+import { Animal, AnimalType } from "../../components/Animal";
 import BoxCollider from "../../components/BoxCollider";
 import WalkingArea from "../../components/WalkingArea";
 
@@ -8,6 +8,7 @@ import ASystem from '../../ecs/abstract/ASystem';
 import ECSWrapper from "../../ecs/wrapper/ECSWrapper";
 import IEntity from '../../ecs/interfaces/IEntity';
 import ThreeSystem from '../ThreeSystem';
+import Model from '../../components/Model';
 
 export default class AnimalSpawningSystem extends ASystem {
 
@@ -33,7 +34,6 @@ export default class AnimalSpawningSystem extends ASystem {
     onUpdate(elapsedTime: number): void {
         const elapsedTimeAsSeconds: number = elapsedTime / 1000;
 
-
     }
 
     onClose() {
@@ -51,45 +51,52 @@ export default class AnimalSpawningSystem extends ASystem {
             const newAnimalEntity: IEntity = ECSWrapper.entities.getByName(animalId)[0];
 
             // TODO RANDOMIZE ANIMAL TYPE
-            newAnimalEntity.assignComponent<Animal>(new Animal(newAnimalEntity, AnimalType.PIG));
-
+            newAnimalEntity.assignComponent<Animal>(new Animal(newAnimalEntity, i % 2));
+            
             const animalComponent: Animal = newAnimalEntity.getComponent(Animal);
 
-            animalComponent.position = spawningZones[i];
+            if (animalComponent.type === AnimalType.PIG)
+                newAnimalEntity.assignComponent<Model>(new Model(newAnimalEntity, "pig", "../../assets/models/pig/pig.obj", "../../assets/models/pig/pig.mtl"));
+            else if (animalComponent.type === AnimalType.SHEEP)
+                newAnimalEntity.assignComponent<Model>(new Model(newAnimalEntity, "sheep", "../../assets/models/sheep/sheep.obj", "../../assets/models/sheep/sheep.mtl"));
 
-            const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
+            const animalModel: Model = newAnimalEntity.getComponent(Model);
+            animalModel.getObject().then((object) => {
+                object.position.x = spawningZones[i].x;
+                object.position.y = spawningZones[i].y;
+                object.position.z = spawningZones[i].z;
+                ECSWrapper.systems.get(ThreeSystem).getScene().add(object)
+            });
+
             newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(
                 newAnimalEntity,
                 spawningZones[i],
-                new THREE.Vector3(1, 1, 1),
+                new THREE.Vector3(1, 2, 2),
                 10
             ));
 
-            //newAnimalEntity.getComponent(BoxCollider).position.set()
-
             newAnimalEntity.assignComponent<WalkingArea>(new WalkingArea(newAnimalEntity));
 
-            ECSWrapper.systems.get(ThreeSystem).getScene().add(animalComponent.mesh);
             this.spawningAnimals++;
         }
     }
 
-    private generateSpawningZones(intialPosition: THREE.Vector3, spawningNumber: number): THREE.Vector3[] {
+    private generateSpawningZones(initialPosition: THREE.Vector3, spawningNumber: number): THREE.Vector3[] {
         const spawningZones: THREE.Vector3[] = [];
         const xRange: {xMin: number, xMax: number} = {
-            xMin: intialPosition.x - 5,
-            xMax: intialPosition.y + 5
+            xMin: initialPosition.x - 5,
+            xMax: initialPosition.x + 5
         };
         const zRange: {zMin: number, zMax: number} = {
-            zMin: intialPosition.z - 5,
-            zMax: intialPosition.z + 5
+            zMin: initialPosition.z - 5,
+            zMax: initialPosition.z + 5
         };
 
         for (let i = 0; i < spawningNumber; i++) {
-            const xPosition: number = Math.floor(Math.random() * xRange.xMin) + xRange.xMax;
-            const zPosition: number = Math.floor(Math.random() * zRange.zMin) + zRange.zMax;
+            const xPosition: number = Math.floor(Math.random() * (+xRange.xMax - +xRange.xMin)) + +xRange.xMin;
+            const zPosition: number = Math.floor(Math.random() * (+zRange.zMax - +zRange.zMin)) + +zRange.zMin;
 
-            const positionVector: THREE.Vector3 = new THREE.Vector3(xPosition, intialPosition.y, zPosition);
+            const positionVector: THREE.Vector3 = new THREE.Vector3(xPosition, initialPosition.y, zPosition);
             spawningZones.push(positionVector);
         }
         return spawningZones;
