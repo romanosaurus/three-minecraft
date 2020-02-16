@@ -65,6 +65,12 @@ export default class AnimalSpawningSystem extends ASystem {
                 object.position.x = spawningZones[i].x;
                 object.position.y = spawningZones[i].y;
                 object.position.z = spawningZones[i].z;
+                object.traverse(o => {
+                    if (o.isMesh) {
+                        o.material.map.magFilter = THREE.NearestFilter;
+                        o.material.map.minFilter = THREE.LinearMipMapLinearFilter;
+                    }
+                })
                 ECSWrapper.systems.get(ThreeSystem).getScene().add(object)
             });
 
