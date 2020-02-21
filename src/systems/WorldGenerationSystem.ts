@@ -65,7 +65,7 @@ class WorldGenerationSystem extends ASystem {
         );
 
         ECSWrapper.entities.applyToEach(["Voxel"], (entity) => {
-        //worldEntity.assignComponent<CircadianRhythm>(new CircadianRhythm(worldEntity, 10));
+        worldEntity.assignComponent<CircadianRhythm>(new CircadianRhythm(worldEntity, 10));
             const mesh: Chunk = new Chunk(this.worldOptions.cellSize, 2, 2, this.perlinGenerator);
 
             this.displayWorld(worldEntity.getComponent(Voxel), scene, mesh);
@@ -185,6 +185,8 @@ class WorldGenerationSystem extends ASystem {
         drawMesh.castShadow = true;
         drawMesh.receiveShadow = true;
         drawMesh.position.set(chunk.getWidthOffset() * this.worldOptions.cellSize, 0, chunk.getHeightOffset() * this.worldOptions.cellSize);
+        drawMesh.castShadow = true;
+        drawMesh.receiveShadow = true;
         scene.add(drawMesh);
         voxelComponent.meshContainer.addMeshToSceneId(chunk.getWidthOffset() + ',' + chunk.getHeightOffset(), drawMesh, geometry);
     }

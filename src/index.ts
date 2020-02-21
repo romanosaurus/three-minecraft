@@ -21,6 +21,7 @@ class Window {
         ECSWrapper.systems.initialize<LifeSystem>(new LifeSystem("LifeSystem"));
         ECSWrapper.systems.initialize<CloudSystem>(new CloudSystem("CloudSystem"));
         ECSWrapper.systems.initialize<VoxelRaycastSystem>(new VoxelRaycastSystem("VoxelRaycastSystem"));
+        ECSWrapper.systems.initialize<CircadianRhythmSystem>(new CircadianRhythmSystem("CircadianRhythm"));
         ECSWrapper.systems.start("ThreeSystem");
         ECSWrapper.systems.start("CannonSystem");
         ECSWrapper.systems.start("WorldGenerationSystem");
@@ -29,6 +30,7 @@ class Window {
         ECSWrapper.systems.start("LifeSystem");
         ECSWrapper.systems.start("CloudSystem");
         ECSWrapper.systems.start("VoxelRaycastSystem");
+        ECSWrapper.systems.start("CircadianRhythm");
 
         document.addEventListener('mousemove', ( mouseEvent ) => { ECSWrapper.systems.setEvent("mouseEvent", mouseEvent); });
         document.addEventListener('keydown', (keyDown) => { ECSWrapper.systems.setEvent("keyDown", keyDown); });
