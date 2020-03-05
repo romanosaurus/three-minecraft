@@ -65,7 +65,7 @@ class WorldGenerationSystem extends ASystem {
         );
 
         ECSWrapper.entities.applyToEach(["Voxel"], (entity) => {
-        worldEntity.assignComponent<CircadianRhythm>(new CircadianRhythm(worldEntity, 10));
+        worldEntity.assignComponent<CircadianRhythm>(new CircadianRhythm(worldEntity, 5));
             const mesh: Chunk = new Chunk(this.worldOptions.cellSize, 2, 2, this.perlinGenerator);
 
             this.displayWorld(worldEntity.getComponent(Voxel), scene, mesh);

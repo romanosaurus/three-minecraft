@@ -30,7 +30,7 @@ export default class CircadianRhythmSystem extends ASystem {
             const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
 
             // add hemiLight
-            var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.1);
+            var hemiLight = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.1);
             hemiLight.color.setHSL(0.6, 1, 0.6);
             hemiLight.groundColor.setHSL(0.095, 1, 0.75);
             hemiLight.position.set(0, 500, 0);
@@ -65,69 +65,63 @@ export default class CircadianRhythmSystem extends ASystem {
 
             let time : number = ((CircadianRhythmComponent.istime - elapsedTime) / 1000)
 
-            let fade: number = 5;
+            var minuteTime = time / 60;
 
-            let lightFade: number = 2;
+            let fadeout: number = 5;
 
-            let skyfadein = 0;
+            let lightFadeout: number = 2;
+
+            let skyfadein = -0.4;
 
             let lightFadein = -0.50;
 
-            var minuteTime = time / 60;
-
-            // TODO séparer les différentes parties en fonction
-            // TODO set varaible pour le temps du jour et de la nuit
-            if (this._isDay === true) {
-                
-                console.log("jour");
-
+            if (this._isDay && minuteTime > 0) {
                 this._dirLight.intensity = 2;
 
-                if (minuteTime > 1) {
+                if (minuteTime > CircadianRhythmComponent.switchingTime) {
                     CircadianRhythmComponent.time = 0;
+                    minuteTime = 0;
                     this._isDay = false;
                     this._isSunset = true;
                 }
-
             }
-            if (this._isSunset === true) {
-                console.log("coucher du soleil");
-                fade = (fade - (minuteTime * 4));
-                lightFade = (lightFade - (minuteTime * 2));
+            if (this._isSunset && minuteTime > 0) {
+                fadeout = (fadeout - (minuteTime * 4));
+                lightFadeout = (lightFadeout - (minuteTime * 2));
 
-                if (lightFade > -0.50)
-                    this._dirLight.intensity = lightFade;
-                if (fade > 0)
-                    renderer.setClearColor(0x222233, fade);
-                if (lightFade < - 0.50 && fade < 0) {
+                if (lightFadeout > -0.50)
+                    this._dirLight.intensity = lightFadeout;
+                if (fadeout > 0)
+                    renderer.setClearColor(0x222233, fadeout);
+                if (lightFadeout < - 0.50 && fadeout < 0) {
                     CircadianRhythmComponent.time = 0;
+                    minuteTime = 0;
                     this._isSunset = false;
                     this._isNight = true;
                 }
             }
-            if (this._isNight === true) {
-                console.log("nuit");
+            if (this._isNight && minuteTime > 0) {
                 this._dirLight.intensity = -0.50;
                 renderer.setClearColor(0x222233, 0);
-                if (minuteTime > 1) {
+
+                if (minuteTime > CircadianRhythmComponent.switchingTime) {
                     CircadianRhythmComponent.time = 0;
+                    minuteTime = 0;
                     this._isNight = false;
                     this._isSunrise = true;
                 }
             }
-            if (this._isSunrise === true) {
-                console.log("lever du soleil");
+            if (this._isSunrise && minuteTime > 0) {
                 skyfadein = (skyfadein + (minuteTime * 4));
                 lightFadein = (lightFadein + (minuteTime * 2));
 
-                console.log("sky fade in = " + skyfadein)
-                console.log("light fade in = " + lightFadein)
                 if (lightFadein < 2)
                     this._dirLight.intensity = lightFadein;
                 if (skyfadein < 5)
                     renderer.setClearColor(0x222233, skyfadein);
                 if (lightFadein > 1.90 && skyfadein > 4.90) {
                     CircadianRhythmComponent.time = 0;
+                    minuteTime = 0;
                     this._isSunrise = false;
                     this._isDay = true;
                 }
