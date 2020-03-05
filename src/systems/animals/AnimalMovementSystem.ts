@@ -5,6 +5,8 @@ import ASystem from "../../ecs/abstract/ASystem";
 import IEntity from "../../ecs/interfaces/IEntity";
 import BoxCollider from "../../components/BoxCollider";
 import { Animal } from "../../components/Animal";
+import Model from "../../components/Model";
+import Utilities from "../../utils/Utilities";
 
 export default class AnimalMovementSystem extends ASystem {
     constructor(name: string) {
@@ -22,6 +24,7 @@ export default class AnimalMovementSystem extends ASystem {
         ECSWrapper.entities.applyToEach(["Animal"], (animal: IEntity) => {
             const animalBoxCollider: BoxCollider = animal.getComponent(BoxCollider);
             const animalUtils: Animal = animal.getComponent(Animal);
+            const animalModel: Model = animal.getComponent(Model);
 
             const randomPick: number = Math.random();
 
@@ -36,9 +39,20 @@ export default class AnimalMovementSystem extends ASystem {
                     animalUtils.hasToMove = false;
                 }
 
-                animalBoxCollider.position.z += (2 * elapsedTimeAsSeconds);
-                animalBoxCollider.position.y += (2 * elapsedTimeAsSeconds);
-                
+                let movementVector: CANNON.Vec3 = new CANNON.Vec3(0, 2, 2);
+                let rotatedVector: CANNON.Vec3 = Utilities.multiplyVectorByQuaternion(movementVector, animalBoxCollider.body.quaternion);
+
+                animalBoxCollider.position.x += rotatedVector.x * 2 * elapsedTimeAsSeconds;
+                animalBoxCollider.position.y += rotatedVector.y * 2 * elapsedTimeAsSeconds;
+                animalBoxCollider.position.z += rotatedVector.z * 2 * elapsedTimeAsSeconds;
+
+                animalBoxCollider.body.fixedRotation = false;
+                animalModel.getObject().then((object) => {
+                    object.rotation.y += elapsedTimeAsSeconds;
+                    animalBoxCollider.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI / 3);
+                });
+                animalBoxCollider.body.fixedRotation = true;
+
                 animalUtils.currentMovingTime += elapsedTimeAsSeconds;
             }
         });

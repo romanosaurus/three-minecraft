@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { Animal, AnimalType } from "../../components/Animal";
+import {Animal, AnimalType} from "../../components/Animal";
 import BoxCollider from "../../components/BoxCollider";
 import WalkingArea from "../../components/WalkingArea";
 
@@ -52,7 +52,7 @@ export default class AnimalSpawningSystem extends ASystem {
 
             // TODO RANDOMIZE ANIMAL TYPE
             newAnimalEntity.assignComponent<Animal>(new Animal(newAnimalEntity, i % 2));
-            
+
             const animalComponent: Animal = newAnimalEntity.getComponent(Animal);
 
             if (animalComponent.type === AnimalType.PIG)
@@ -74,12 +74,22 @@ export default class AnimalSpawningSystem extends ASystem {
                 ECSWrapper.systems.get(ThreeSystem).getScene().add(object)
             });
 
-            newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(
-                newAnimalEntity,
-                spawningZones[i],
-                new THREE.Vector3(1, 2, 2),
-                10
-            ));
+            if (animalComponent.type === AnimalType.PIG)
+                newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(
+                    newAnimalEntity,
+                    spawningZones[i],
+                    new THREE.Vector3(1, 2, 2),
+                    10,
+                    {x: 0, y: -0.2, z: 0}
+                ));
+            else
+                newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(
+                    newAnimalEntity,
+                    spawningZones[i],
+                    new THREE.Vector3(1, 2, 2),
+                    10,
+                    {x: 0, y: 0.2, z: 0}
+                ));
 
             newAnimalEntity.assignComponent<WalkingArea>(new WalkingArea(newAnimalEntity));
 
