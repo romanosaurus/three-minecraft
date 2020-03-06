@@ -84,7 +84,7 @@ class ThreeSystem extends ASystem {
 
         ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
             entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {
-                entity.getComponent(FirstPersonController).jumping = false
+                entity.getComponent(FirstPersonController).canJump = true;
             });
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);

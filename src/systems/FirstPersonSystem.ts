@@ -28,11 +28,17 @@ class FirstPersonSystem extends ASystem {
         ECSWrapper.entities.applyToEach(["Camera", "Box", "FirstPersonController", "BoxCollider"], (entity) => {
             const firstPersonController: FirstPersonController = entity.getComponent(FirstPersonController);
 
-            entity.getComponent(BoxCollider).body.mass = 10;
-            if (firstPersonController.jumping && this.currentTime < jumpingTime) {
+            if  (firstPersonController.canJump && firstPersonController.jumping) {
+                entity.getComponent(BoxCollider).body.velocity.y = 5;
+                firstPersonController.canJump = false;
+                firstPersonController.jumping = false;
+            }
+
+            /*if (firstPersonController.jumping && this.currentTime < jumpingTime) {
                 if (this.currentTime < jumpingTime) {
                     const force: number = 2;
 
+                    entity.getComponent(BoxCollider).body.velocity.y = 2;
                     entity.getComponent(BoxCollider).body.mass = 0;
                     entity.getComponent(BoxCollider).body.applyLocalImpulse(
                         new CANNON.Vec3(0, force, 0),
@@ -42,7 +48,7 @@ class FirstPersonSystem extends ASystem {
                 }
             } else if (!firstPersonController.jumping && this.currentTime > jumpingTime) {
                 this.currentTime = 0;
-            }
+            }*/
 
             let directionVector : THREE.Vector3 = new THREE.Vector3(
                 firstPersonController.direction.right - firstPersonController.direction.left,
