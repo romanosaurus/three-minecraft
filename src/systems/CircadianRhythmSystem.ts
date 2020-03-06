@@ -113,7 +113,7 @@ export default class CircadianRhythmSystem extends ASystem {
             }
             if (this._isSunrise && minuteTime > 0) {
                 skyfadein = (skyfadein + (minuteTime * 4));
-                lightFadein = (lightFadein + (minuteTime * 2));
+                lightFadein = (lightFadein + (minuteTime));
 
                 if (lightFadein < 2)
                     this._dirLight.intensity = lightFadein;
