@@ -19,6 +19,8 @@ import CircadianRhythmSystem from "./systems/CircadianRhythmSystem";
 import PointerLock from "./components/PointerLock";
 import AnimalSpawningSystem from "./systems/animals/AnimalSpawningSystem";
 import AnimalMovementSystem from "./systems/animals/AnimalMovementSystem";
+import ParticleSystem from "./components/ParticleSystem";
+import ParticleSystemManager from "./systems/ParticleSystemManager";
 
 class Window {
     run() : void {
@@ -31,7 +33,8 @@ class Window {
         ECSWrapper.systems.initialize<CloudSystem>(new CloudSystem("CloudSystem"));
         ECSWrapper.systems.initialize<VoxelRaycastSystem>(new VoxelRaycastSystem("VoxelRaycastSystem"));
         ECSWrapper.systems.initialize<AnimalSpawningSystem>(new AnimalSpawningSystem("AnimalSpawningSystem"));
-        ECSWrapper.systems.initialize<AnimalMovementSystem>(new AnimalMovementSystem("AnimalMovementSystem"))
+        ECSWrapper.systems.initialize<AnimalMovementSystem>(new AnimalMovementSystem("AnimalMovementSystem"));
+        ECSWrapper.systems.initialize<ParticleSystemManager>(new ParticleSystemManager("ParticleSystemManager"));
         ECSWrapper.systems.start("ThreeSystem");
         ECSWrapper.systems.start("CannonSystem");
         ECSWrapper.systems.start("WorldGenerationSystem");
@@ -42,6 +45,7 @@ class Window {
         ECSWrapper.systems.start("VoxelRaycastSystem");
         ECSWrapper.systems.start("AnimalSpawningSystem");
         ECSWrapper.systems.start("AnimalMovementSystem");
+        ECSWrapper.systems.start("ParticleSystemManager");
 
         document.addEventListener('mousemove', ( mouseEvent ) => { ECSWrapper.systems.dispatch("mouseEvent", mouseEvent) });
         document.addEventListener('keydown', (keyDown) => { ECSWrapper.systems.dispatch("keyDown", keyDown); });

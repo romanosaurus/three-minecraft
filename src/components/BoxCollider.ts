@@ -9,6 +9,7 @@ class BoxCollider extends AComponent {
     private _body: CANNON.Body;
 
     private _offset: {x: number, y: number, z: number};
+    private _rotation: CANNON.Vec3;
 
     constructor(entity: IEntity, position: THREE.Vector3, size: THREE.Vector3, mass: number, offset: {x: number, y: number, z: number} = {x: 0, y: 0, z: 0}) {
         super(entity);
@@ -19,6 +20,7 @@ class BoxCollider extends AComponent {
         this._body.addShape(this._shape);
         this._body.position.set(position.x + offset.x, position.y + offset.y, position.z + offset.z);
         this._offset = offset;
+        this._rotation = new CANNON.Vec3(0, 0, 0);
     }
 
     get body(): CANNON.Body {
@@ -31,6 +33,14 @@ class BoxCollider extends AComponent {
 
     get offset(): {x: number, y: number, z: number} {
         return this._offset;
+    }
+
+    get rotation(): CANNON.Vec3 {
+        return this._rotation;
+    }
+
+    set rotation(newRotation) {
+        this._rotation = newRotation;
     }
 }
 

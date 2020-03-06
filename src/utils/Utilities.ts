@@ -10,12 +10,11 @@ class Utilities {
             quaternion.w * initialVector.z + quaternion.x * initialVector.y - quaternion.y * initialVector.x,
             -quaternion.x * initialVector.x - quaternion.y * initialVector.y - quaternion.z * initialVector.z
         );
-        let finalVector = new CANNON.Vec3(
+        return new CANNON.Vec3(
             i.x * quaternion.w + i.w * -quaternion.x + i.y * -quaternion.z - i.z * -quaternion.y,
             i.y * quaternion.w + i.w * -quaternion.y + i.z * -quaternion.x - i.x * -quaternion.z,
             i.z * quaternion.w + i.w * -quaternion.z + i.x * -quaternion.y - i.y * -quaternion.x
         );
-        return finalVector;
     }
 }
 

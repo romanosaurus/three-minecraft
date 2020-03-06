@@ -13,10 +13,6 @@ export default class AnimalMovementSystem extends ASystem {
         super(name);
     }
 
-    onInit(): void {
-
-    }
-
     onUpdate(elapsedTime: number): void {
         const movementTime: number = Math.floor(Math.random() * (+10 - +1)) + +1;
         const elapsedTimeAsSeconds: number = elapsedTime / 1000;
@@ -24,7 +20,6 @@ export default class AnimalMovementSystem extends ASystem {
         ECSWrapper.entities.applyToEach(["Animal"], (animal: IEntity) => {
             const animalBoxCollider: BoxCollider = animal.getComponent(BoxCollider);
             const animalUtils: Animal = animal.getComponent(Animal);
-            const animalModel: Model = animal.getComponent(Model);
 
             const randomPick: number = Math.random();
 
@@ -32,7 +27,6 @@ export default class AnimalMovementSystem extends ASystem {
                 animalUtils.hasToMove = true;
 
             if (animalUtils.hasToMove) {
-
 
                 if (animalUtils.currentMovingTime > movementTime) {
                     animalUtils.currentMovingTime = 0;
@@ -46,12 +40,13 @@ export default class AnimalMovementSystem extends ASystem {
                 animalBoxCollider.position.y += rotatedVector.y * 2 * elapsedTimeAsSeconds;
                 animalBoxCollider.position.z += rotatedVector.z * 2 * elapsedTimeAsSeconds;
 
-                animalBoxCollider.body.fixedRotation = false;
-                animalModel.getObject().then((object) => {
-                    object.rotation.y += elapsedTimeAsSeconds;
-                    animalBoxCollider.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI / 3);
-                });
-                animalBoxCollider.body.fixedRotation = true;
+                // Handle rotation
+                if (randomPick > 0.3 && randomPick < 0.5) {
+                    animalBoxCollider.body.fixedRotation = false;
+                    animalBoxCollider.rotation.set(0, animalBoxCollider.rotation.y + elapsedTimeAsSeconds, 0);
+                    animalBoxCollider.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), animalBoxCollider.rotation.y);
+                    animalBoxCollider.body.fixedRotation = true;
+                }
 
                 animalUtils.currentMovingTime += elapsedTimeAsSeconds;
             }
