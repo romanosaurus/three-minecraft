@@ -93,14 +93,14 @@ export default class AnimalSpawningSystem extends ASystem {
                 ));
 
             newAnimalEntity.assignComponent<WalkingArea>(new WalkingArea(newAnimalEntity));
-            /*newAnimalEntity.assignComponent<ParticleSystem>(new ParticleSystem(
+            newAnimalEntity.assignComponent<ParticleSystem>(new ParticleSystem(
                 newAnimalEntity,
                 10,
                 {color: 0xFFFFFF, size: 1, image: "../../assets/ui/heart.png"},
                 new THREE.Vector3(spawningZones[i].x - 5, spawningZones[i].y - 5, spawningZones[i].z - 5),
                 new THREE.Vector3(spawningZones[i].x + 5, spawningZones[i].y + 5, spawningZones[i].z + 5)
-            ));*/
-            //newAnimalEntity.getComponent(ParticleSystem).bodyToFollow = newAnimalEntity.getComponent(BoxCollider).body;
+            ));
+            newAnimalEntity.getComponent(ParticleSystem).bodyToFollow = newAnimalEntity.getComponent(BoxCollider).body;
             this.spawningAnimals++;
         }
     }

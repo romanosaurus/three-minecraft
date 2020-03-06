@@ -60,13 +60,12 @@ class ParticleSystemManager extends ASystem {
                         Math.floor(Math.random() * (maxPosition.y - minPosition.y) + minPosition.y),
                         Math.floor(Math.random() * (maxPosition.z - minPosition.z) + minPosition.z)
                     );
-
+                }
                     /*particleSystem.particleEmitter.position.set(
                         Math.floor(Math.random() * (maxPosition.x - minPosition.x) + minPosition.x),
                         Math.floor(Math.random() * (maxPosition.y - minPosition.y) + minPosition.y),
                         Math.floor(Math.random() * (maxPosition.z - minPosition.z) + minPosition.z)
                     );*/
-                }
             }
             particleSystem.particles.verticesNeedUpdate = true;
         });
