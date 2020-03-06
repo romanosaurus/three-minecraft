@@ -7,12 +7,14 @@ import CircadianRhythm from "../components/CircadianRhythm";
 import SystemManager from "../ecs/managers/SystemManager";
 import IEntity from "../ecs/interfaces/IEntity";
 import { cornflowerblue } from "color-name";
+import { Scene } from "three";
 
 export default class CircadianRhythmSystem extends ASystem {
     private _isDay: boolean;
     private _isNight: boolean;
     private _isSunset: boolean;
     private _isSunrise: boolean;
+    private _isStar: boolean;
     private _dirLight: THREE.DirectionalLight;
 
     constructor(name: string) {
@@ -24,6 +26,7 @@ export default class CircadianRhythmSystem extends ASystem {
         this._isNight = false;
         this._isSunset = false;
         this._isSunrise = false;
+        this._isStar = false;
         this._dirLight = new THREE.DirectionalLight(0xffffff, 1);
 
         ECSWrapper.entities.applyToEach(["CircadianRhythm"], (entity) => {
@@ -83,12 +86,17 @@ export default class CircadianRhythmSystem extends ASystem {
                     minuteTime = 0;
                     this._isDay = false;
                     this._isSunset = true;
+                    this._isStar = false;
                 }
             }
             if (this._isSunset && minuteTime > 0) {
                 fadeout = (fadeout - (minuteTime * 4));
                 lightFadeout = (lightFadeout - (minuteTime * 2));
 
+                if (fadeout < 2) {
+                    if (!this._isStar)
+                        this.printStar(scene)
+                }
                 if (lightFadeout > -0.50)
                     this._dirLight.intensity = lightFadeout;
                 if (fadeout > 0)
@@ -115,6 +123,10 @@ export default class CircadianRhythmSystem extends ASystem {
                 skyfadein = (skyfadein + (minuteTime * 4));
                 lightFadein = (lightFadein + (minuteTime));
 
+                if (skyfadein > 3) {
+                    var selectedObject = scene.getObjectByName("star");
+                    scene.remove( selectedObject );
+                }
                 if (lightFadein < 2)
                     this._dirLight.intensity = lightFadein;
                 if (skyfadein < 5)
@@ -127,6 +139,28 @@ export default class CircadianRhythmSystem extends ASystem {
                 }
             }
         });
+    }
+
+    printStar(scene: Scene) {
+        var starGeo = new THREE.Geometry();
+        for(let i=0;i< 1000 + (Math.random() % 10000);i++) {
+            let star = new THREE.Vector3(
+                Math.random() * 1800,
+                200 + (Math.random() % 600),
+                Math.random() * 1800
+          );
+          starGeo.vertices.push(star);
+        }
+        let sprite = new THREE.TextureLoader().load( '../../assets/textures/star.png' );
+        let starMaterial = new THREE.PointsMaterial({
+          color: 0xaaaaaa,
+          size: 0.7,
+          map: sprite
+        });
+        var stars = new THREE.Points(starGeo,starMaterial);
+        stars.name = "star"
+        scene.add(stars);
+        this._isStar = true;
     }
 
     onClose() {}
