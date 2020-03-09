@@ -7,11 +7,22 @@ import ThreeSystem from "./ThreeSystem";
 import Box from "../components/Box";
 import BoxCollider from "../components/BoxCollider";
 
+/**
+ * CannonSystem heriting from ASystem
+ * @system CannonSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class CannonSystem extends ASystem {
     public readonly world: CANNON.World;
     private readonly debugger: any;
     private debuggerActivated: boolean;
 
+    /**
+     *  Constuctor of the CannonSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name);
         this.world = new CANNON.World();

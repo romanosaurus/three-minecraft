@@ -17,11 +17,22 @@ import LightUtilities from "../utils/LightUtilities";
 import WalkingArea from "../components/WalkingArea";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
 
+/**
+ * ThreeSystem heriting from ASystem
+ * @system ThreeSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class ThreeSystem extends ASystem {
     private readonly scene : THREE.Scene;
     private readonly renderer : THREE.WebGLRenderer;
     private readonly stats : Stats;
 
+    /**
+     * Constuctor of the ThreeSystem
+     * @param name name of the system
+     */
     constructor(name : string) {
         super(name);
 

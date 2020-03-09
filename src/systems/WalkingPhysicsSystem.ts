@@ -11,9 +11,20 @@ import Chunk from "../utils/Chunk";
 import WalkingArea from "../components/WalkingArea";
 import IEntity from "../ecs/interfaces/IEntity";
 
+/**
+ * WalkingPhysicsSystem heriting from ASystem
+ * @system WalkingPhysicsSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class WalkingPhysicsSystem extends ASystem {
     private stock;
 
+    /**
+     * Constuctor of the WalkingPhysicsSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name);
         this.stock = [];
