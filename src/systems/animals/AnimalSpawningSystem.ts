@@ -101,6 +101,9 @@ export default class AnimalSpawningSystem extends ASystem {
                 new THREE.Vector3(spawningZones[i].x + 5, spawningZones[i].y + 5, spawningZones[i].z + 5)
             ));
             newAnimalEntity.getComponent(ParticleSystem).bodyToFollow = newAnimalEntity.getComponent(BoxCollider).body;
+            
+            newAnimalEntity.getComponent(ParticleSystem).disable();
+
             this.spawningAnimals++;
         }
     }
@@ -124,5 +127,9 @@ export default class AnimalSpawningSystem extends ASystem {
             spawningZones.push(positionVector);
         }
         return spawningZones;
+    }
+
+    get animalAmount(): number {
+        return this.spawningAnimals;
     }
 }

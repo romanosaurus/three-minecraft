@@ -31,16 +31,17 @@ class CannonSystem extends ASystem {
 
     onInit(): void {
         this.world.gravity.set(0, -9.82, 0); // m/s²
+
         this.world.broadphase = new CANNON.NaiveBroadphase();
         this.world.broadphase.useBoundingBoxes = true;
-        this.world.solver.iterations = 5;
         this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
-        this.world.defaultContactMaterial.contactEquationRelaxation = 4;
+        this.world.defaultContactMaterial.contactEquationRelaxation = 5;
 
         let solver = new CANNON.GSSolver();
         solver.iterations = 7;
         solver.tolerance = 0.1;
         this.world.solver = new CANNON.SplitSolver(solver);
+
     }
 
     onUpdate(elapsedTime: number): void {

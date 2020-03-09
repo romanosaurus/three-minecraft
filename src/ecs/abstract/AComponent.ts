@@ -21,4 +21,8 @@ export default class AComponent implements IComponent {
     disable(): void {
         this.enabled = false;
     }
+
+    isEnable(): boolean {
+        return this.enabled;
+    }
 }

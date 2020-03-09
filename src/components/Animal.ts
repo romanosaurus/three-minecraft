@@ -20,6 +20,10 @@ export class Animal extends AComponent {
     private _hasToMove: boolean;
     private _currentMovingTime: number;
 
+    private _partner: Animal | null;
+
+    private _facingPartner: boolean;
+
     constructor(entity: IEntity, animalType: AnimalType) {
         super(entity);
 
@@ -30,8 +34,10 @@ export class Animal extends AComponent {
 
         this._hasToMove = false;
         this._currentMovingTime = 0;
-    }
 
+        this._partner = null;
+        this._facingPartner = false;
+    }
 
     get type(): AnimalType {
         return this._animalType;
@@ -51,5 +57,29 @@ export class Animal extends AComponent {
 
     set currentMovingTime(newMovingTime: number) {
         this._currentMovingTime = newMovingTime;
+    }
+
+    get partner(): Animal {
+        return this._partner;
+    }
+
+    set partner(newPartner: Animal) {
+        this._partner = newPartner;
+    }
+
+    get isInHeat(): boolean {
+        return this._inHeat;
+    }
+
+    set isInHeat(state: boolean) {
+        this._inHeat = state;
+    }
+
+    get facingPartner(): boolean {
+        return this._facingPartner;
+    }
+
+    set facingPartner(state) {
+        this._facingPartner = state;
     }
 }
