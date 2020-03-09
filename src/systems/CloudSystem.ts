@@ -5,9 +5,20 @@ import ThreeSystem from "./ThreeSystem";
 import Cloud from "../components/Cloud";
 import IEntity from "../ecs/interfaces/IEntity";
 
+/**
+ * CloudSystem heriting from ASystem
+ * @system CloudSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 export default class CloudSystem extends ASystem {
     private _cloudNumber: number;
 
+    /**
+     * Constuctor of the CloudSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name);
         this._cloudNumber = 50;

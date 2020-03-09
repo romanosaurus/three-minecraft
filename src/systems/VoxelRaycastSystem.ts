@@ -10,17 +10,32 @@ import IEntity from '../ecs/interfaces/IEntity';
 import Chunk from '../utils/Chunk';
 import WorldGenerationSystem from './WorldGenerationSystem';
 
+/**
+ * @interface Intersection
+ * used to check intersections
+ */
 interface Intersection {
     position: [number, number, number],
     normal: [number, number, number],
     voxel: number
 };
 
+/**
+ * VoxelRaycastSystem heriting from ASystem
+ * @system VoxelRaycastSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 export default class VoxelRaycastSystem extends ASystem {
     private size: THREE.Vector2;
     private far: number;
     private voxelId: number;
 
+    /**
+     * Constuctor of the VoxelRaycastSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name);
 

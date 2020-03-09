@@ -8,11 +8,22 @@ import SystemManager from "../ecs/managers/SystemManager";
 import IEntity from "../ecs/interfaces/IEntity";
 import { cornflowerblue } from "color-name";
 
+/**
+ * CircadianRhythmSystem heriting from ASystem
+ * @system CircadianRhythmSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 export default class CircadianRhythmSystem extends ASystem {
     private _isDay: boolean;
     private _isNight: boolean;
     private _dirLight: THREE.DirectionalLight;
 
+    /**
+     * Constuctor of the CircadianRhythmSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name)
     }
