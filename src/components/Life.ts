@@ -7,8 +7,10 @@ export default class Life extends AComponent {
     private _globalLife : number;
     private _currentLife : number;
     private _isDead : boolean;
+    private _respawnPosition : THREE.Vector3;
+    private _regenerationLifeTime: number;
 
-    constructor(entity: IEntity, lifePoint : number) {
+    constructor(entity: IEntity, lifePoint : number, spawnPosition: THREE.Vector3) {
         super(entity);
 
         if (lifePoint < 0 || lifePoint > 13) {
@@ -19,6 +21,20 @@ export default class Life extends AComponent {
             this._currentLife = lifePoint;
         }
         this._isDead = false;
+        this._regenerationLifeTime = 0;
+        this._respawnPosition = spawnPosition;
+    }
+
+    get regenerationLifeTime(): number {
+        return this._regenerationLifeTime;
+    }
+
+    set regenerationLifeTime(newTime: number) {
+        this._regenerationLifeTime = newTime;
+    }
+
+    get respawnPosition(): THREE.Vector3 {
+        return this._respawnPosition;
     }
 
     get globalLife(): number {
@@ -44,6 +60,16 @@ export default class Life extends AComponent {
             this._currentLife = 0;
         } else {
             this._currentLife = newNumber;
+        }
+    }
+
+    set takeDamage(damageTaken: number) {
+        if (damageTaken >= this._globalLife) {
+            this._currentLife = 0
+        } else if (damageTaken <= 0) {
+            this._currentLife = this._currentLife
+        } else {
+            this._currentLife -= damageTaken
         }
     }
 }

@@ -33,7 +33,6 @@ class CannonSystem extends ASystem {
             null
         );
         this.registerEvent("keyDown", (event: any) => {
-            console.log("ehe");
             if (event.key === "b")
                 this.toggleDebugging();
         })

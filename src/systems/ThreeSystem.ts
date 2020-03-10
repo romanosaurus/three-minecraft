@@ -86,8 +86,7 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
 
-        playerEntity.assignComponent<Life>(new Life(playerEntity, 9));
-
+        playerEntity.assignComponent<Life>(new Life(playerEntity, 9, playerEntity.getComponent(Box).position));
 
         ECSWrapper.entities.applyToEach(["Box"], (entity) => {
             this.scene.add(entity.getComponent(Box).mesh);
@@ -99,7 +98,6 @@ class ThreeSystem extends ASystem {
             });
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        // TODO setClearColor with the 0x222233 and increase alpha float
         this.renderer.setClearColor(0x3498db, 100);
         document.body.appendChild(this.renderer.domElement);
 

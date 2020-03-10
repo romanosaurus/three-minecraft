@@ -2,6 +2,8 @@ import * as THREE from 'three';
 
 import AComponent from "../ecs/abstract/AComponent";
 import IEntity from "../ecs/interfaces/IEntity";
+import { printCommonLine } from 'jest-diff/build/printDiffs';
+import { Scene } from 'three';
 
 class Box extends AComponent {
     private readonly _geometry: THREE.BoxGeometry;
