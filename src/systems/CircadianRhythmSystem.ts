@@ -80,7 +80,7 @@ export default class CircadianRhythmSystem extends ASystem {
                 switch (this._dayState) {
                     case DayState.DAY:
                         this._dirLight.intensity = 2;
-                        if (minuteTime > 0.3) {
+                        if (minuteTime > CircadianRhythmComponent.switchingTime) {
                             CircadianRhythmComponent.time = 0;
                             minuteTime = 0;
                             this._dayState = DayState.SUNSET;
