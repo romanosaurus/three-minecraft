@@ -9,9 +9,20 @@ import Box from "../components/Box";
 import BoxCollider from "../components/BoxCollider";
 import PointerLock from '../components/PointerLock';
 
+/**
+ * FirstPersonSystem heriting from ASystem
+ * @system FirstPersonSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class FirstPersonSystem extends ASystem {
     private currentTime: number;
 
+    /**
+     * Constuctor of the FirstPersonSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name);
 
