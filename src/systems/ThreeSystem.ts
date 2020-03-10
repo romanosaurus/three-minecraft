@@ -82,7 +82,7 @@ class ThreeSystem extends ASystem {
             playerEntity.getComponent(Box).size,
             10
         ));
-        playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity));
+        playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity, 3));
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
 

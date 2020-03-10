@@ -8,19 +8,10 @@ import ParticleSystem from '../../components/ParticleSystem';
 import AnimalSpawningSystem from './AnimalSpawningSystem';
 import ThreeSystem from '../ThreeSystem';
 import BoxCollider from "../../components/BoxCollider";
+import Utilities from "../../utils/Utilities";
 
 export default class AnimalReproductionSystem extends ASystem {
     onInit(): void {
-        this.registerEvent("keyDown", (event: any) => {
-            if (event.key === "t")
-                ECSWrapper.entities.applyToEach(["Animal"], (entity) => {
-                    const animalComponent = entity.getComponent(Animal);
-                    if (animalComponent.isInHeat)
-                        this.setAnimalInHeat(animalComponent, false);
-                    else
-                        this.setAnimalInHeat(animalComponent, true);
-                });
-        })
     }
 
     onUpdate(elapsedTime: number): void {
@@ -28,7 +19,10 @@ export default class AnimalReproductionSystem extends ASystem {
 
         ECSWrapper.entities.applyToEach(["Animal"], (entity) => {
             const animalComponent = entity.getComponent(Animal);
+            const randomPick = Math.random();
 
+            if (!entity.getName().includes("Baby") && randomPick > 0.3454 && randomPick < 0.3456 && ECSWrapper.systems.get(ThreeSystem).getScene().getObjectByName(entity.getName()))
+                this.setAnimalInHeat(animalComponent, true);
 
             this.makeBaby(animalComponent);
             // Find partner
@@ -56,11 +50,15 @@ export default class AnimalReproductionSystem extends ASystem {
             ECSWrapper.entities.applyToEach(["Animal"], (entity) => {
                 const otherAnimal = entity.getComponent(Animal);
 
-                // TODO: Security for find the nearest one
-                if (otherAnimal !== animal && otherAnimal.type === animal.type && otherAnimal.isInHeat) {
-                    otherAnimal.partner = animal;
-                    animal.partner = otherAnimal;
-                    console.log(`${animal.getEntity().getName()} found ${otherAnimal.getEntity().getName()} as partner!`);
+                const animalPosition: CANNON.Vec3 = animal.getEntity().getComponent(BoxCollider).position;
+                const potentialPartnerPosition: CANNON.Vec3 = otherAnimal.getEntity().getComponent(BoxCollider).position;
+
+                if (Utilities.vectorCollide(animalPosition, potentialPartnerPosition, 30)) {
+                    if (otherAnimal !== animal && otherAnimal.type === animal.type && otherAnimal.isInHeat) {
+                        otherAnimal.partner = animal;
+                        animal.partner = otherAnimal;
+                        console.log(`${animal.getEntity().getName()} found ${otherAnimal.getEntity().getName()} as partner!`);
+                    }
                 }
             });
         }

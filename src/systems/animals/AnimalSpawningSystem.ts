@@ -10,10 +10,12 @@ import IEntity from '../../ecs/interfaces/IEntity';
 import ThreeSystem from '../ThreeSystem';
 import Model from '../../components/Model';
 import ParticleSystem from "../../components/ParticleSystem";
+import Chunk from "../../utils/Chunk";
+import Utilities from "../../utils/Utilities";
 
 export default class AnimalSpawningSystem extends ASystem {
 
-    private maxAnimalInGroup: number;
+    private readonly maxAnimalInGroup: number;
     private spawningAnimals: number;
 
     constructor(name: string) {
@@ -24,17 +26,45 @@ export default class AnimalSpawningSystem extends ASystem {
     }
 
     onInit(): void {
-        ECSWrapper.entities.applyToEach(["FirstPersonController"], (entity) => {
-            const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
+        this.registerEvent("newChunk", (event: any) => {
+            const chunk: Chunk = event.detail;
+            const animalSpawnArea: THREE.Vector3 = new THREE.Vector3(
+                chunk.getWidthOffset() * chunk.getMeshSize(),
+                50,
+                chunk.getHeightOffset() * chunk.getMeshSize()
+            );
+            if (chunk.getWidthOffset() % 2)
+                this.spawnAnimalGroup(animalSpawnArea)
+        });
 
-            const playerPosition: THREE.Vector3 = new THREE.Vector3(boxCollider.position.x, boxCollider.position.y, boxCollider.position.z);
-            this.spawnAnimalGroup(playerPosition);
-        })
     }
 
     onUpdate(elapsedTime: number): void {
         const elapsedTimeAsSeconds: number = elapsedTime / 1000;
+        const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
 
+        // Remove from scene animals who are outside of the player radius
+        ECSWrapper.entities.applyToEach(["FirstPersonController"], (entity) => {
+            const playerPosition: CANNON.Vec3 = entity.getComponent(BoxCollider).body.position;
+            ECSWrapper.entities.applyToEach(["Animal"], (animal: IEntity) => {
+                const animalPosition: CANNON.Vec3 = animal.getComponent(BoxCollider).body.position;
+
+                if (Utilities.vectorCollide(playerPosition, animalPosition, 30)) {
+                    if (!scene.getObjectByName(animal.getName())) {
+                        animal.getComponent(Model).getObject().then((obj) => {
+                            scene.add(obj);
+                        });
+                    }
+
+                } else {
+                    if (scene.getObjectByName(animal.getName())) {
+                        animal.getComponent(Model).getObject().then((obj) => {
+                            scene.remove(obj);
+                        });
+                    }
+                }
+            });
+        });
     }
 
     onClose() {
@@ -43,7 +73,7 @@ export default class AnimalSpawningSystem extends ASystem {
 
     private spawnAnimalGroup(position: THREE.Vector3): void {
         const spawningNumber: number = Math.floor(Math.random() * this.maxAnimalInGroup) + 1;
-        const spawningZones: THREE.Vector3[] = this.generateSpawningZones(position, spawningNumber);
+        const spawningZones: THREE.Vector3[] = AnimalSpawningSystem.generateSpawningZones(position, spawningNumber);
 
         for (let i = 0; i < spawningNumber; i++) {
             const animalId: string = `Animal${this.spawningAnimals}`;
@@ -71,8 +101,8 @@ export default class AnimalSpawningSystem extends ASystem {
                         o.material.map.magFilter = THREE.NearestFilter;
                         o.material.map.minFilter = THREE.LinearMipMapLinearFilter;
                     }
-                })
-                ECSWrapper.systems.get(ThreeSystem).getScene().add(object)
+                });
+                object.name = animalId;
             });
 
             if (animalComponent.type === AnimalType.PIG)
@@ -92,7 +122,7 @@ export default class AnimalSpawningSystem extends ASystem {
                     {x: 0, y: 0.2, z: 0}
                 ));
 
-            newAnimalEntity.assignComponent<WalkingArea>(new WalkingArea(newAnimalEntity));
+            newAnimalEntity.assignComponent<WalkingArea>(new WalkingArea(newAnimalEntity, 2));
             newAnimalEntity.assignComponent<ParticleSystem>(new ParticleSystem(
                 newAnimalEntity,
                 10,
@@ -114,7 +144,6 @@ export default class AnimalSpawningSystem extends ASystem {
 
         const newAnimalEntity: IEntity = ECSWrapper.entities.getByName(animalId)[0];
 
-        // TODO RANDOMIZE ANIMAL TYPE
         newAnimalEntity.assignComponent<Animal>(new Animal(newAnimalEntity, type));
 
         const animalComponent: Animal = newAnimalEntity.getComponent(Animal);
@@ -138,7 +167,7 @@ export default class AnimalSpawningSystem extends ASystem {
                     o.material.map.minFilter = THREE.LinearMipMapLinearFilter;
                 }
             });
-            ECSWrapper.systems.get(ThreeSystem).getScene().add(object)
+            object.name = animalId;
         });
 
         if (type === AnimalType.PIG)
@@ -158,7 +187,7 @@ export default class AnimalSpawningSystem extends ASystem {
                 {x: 0, y: 0.2, z: 0}
             ));
 
-        newAnimalEntity.assignComponent<WalkingArea>(new WalkingArea(newAnimalEntity));
+        newAnimalEntity.assignComponent<WalkingArea>(new WalkingArea(newAnimalEntity, 2));
         newAnimalEntity.assignComponent<ParticleSystem>(new ParticleSystem(
             newAnimalEntity,
             10,
@@ -171,9 +200,10 @@ export default class AnimalSpawningSystem extends ASystem {
         newAnimalEntity.getComponent(ParticleSystem).disable();
 
         this.spawningAnimals++;
+        console.log('new baby');
     }
 
-    private generateSpawningZones(initialPosition: THREE.Vector3, spawningNumber: number): THREE.Vector3[] {
+    private static generateSpawningZones(initialPosition: THREE.Vector3, spawningNumber: number): THREE.Vector3[] {
         const spawningZones: THREE.Vector3[] = [];
         const xRange: {xMin: number, xMax: number} = {
             xMin: initialPosition.x - 5,

@@ -132,6 +132,8 @@ class WorldGenerationSystem extends ASystem {
 
                         let meshFromWorker: Chunk = new Chunk(gen.size, gen.HeightOffset, gen.WidthOffset, this.perlinGenerator, gen.data);
                         this.displayWorld(voxelComponent, scene, meshFromWorker);
+
+                        ECSWrapper.systems.dispatch("newChunk", new CustomEvent("newChunk", { detail: meshFromWorker }));
                     }
                     drawed.push(currentId);
 
