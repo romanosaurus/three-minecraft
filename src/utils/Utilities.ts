@@ -18,7 +18,7 @@ class Utilities {
         );
     }
 
-    public static vectorCollide(source: CANNON.Vec3, point: CANNON.Vec3, radius: number) {
+    public static vectorCollide(source: CANNON.Vec3, point: CANNON.Vec3, radius: number): boolean {
         return (point.x >= source.x - radius && point.x <= source.x + radius) &&
             (point.y >= source.y - radius && point.y <= source.y + radius) &&
             (point.z >= source.z - radius && point.z <= source.z + radius)
