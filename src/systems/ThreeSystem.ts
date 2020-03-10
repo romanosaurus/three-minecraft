@@ -84,7 +84,6 @@ class ThreeSystem extends ASystem {
             });
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        // TODO setClearColor with the 0x222233 and increase alpha float
         this.renderer.setClearColor(0x222233, 5);
         document.body.appendChild(this.renderer.domElement);
 
