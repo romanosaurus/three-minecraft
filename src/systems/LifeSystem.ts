@@ -52,14 +52,14 @@ class LifeSystem extends ASystem {
             let globalLife = LifeComponent.globalLife;
             let currentLife = LifeComponent.currentLife;
 
-            LifeComponent.regenerationLifeTime = elapsedTime + LifeComponent.regenerationLifeTime;
+            LifeComponent.timer = elapsedTime + LifeComponent.timer;
 
-            let time : number = ((LifeComponent.regenerationLifeTime - elapsedTime) / 1000)
+            let time : number = ((LifeComponent.timer - elapsedTime) / 1000)
 
             var minuteTime = time / 60;
 
-            if (currentLife < globalLife && minuteTime > 0.30 && !LifeComponent.isPlayerDead) {
-                LifeComponent.regenerationLifeTime = 0;
+            if (currentLife < globalLife && minuteTime > LifeComponent.regenerationLifeTime && !LifeComponent.isPlayerDead) {
+                LifeComponent.timer = 0;
                 LifeComponent.changeCurrentLife = LifeComponent.currentLife + 1;
             }
 

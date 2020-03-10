@@ -8,9 +8,10 @@ export default class Life extends AComponent {
     private _currentLife : number;
     private _isDead : boolean;
     private _respawnPosition : THREE.Vector3;
+    private _timer: number;
     private _regenerationLifeTime: number;
 
-    constructor(entity: IEntity, lifePoint : number, spawnPosition: THREE.Vector3) {
+    constructor(entity: IEntity, lifePoint : number, spawnPosition: THREE.Vector3, regenerationTime: number) {
         super(entity);
 
         if (lifePoint < 0 || lifePoint > 13) {
@@ -21,16 +22,21 @@ export default class Life extends AComponent {
             this._currentLife = lifePoint;
         }
         this._isDead = false;
-        this._regenerationLifeTime = 0;
+        this._timer = 0;
         this._respawnPosition = spawnPosition;
+        this._regenerationLifeTime = regenerationTime;
     }
 
     get regenerationLifeTime(): number {
         return this._regenerationLifeTime;
     }
 
-    set regenerationLifeTime(newTime: number) {
-        this._regenerationLifeTime = newTime;
+    get timer(): number {
+        return this._timer;
+    }
+
+    set timer(newTime: number) {
+        this._timer = newTime;
     }
 
     get respawnPosition(): THREE.Vector3 {
