@@ -37,6 +37,7 @@ class Window {
         ECSWrapper.systems.initialize<AnimalMovementSystem>(new AnimalMovementSystem("AnimalMovementSystem"));
         ECSWrapper.systems.initialize<AnimalReproductionSystem>(new AnimalReproductionSystem("AnimalReproductionSystem"));
         ECSWrapper.systems.initialize<ParticleSystemManager>(new ParticleSystemManager("ParticleSystemManager"));
+        ECSWrapper.systems.initialize<CircadianRhythmSystem>(new CircadianRhythmSystem("CircadianRhythm"));
         
         ECSWrapper.systems.start("ThreeSystem");
         ECSWrapper.systems.start("CannonSystem");
@@ -50,6 +51,7 @@ class Window {
         ECSWrapper.systems.start("AnimalMovementSystem");
         ECSWrapper.systems.start("AnimalReproductionSystem");
         ECSWrapper.systems.start("ParticleSystemManager");
+        ECSWrapper.systems.start("CircadianRhythm");
 
         document.addEventListener('mousemove', ( mouseEvent ) => { ECSWrapper.systems.dispatch("mouseEvent", mouseEvent) });
         document.addEventListener('keydown', (keyDown) => { ECSWrapper.systems.dispatch("keyDown", keyDown); });
