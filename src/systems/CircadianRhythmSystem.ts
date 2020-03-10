@@ -17,10 +17,25 @@ enum DayState {
     SUNRISE
 };
 
+/**
+ * CircadianRhythmSystem heriting from ASystem
+ * @system CircadianRhythmSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 export default class CircadianRhythmSystem extends ASystem {
     private _dayState: DayState;
     private _isStar: boolean;
     private _dirLight: THREE.DirectionalLight;
+
+    /**
+     * Constuctor of the CircadianRhythmSystem
+     * @param name name of the system
+     */
+    constructor(name: string) {
+        super(name)
+    }
 
     onInit() {
         this._dayState = DayState.DAY;

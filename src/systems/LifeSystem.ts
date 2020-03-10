@@ -6,7 +6,19 @@ import ECSWrapper from '../ecs/wrapper/ECSWrapper';
 import FirstPersonController from '../components/FirstPersonController';
 import Life from '../components/Life';
 
+/**
+ * LifeSystem heriting from ASystem
+ * @system LifeSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class LifeSystem extends ASystem {
+
+    /**
+     * Constuctor of the LifeSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name)
     }

@@ -1,3 +1,10 @@
+/*
+    .-. .-. .----..-.  .-..----..-.
+    | | | |/  {}  \\ \/ / | {_  | |
+    \ \_/ /\      // /\ \ | {__ | `--.
+    `---'  `----'`-'  `-'`----'`----'
+*/
+
 import ECSWrapper from "./ecs/wrapper/ECSWrapper";
 
 import ThreeSystem from "./systems/ThreeSystem";
@@ -32,12 +39,11 @@ class Window {
         ECSWrapper.systems.start("VoxelRaycastSystem");
         ECSWrapper.systems.start("CircadianRhythm");
 
-        document.addEventListener('mousemove', ( mouseEvent ) => { ECSWrapper.systems.setEvent("mouseEvent", mouseEvent); });
-        document.addEventListener('keydown', (keyDown) => { ECSWrapper.systems.setEvent("keyDown", keyDown); });
-        document.addEventListener('keyup', (keyUp) => { ECSWrapper.systems.setEvent("keyUp", keyUp); });
-        document.addEventListener('resize', (resize) => { ECSWrapper.systems.setEvent("resize", resize); });
+        document.addEventListener('mousemove', ( mouseEvent ) => { ECSWrapper.systems.dispatch("mouseEvent", mouseEvent) });
+        document.addEventListener('keydown', (keyDown) => { ECSWrapper.systems.dispatch("keyDown", keyDown); });
+        document.addEventListener('keyup', (keyUp) => { ECSWrapper.systems.dispatch("keyUp", keyUp); });
         document.addEventListener('click', ( clickEvent ) => {
-            ECSWrapper.systems.setEvent("click", clickEvent);
+            ECSWrapper.systems.dispatch("click", clickEvent);
             ECSWrapper.entities.applyToEach(["PointerLock"], (entity) => {
                 entity.getComponent(PointerLock).lockPointer();
             });

@@ -17,17 +17,32 @@ import LightUtilities from "../utils/LightUtilities";
 import WalkingArea from "../components/WalkingArea";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
 
+/**
+ * ThreeSystem heriting from ASystem
+ * @system ThreeSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class ThreeSystem extends ASystem {
     private readonly scene : THREE.Scene;
     private readonly renderer : THREE.WebGLRenderer;
     private readonly stats : Stats;
 
+    /**
+     * Constuctor of the ThreeSystem
+     * @param name name of the system
+     */
     constructor(name : string) {
         super(name);
 
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer();
         this.stats = new Stats();
+
+        this.registerEvent("keyDown", (event: any) => {
+            FullScreen.keyDown(this.renderer, this.scene);
+        });
     }
 
     onInit(): void {
@@ -64,7 +79,7 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<BoxCollider>(new BoxCollider(
             playerEntity,
             playerEntity.getComponent(Box).mesh.position,
-            playerEntity.getComponent(Box).getSize(),
+            playerEntity.getComponent(Box).size,
             10
         ));
         playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity));
@@ -88,17 +103,13 @@ class ThreeSystem extends ASystem {
         document.body.appendChild(this.renderer.domElement);
 
         this.stats.showPanel(0);
+        document.body.appendChild( this.stats.dom );
     }
 
     onUpdate(elapsedTime: number): void {
-        const keyDown = this.events["keyDown"];
-
         this.stats.begin();
 
         this.stats.end();
-
-        if (keyDown)
-            FullScreen.keyDown(this.renderer, this.scene);
 
         requestAnimationFrame(() => {
             ECSWrapper.systems.run();

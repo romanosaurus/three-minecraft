@@ -11,9 +11,20 @@ import Chunk from "../utils/Chunk";
 import WalkingArea from "../components/WalkingArea";
 import IEntity from "../ecs/interfaces/IEntity";
 
+/**
+ * WalkingPhysicsSystem heriting from ASystem
+ * @system WalkingPhysicsSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class WalkingPhysicsSystem extends ASystem {
     private stock;
 
+    /**
+     * Constuctor of the WalkingPhysicsSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name);
         this.stock = [];
@@ -43,7 +54,7 @@ class WalkingPhysicsSystem extends ASystem {
     private handleWalkingArea(boxCollider: BoxCollider, walkingArea: WalkingArea, voxelEntities: IEntity): void {
         const boxColliderSize: number = 1.25;
         const physicsRadius: number = 3;
-        const playerPosition: CANNON.Vec3 = boxCollider.getPosition();
+        const playerPosition: CANNON.Vec3 = boxCollider.position;
         const voxelComponent: Voxel = voxelEntities.getComponent(Voxel);
         const activeMesh: Chunk = voxelComponent.getMeshByPosition(playerPosition.x, playerPosition.z)
 

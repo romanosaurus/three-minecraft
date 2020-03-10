@@ -14,6 +14,10 @@ import Chunk from '../utils/Chunk';
 import PerlinGenerator from '../utils/PerlinGenerator';
 import Faces from "../utils/Faces";
 
+/**
+ * @interface WorldOptions
+ * containing voxel world options
+ */
 interface WorldOptions {
     cellSize: number,
     tileTextureWidth: number,
@@ -21,6 +25,13 @@ interface WorldOptions {
     tileSize: number
 };
 
+/**
+ * WorldGenerationSystem heriting from ASystem
+ * @system WorldGenerationSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class WorldGenerationSystem extends ASystem {
     private generatedArray: Object;
     private perlinGenerator: PerlinGenerator;
@@ -31,6 +42,10 @@ class WorldGenerationSystem extends ASystem {
     private texture: THREE.Texture;
     private material: THREE.MeshLambertMaterial;
 
+    /**
+     * Constuctor of the WorldGenerationSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name);
 
@@ -47,7 +62,7 @@ class WorldGenerationSystem extends ASystem {
             map: this.texture,
             side: THREE.DoubleSide,
             alphaTest: 0.1,
-            transparent: true
+            transparent: false
         });
     }
 
@@ -137,8 +152,8 @@ class WorldGenerationSystem extends ASystem {
         const startX: number = chunk.getWidthOffset() * this.worldOptions.cellSize;
         const startZ: number = chunk.getHeightOffset() * this.worldOptions.cellSize;
 
-        for (let z = 0; z < chunk.getMeshSize(); z += 1) {
-            for (let x = 0; x < chunk.getMeshSize(); x += 1) {
+        for (let z = 0; z < chunk.size; z += 1) {
+            for (let x = 0; x < chunk.size; x += 1) {
                 for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--) {
                     voxelComponent.setVoxel(startX + x, height, startZ + z, 14, chunk);
                 }

@@ -14,7 +14,6 @@ class FirstPersonController extends AComponent {
     public readonly rotationSpeed: THREE.Vector2;
     public readonly movementSpeed: THREE.Vector2;
     public direction: Direction;
-    private euler: THREE.Euler;
     private isJumping: boolean;
 
     constructor(entity: IEntity, rotationSpeed: THREE.Vector2, movementSpeed: THREE.Vector2) {
@@ -22,11 +21,10 @@ class FirstPersonController extends AComponent {
 
         this.rotationSpeed = rotationSpeed;
         this.movementSpeed = movementSpeed;
-        this.euler = new THREE.Euler();
         this.direction = { left: 0, right: 0, forward: 0, backward: 0 };
     }
 
-    keyUp(keyEvent: KeyboardEvent) {
+    public keyUp(keyEvent: KeyboardEvent) {
         switch (keyEvent.key) {
             case "z":
                 this.direction.forward = 0;
@@ -45,7 +43,7 @@ class FirstPersonController extends AComponent {
         }
     }
 
-    keyDown(keyEvent: KeyboardEvent) {
+    public keyDown(keyEvent: KeyboardEvent) {
         switch (keyEvent.key) {
             case "z":
                 this.direction.forward = 1;

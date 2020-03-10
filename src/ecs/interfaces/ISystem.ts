@@ -3,6 +3,11 @@ export enum SystemState {
     STOPPED
 }
 
+export interface RegisteredEvent {
+    name: string,
+    callback: (event: Event) => void
+};
+
 export interface ISystem {
     onInit() : void;
     onUpdate(elapsedTime : number) : void;
@@ -10,6 +15,6 @@ export interface ISystem {
     getName() : string;
     getState() : SystemState;
     setState(newState : SystemState) : void;
-    setEvent(name: string, value: any): void;
-    clearEvent(): void;
+    registerEvent(eventName: string, callback: (event: Event) => void);
+    getRegisteredEvents(): RegisteredEvent[];
 }
