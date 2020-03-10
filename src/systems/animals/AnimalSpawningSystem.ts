@@ -49,7 +49,7 @@ export default class AnimalSpawningSystem extends ASystem {
             ECSWrapper.entities.applyToEach(["Animal"], (animal: IEntity) => {
                 const animalPosition: CANNON.Vec3 = animal.getComponent(BoxCollider).body.position;
 
-                if (Utilities.vectorCollide(playerPosition, animalPosition, 30)) {
+                if (Utilities.vectorCollide(playerPosition, animalPosition, 60)) {
                     if (!scene.getObjectByName(animal.getName())) {
                         animal.getComponent(Model).getObject().then((obj) => {
                             scene.add(obj);
@@ -81,7 +81,6 @@ export default class AnimalSpawningSystem extends ASystem {
 
             const newAnimalEntity: IEntity = ECSWrapper.entities.getByName(animalId)[0];
 
-            // TODO RANDOMIZE ANIMAL TYPE
             newAnimalEntity.assignComponent<Animal>(new Animal(newAnimalEntity, i % 2));
 
             const animalComponent: Animal = newAnimalEntity.getComponent(Animal);
