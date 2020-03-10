@@ -7,6 +7,7 @@ import ASystem from '../../ecs/abstract/ASystem';
 import ParticleSystem from '../../components/ParticleSystem';
 import AnimalSpawningSystem from './AnimalSpawningSystem';
 import ThreeSystem from '../ThreeSystem';
+import BoxCollider from "../../components/BoxCollider";
 
 export default class AnimalReproductionSystem extends ASystem {
     onInit(): void {
@@ -29,14 +30,12 @@ export default class AnimalReproductionSystem extends ASystem {
             const animalComponent = entity.getComponent(Animal);
 
 
-            //this.setAnimalInHeat(animalComponent, true);
-
-
+            this.makeBaby(animalComponent);
             // Find partner
             this.findPartner(animalComponent);
         });
     }
-    
+
     setAnimalInHeat(animal: Animal, isInHeat: boolean) {
         animal.isInHeat = isInHeat;
 
@@ -64,6 +63,22 @@ export default class AnimalReproductionSystem extends ASystem {
                     console.log(`${animal.getEntity().getName()} found ${otherAnimal.getEntity().getName()} as partner!`);
                 }
             });
+        }
+    }
+
+    makeBaby(animal: Animal) {
+        if (animal.makeBaby && animal.partner && animal.isInHeat && animal.partner.isInHeat) {
+            const pos = new THREE.Vector3(
+                animal.getEntity().getComponent(BoxCollider).position.x,
+                animal.getEntity().getComponent(BoxCollider).position.y,
+                animal.getEntity().getComponent(BoxCollider).position.z
+            );
+            ECSWrapper.systems.get(AnimalSpawningSystem).spawnBaby(pos, animal.type);
+
+            animal.makeBaby = false;
+            this.setAnimalInHeat(animal, false);
+            this.setAnimalInHeat(animal.partner, false);
+            animal.partner = null;
         }
     }
 }

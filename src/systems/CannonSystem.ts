@@ -6,11 +6,11 @@ import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import ThreeSystem from "./ThreeSystem";
 import Box from "../components/Box";
 import BoxCollider from "../components/BoxCollider";
-import { Animal } from '../components/Animal';
 import Model from '../components/Model';
 
 class CannonSystem extends ASystem {
     public readonly world: CANNON.World;
+
     private readonly debugger: any;
     private debuggerActivated: boolean;
 
@@ -34,8 +34,10 @@ class CannonSystem extends ASystem {
 
         this.world.broadphase = new CANNON.NaiveBroadphase();
         this.world.broadphase.useBoundingBoxes = true;
-        this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
-        this.world.defaultContactMaterial.contactEquationRelaxation = 5;
+        this.world.defaultContactMaterial.friction = 0.4;
+        this.world.defaultContactMaterial.restitution = 0.0;
+        //this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
+        //this.world.defaultContactMaterial.contactEquationRelaxation = 5;
 
         let solver = new CANNON.GSSolver();
         solver.iterations = 7;

@@ -23,6 +23,7 @@ export class Animal extends AComponent {
     private _partner: Animal | null;
 
     private _facingPartner: boolean;
+    private _makeBaby: boolean;
 
     constructor(entity: IEntity, animalType: AnimalType) {
         super(entity);
@@ -37,6 +38,8 @@ export class Animal extends AComponent {
 
         this._partner = null;
         this._facingPartner = false;
+
+        this._makeBaby = false;
     }
 
     get type(): AnimalType {
@@ -81,5 +84,13 @@ export class Animal extends AComponent {
 
     set facingPartner(state) {
         this._facingPartner = state;
+    }
+
+    get makeBaby(): boolean {
+        return this._makeBaby;
+    }
+
+    set makeBaby(state) {
+        this._makeBaby = state;
     }
 }

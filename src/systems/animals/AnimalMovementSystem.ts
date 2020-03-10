@@ -24,8 +24,19 @@ export default class AnimalMovementSystem extends ASystem {
 
             const randomPick: number = Math.random();
 
-            if (animalUtils.partner)
-                animalUtils.hasToMove = true;
+            if (animalUtils.partner) {
+                const partnerCollider = animalUtils.partner.getEntity().getComponent(BoxCollider);
+                const distance = 1;
+
+                if (partnerCollider.position.x >= animalBoxCollider.position.x + distance
+                    || partnerCollider.position.x + distance <= animalBoxCollider.position.x)
+                    animalUtils.hasToMove = true;
+                else {
+                    animalUtils.hasToMove = false;
+                    if (!animalUtils.partner.makeBaby)
+                        animalUtils.makeBaby = true;
+                }
+            }
 
             if (!animalUtils.hasToMove && randomPick > 0.476 && randomPick < 0.477)
                 animalUtils.hasToMove = true;
@@ -70,7 +81,11 @@ export default class AnimalMovementSystem extends ASystem {
         const partnerBody = animalUtils.partner.getEntity().getComponent(BoxCollider);
 
         if (!animalUtils.facingPartner) {
-            curAnimalBody.body.quaternion.y = Utilities.lookAt(partnerBody.body.position, curAnimalBody.body.position).y;
+            curAnimalBody.getEntity().getComponent(Model).getObject().then(obj => {
+                obj.lookAt(partnerBody.body.position.x, partnerBody.body.position.y, partnerBody.body.position.z);
+                curAnimalBody.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), obj.rotation.x);
+            });
+            animalUtils.facingPartner = true;
         }
     }
 }

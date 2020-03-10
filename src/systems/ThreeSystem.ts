@@ -48,7 +48,7 @@ class ThreeSystem extends ASystem {
             new FirstPersonController(
                 playerEntity,
                 new THREE.Vector2(0.005, 0.005),
-                new THREE.Vector2(0.005, 0.005)
+                new THREE.Vector2(5, 5)
             )
         );
         playerEntity.assignComponent<Box>(new Box(

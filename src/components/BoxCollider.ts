@@ -3,6 +3,8 @@ import * as CANNON from 'cannon';
 
 import AComponent from "../ecs/abstract/AComponent";
 import IEntity from "../ecs/interfaces/IEntity";
+import ECSWrapper from "../ecs/wrapper/ECSWrapper";
+import CannonSystem from "../systems/CannonSystem";
 
 class BoxCollider extends AComponent {
     private _shape: CANNON.Box;

@@ -1,5 +1,5 @@
 import * as CANNON from 'cannon';
-import * as THREE from 'three';
+import Quaternion = CANNON.Quaternion;
 
 class Utilities {
     public static multiplyVectorByQuaternion(initialVector: CANNON.Vec3, quaternion: CANNON.Quaternion): CANNON.Vec3 {
@@ -25,6 +25,8 @@ class Utilities {
         const dot: number = forwardVector.dot(new CANNON.Vec3(0, 0, 1));
         if (Math.abs(dot - (-1)) < 0.000001)
             return new CANNON.Quaternion(0, 1, 0, 3.1415926535897932);
+        if (Math.abs(dot - 1) < 0.000001)
+            return new CANNON.Quaternion(0, 0, 0, 1);
         const rotAngle = Math.acos(dot);
         const rotAxis = forwardVector.cross(new CANNON.Vec3(0, 0, 1));
         rotAxis.normalize();
@@ -32,10 +34,9 @@ class Utilities {
     }
 
     private static createFromAxisAngle(axis: CANNON.Vec3, angle: number) {
-        const halfAngle = 0.5 * angle;
+        const halfAngle = angle / 2;
         const s = Math.sin(halfAngle);
-        const q: CANNON.Quaternion = new CANNON.Quaternion(axis.x * s, axis.y * s, axis.z * s, Math.cos(halfAngle));
-        return q;
+        return new CANNON.Quaternion(axis.x * s, axis.y * s, axis.z * s, Math.cos(halfAngle));
     }
 }
 

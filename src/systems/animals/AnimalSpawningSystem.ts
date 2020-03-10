@@ -101,11 +101,76 @@ export default class AnimalSpawningSystem extends ASystem {
                 new THREE.Vector3(spawningZones[i].x + 5, spawningZones[i].y + 5, spawningZones[i].z + 5)
             ));
             newAnimalEntity.getComponent(ParticleSystem).bodyToFollow = newAnimalEntity.getComponent(BoxCollider).body;
-            
+
             newAnimalEntity.getComponent(ParticleSystem).disable();
 
             this.spawningAnimals++;
         }
+    }
+
+    public spawnBaby(position: THREE.Vector3, type: AnimalType) {
+        const animalId: string = `Baby${this.spawningAnimals}`;
+        ECSWrapper.entities.create(animalId);
+
+        const newAnimalEntity: IEntity = ECSWrapper.entities.getByName(animalId)[0];
+
+        // TODO RANDOMIZE ANIMAL TYPE
+        newAnimalEntity.assignComponent<Animal>(new Animal(newAnimalEntity, type));
+
+        const animalComponent: Animal = newAnimalEntity.getComponent(Animal);
+
+        if (animalComponent.type === AnimalType.PIG)
+            newAnimalEntity.assignComponent<Model>(new Model(newAnimalEntity, "pig", "../../assets/models/pig/pig.obj", "../../assets/models/pig/pig.mtl"));
+        else if (animalComponent.type === AnimalType.SHEEP)
+            newAnimalEntity.assignComponent<Model>(new Model(newAnimalEntity, "sheep", "../../assets/models/sheep/sheep.obj", "../../assets/models/sheep/sheep.mtl"));
+
+        const animalModel: Model = newAnimalEntity.getComponent(Model);
+        animalModel.getObject().then((object) => {
+            object.position.x = position.x + 2;
+            object.position.y = position.y;
+            object.position.z = position.z;
+            object.scale.x /= 2;
+            object.scale.y /= 2;
+            object.scale.z /= 2;
+            object.traverse(o => {
+                if (o.isMesh) {
+                    o.material.map.magFilter = THREE.NearestFilter;
+                    o.material.map.minFilter = THREE.LinearMipMapLinearFilter;
+                }
+            });
+            ECSWrapper.systems.get(ThreeSystem).getScene().add(object)
+        });
+
+        if (type === AnimalType.PIG)
+            newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(
+                newAnimalEntity,
+                new THREE.Vector3(position.x + 2, position.y, position.z),
+                new THREE.Vector3(1, 1, 1),
+                10,
+                {x: 0, y: -0.2, z: 0}
+            ));
+        else
+            newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(
+                newAnimalEntity,
+                new THREE.Vector3(position.x + 2, position.y, position.z),
+                new THREE.Vector3(1, 1, 1),
+                10,
+                {x: 0, y: 0.2, z: 0}
+            ));
+
+        newAnimalEntity.assignComponent<WalkingArea>(new WalkingArea(newAnimalEntity));
+        newAnimalEntity.assignComponent<ParticleSystem>(new ParticleSystem(
+            newAnimalEntity,
+            10,
+            {color: 0xFFFFFF, size: 1, image: "../../assets/ui/heart.png"},
+            new THREE.Vector3(position.x - 3, position.y - 5, position.z - 5),
+            new THREE.Vector3(position.x + 3, position.y + 5, position.z + 5)
+        ));
+        newAnimalEntity.getComponent(ParticleSystem).bodyToFollow = newAnimalEntity.getComponent(BoxCollider).body;
+
+        newAnimalEntity.getComponent(ParticleSystem).disable();
+
+        this.spawningAnimals++;
     }
 
     private generateSpawningZones(initialPosition: THREE.Vector3, spawningNumber: number): THREE.Vector3[] {

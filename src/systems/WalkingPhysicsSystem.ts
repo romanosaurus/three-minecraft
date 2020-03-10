@@ -41,7 +41,7 @@ class WalkingPhysicsSystem extends ASystem {
     }
 
     private handleWalkingArea(boxCollider: BoxCollider, walkingArea: WalkingArea, voxelEntities: IEntity): void {
-        const boxColliderSize: number = 1.25;
+        const boxColliderSize: number = 1;
         const physicsRadius: number = 3;
         const playerPosition: CANNON.Vec3 = boxCollider.position;
         const voxelComponent: Voxel = voxelEntities.getComponent(Voxel);
@@ -56,7 +56,7 @@ class WalkingPhysicsSystem extends ASystem {
                     if (cell === 0)
                         continue
                     let exist: boolean = false;
-                    let newBody: CANNON.Body = new CANNON.Body({ mass: 0 })
+                    let newBody: CANNON.Body = new CANNON.Body({ mass: 0 });
                     newBody.position = voxelComponent.getVoxelPosition(xPos, yPos, zPos);
                     newBody.addShape(new CANNON.Box(
                         new CANNON.Vec3(
