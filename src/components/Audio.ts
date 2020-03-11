@@ -3,18 +3,24 @@ import * as THREE from 'three';
 import AComponent from "../ecs/abstract/AComponent";
 import IEntity from '../ecs/interfaces/IEntity';
 
-interface SoundOptions {
+interface AudioOptions {
     listener: THREE.AudioListener,
     path: string,
     loop?: boolean,
     volume?: number
 };
 
+export enum AudioState {
+    PLAY,
+    PAUSE,
+    STOP
+};
 export default class Audio extends AComponent {
     private _audio: THREE.Audio;
     private readonly _loader: THREE.AudioLoader;
+    private _state: AudioState;
 
-    constructor(entity: IEntity, options: SoundOptions) {
+    constructor(entity: IEntity, options: AudioOptions) {
         super(entity);
 
         this._audio = new THREE.Audio(options.listener);
@@ -24,18 +30,21 @@ export default class Audio extends AComponent {
             this._audio.setBuffer(buffer);
             this._audio.setLoop(options.loop);
             this._audio.setVolume(options.volume);
+            //this._audio.play();
         });
+
+        this._state = AudioState.PLAY;
     }
 
-    play(): void {
-        this._audio.play();
+    set state(ns: AudioState) {
+        this._state = ns;
     }
 
-    stop(): void {
-        this._audio.stop();
+    get state(): AudioState {
+        return this._state;
     }
 
-    pause(): void {
-        this._audio.pause();
+    get sound(): THREE.Audio {
+        return this._audio;
     }
 }

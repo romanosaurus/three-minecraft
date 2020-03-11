@@ -52,6 +52,8 @@ export default class AnimalSpawningSystem extends ASystem {
                 if (Utilities.vectorCollide(playerPosition, animalPosition, 60)) {
                     if (!scene.getObjectByName(animal.getName())) {
                         animal.getComponent(Model).getObject().then((obj) => {
+                            if (animal.getComponent(ParticleSystem).isEnable())
+                                scene.add(animal.getComponent(ParticleSystem).particleEmitter)
                             scene.add(obj);
                         });
                     }
@@ -59,6 +61,8 @@ export default class AnimalSpawningSystem extends ASystem {
                 } else {
                     if (scene.getObjectByName(animal.getName())) {
                         animal.getComponent(Model).getObject().then((obj) => {
+                            if (animal.getComponent(ParticleSystem).isEnable())
+                                scene.remove(animal.getComponent(ParticleSystem).particleEmitter)
                             scene.remove(obj);
                         });
                     }
