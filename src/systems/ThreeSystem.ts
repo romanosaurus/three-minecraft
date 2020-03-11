@@ -16,7 +16,8 @@ import * as Stats from 'stats.js';
 import LightUtilities from "../utils/LightUtilities";
 import WalkingArea from "../components/WalkingArea";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
-
+import AudioSource from "../components/AudioSource";
+import Audio from "../components/Audio";
 /**
  * ThreeSystem heriting from ASystem
  * @system ThreeSystem
@@ -76,6 +77,13 @@ class ThreeSystem extends ASystem {
                 1000
             )
         );
+        playerEntity.assignComponent<AudioSource>(new AudioSource(playerEntity));
+        playerEntity.assignComponent<Audio>(new Audio(playerEntity, {
+            listener: playerEntity.getComponent(AudioSource).listener,
+            path: "",
+            loop: true,
+            volume: 1
+        }));
         playerEntity.assignComponent<BoxCollider>(new BoxCollider(
             playerEntity,
             playerEntity.getComponent(Box).mesh.position,

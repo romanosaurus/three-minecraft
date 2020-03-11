@@ -22,7 +22,7 @@ export default class PerlinGenerator {
      * @param width : the width of the generator
      * @param height : the height of the generator
      * @param randseed : the random seed
-     * @return a new instance of PerlinGenerator 
+     * @return a new instance of PerlinGenerator
      */
     static fromData(width : number, height : number, randseed : number) {
         return new this(width, height, randseed);
@@ -41,7 +41,7 @@ export default class PerlinGenerator {
         this.data = new Array(width * height * 4);
         this.spec = {};
         this.spec.randseed = randseed;
-        this.spec.period = 32;
+        this.spec.period = 64;
         this.spec.levels = 2;
         this.spec.atten = 0.1;
         this.spec.absolute = false;
