@@ -104,8 +104,10 @@ canvas {
     text-align: center;
     top: 40%;
 	width: 100%;
-	font-size: 150%;
-	color: blanchedalmond;
+	font-size: 250%;
+	color: whitesmoke;
+	background-color: black;
+	opacity: 75%;
 	src: url("../assets/font/Minecrafter.Reg.ttf");
 }
 
@@ -118,7 +120,8 @@ canvas {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	-ms-transform: translate(-50%, -50%);
-	background-color: gray;
+	background-color: whitesmoke;
+	opacity: 90%;
 	border: none;
 	color: black;
 	padding: 15px 32px;
