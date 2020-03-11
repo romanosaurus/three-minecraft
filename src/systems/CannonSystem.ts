@@ -6,6 +6,7 @@ import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import ThreeSystem from "./ThreeSystem";
 import Box from "../components/Box";
 import BoxCollider from "../components/BoxCollider";
+import Model from '../components/Model';
 
 /**
  * CannonSystem heriting from ASystem
@@ -16,6 +17,7 @@ import BoxCollider from "../components/BoxCollider";
  */
 class CannonSystem extends ASystem {
     public readonly world: CANNON.World;
+
     private readonly debugger: any;
     private debuggerActivated: boolean;
 
@@ -33,7 +35,6 @@ class CannonSystem extends ASystem {
             null
         );
         this.registerEvent("keyDown", (event: any) => {
-            console.log("ehe");
             if (event.key === "b")
                 this.toggleDebugging();
         })
@@ -41,10 +42,19 @@ class CannonSystem extends ASystem {
 
     onInit(): void {
         this.world.gravity.set(0, -9.82, 0); // m/s²
+
         this.world.broadphase = new CANNON.NaiveBroadphase();
-        this.world.solver.iterations = 5;
-        this.world.defaultContactMaterial.contactEquationStiffness = 1e6;
-        this.world.defaultContactMaterial.contactEquationRelaxation = 10;
+        this.world.broadphase.useBoundingBoxes = true;
+        this.world.defaultContactMaterial.friction = 0.4;
+        this.world.defaultContactMaterial.restitution = 0.0;
+        //this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
+        //this.world.defaultContactMaterial.contactEquationRelaxation = 5;
+
+        let solver = new CANNON.GSSolver();
+        solver.iterations = 7;
+        solver.tolerance = 0.1;
+        this.world.solver = new CANNON.SplitSolver(solver);
+
     }
 
     onUpdate(elapsedTime: number): void {
@@ -62,8 +72,29 @@ class CannonSystem extends ASystem {
             const box: Box = entity.getComponent(Box);
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
 
-            box.mesh.position.copy(boxCollider.body.position as any);
+            const positionOffsetted: CANNON.Vec3 = new CANNON.Vec3(
+                boxCollider.body.position.x + boxCollider.offset.x,
+                boxCollider.body.position.y + boxCollider.offset.y,
+                boxCollider.body.position.z + boxCollider.offset.z
+            );
+            box.mesh.position.copy(positionOffsetted as any);
             box.mesh.quaternion.copy(boxCollider.body.quaternion as any);
+        });
+
+        ECSWrapper.entities.applyToEach(["Model", "BoxCollider"], (entity) => {
+            const box: Model = entity.getComponent(Model);
+            const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
+
+            const positionOffsetted: CANNON.Vec3 = new CANNON.Vec3(
+                boxCollider.body.position.x + boxCollider.offset.x,
+                boxCollider.body.position.y + boxCollider.offset.y,
+                boxCollider.body.position.z + boxCollider.offset.z
+            );
+            box.getObject().then((object) => {
+                object.position.copy(positionOffsetted as any);
+                object.quaternion.copy(boxCollider.body.quaternion as any);
+            });
+
         });
     }
 

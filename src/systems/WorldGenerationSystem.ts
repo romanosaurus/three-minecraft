@@ -90,7 +90,7 @@ class WorldGenerationSystem extends ASystem {
     onUpdate(elapsedTime: number): void {
         const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
 
-        ECSWrapper.entities.applyToEach(["BoxCollider"], (entity) => {
+        ECSWrapper.entities.applyToEach(["FirstPersonController", "BoxCollider"], (entity) => {
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
 
             ECSWrapper.entities.applyToEach(["Voxel"], (voxelEntity) => {
@@ -132,6 +132,8 @@ class WorldGenerationSystem extends ASystem {
 
                         let meshFromWorker: Chunk = new Chunk(gen.size, gen.HeightOffset, gen.WidthOffset, this.perlinGenerator, gen.data);
                         this.displayWorld(voxelComponent, scene, meshFromWorker);
+
+                        ECSWrapper.systems.dispatch("newChunk", new CustomEvent("newChunk", { detail: meshFromWorker }));
                     }
                     drawed.push(currentId);
 

@@ -35,24 +35,15 @@ class FirstPersonSystem extends ASystem {
 
     onUpdate(elapsedTime: number): void {
         const jumpingTime: number = 0.3;
+        const elapsedTimeAsSecond = elapsedTime / 1000;
 
         ECSWrapper.entities.applyToEach(["Camera", "Box", "FirstPersonController", "BoxCollider"], (entity) => {
             const firstPersonController: FirstPersonController = entity.getComponent(FirstPersonController);
 
-            entity.getComponent(BoxCollider).body.mass = 10;
-            if (firstPersonController.jumping && this.currentTime < jumpingTime) {
-                if (this.currentTime < jumpingTime) {
-                    const force: number = 2;
-
-                    entity.getComponent(BoxCollider).body.mass = 0;
-                    entity.getComponent(BoxCollider).body.applyLocalImpulse(
-                        new CANNON.Vec3(0, force, 0),
-                        new CANNON.Vec3(0, 0, 0)
-                    );
-                    this.currentTime += (elapsedTime / 1000);
-                }
-            } else if (!firstPersonController.jumping && this.currentTime > jumpingTime) {
-                this.currentTime = 0;
+            if  (firstPersonController.canJump && firstPersonController.jumping) {
+                entity.getComponent(BoxCollider).body.velocity.y = 5;
+                firstPersonController.canJump = false;
+                firstPersonController.jumping = false;
             }
 
             let directionVector : THREE.Vector3 = new THREE.Vector3(
@@ -69,9 +60,9 @@ class FirstPersonSystem extends ASystem {
                 directionVector = directionVector.normalize();
 
             let movementVector : THREE.Vector3 = new THREE.Vector3(
-                directionVector.x * firstPersonController.movementSpeed.x * elapsedTime,
+                directionVector.x * firstPersonController.movementSpeed.x * elapsedTimeAsSecond,
                 0,
-                directionVector.z * firstPersonController.movementSpeed.y * elapsedTime
+                directionVector.z * firstPersonController.movementSpeed.y * elapsedTimeAsSecond
             );
 
             entity.getComponent(BoxCollider).body.position.z += movementVector.z;
