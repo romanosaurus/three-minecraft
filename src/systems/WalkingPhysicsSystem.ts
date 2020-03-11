@@ -52,8 +52,8 @@ class WalkingPhysicsSystem extends ASystem {
     }
 
     private handleWalkingArea(boxCollider: BoxCollider, walkingArea: WalkingArea, voxelEntities: IEntity): void {
-        const boxColliderSize: number = 1.25;
-        const physicsRadius: number = 3;
+        const boxColliderSize: number = 1;
+        const physicsRadius: number = walkingArea.size;
         const playerPosition: CANNON.Vec3 = boxCollider.position;
         const voxelComponent: Voxel = voxelEntities.getComponent(Voxel);
         const activeMesh: Chunk = voxelComponent.getMeshByPosition(playerPosition.x, playerPosition.z)
@@ -62,12 +62,12 @@ class WalkingPhysicsSystem extends ASystem {
             return
         for (let zPos = Math.round(playerPosition.z) - physicsRadius; zPos <= Math.round(playerPosition.z) + physicsRadius; zPos += 1) {
             for (let xPos = Math.round(playerPosition.x) - physicsRadius; xPos <= Math.round(playerPosition.x) + physicsRadius; xPos += 1) {
-                for (let yPos = Math.round(playerPosition.y) - physicsRadius; yPos <= Math.round(playerPosition.y) + physicsRadius; yPos += 1) {
+                for (let yPos = Math.round(playerPosition.y - 2); yPos <= Math.round(playerPosition.y); yPos += 1) {
                     const cell: number = voxelComponent.getVoxel(xPos, yPos, zPos, activeMesh)
                     if (cell === 0)
                         continue
                     let exist: boolean = false;
-                    let newBody: CANNON.Body = new CANNON.Body({ mass: 0 })
+                    let newBody: CANNON.Body = new CANNON.Body({ mass: 0 });
                     newBody.position = voxelComponent.getVoxelPosition(xPos, yPos, zPos);
                     newBody.addShape(new CANNON.Box(
                         new CANNON.Vec3(

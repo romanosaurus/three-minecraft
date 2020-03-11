@@ -36,6 +36,7 @@ class FirstPersonSystem extends ASystem {
 
     onUpdate(elapsedTime: number): void {
         const jumpingTime: number = 0.3;
+        const elapsedTimeAsSecond = elapsedTime / 1000;
 
         ECSWrapper.entities.applyToEach(["Camera", "Box", "FirstPersonController", "BoxCollider"], (entity) => {
             const firstPersonController: FirstPersonController = entity.getComponent(FirstPersonController);

@@ -17,6 +17,11 @@ import CloudSystem from "./systems/CloudSystem";
 import VoxelRaycastSystem from "./systems/VoxelRaycastSystem";
 import CircadianRhythmSystem from "./systems/CircadianRhythmSystem";
 import PointerLock from "./components/PointerLock";
+import AnimalSpawningSystem from "./systems/animals/AnimalSpawningSystem";
+import AnimalMovementSystem from "./systems/animals/AnimalMovementSystem";
+import ParticleSystem from "./components/ParticleSystem";
+import ParticleSystemManager from "./systems/ParticleSystemManager";
+import AnimalReproductionSystem from "./systems/animals/AnimalReproductionSystem";
 
 class Window {
     run() : void {
@@ -28,6 +33,12 @@ class Window {
         ECSWrapper.systems.initialize<LifeSystem>(new LifeSystem("LifeSystem"));
         ECSWrapper.systems.initialize<CloudSystem>(new CloudSystem("CloudSystem"));
         ECSWrapper.systems.initialize<VoxelRaycastSystem>(new VoxelRaycastSystem("VoxelRaycastSystem"));
+        ECSWrapper.systems.initialize<AnimalSpawningSystem>(new AnimalSpawningSystem("AnimalSpawningSystem"));
+        ECSWrapper.systems.initialize<AnimalMovementSystem>(new AnimalMovementSystem("AnimalMovementSystem"));
+        ECSWrapper.systems.initialize<AnimalReproductionSystem>(new AnimalReproductionSystem("AnimalReproductionSystem"));
+        ECSWrapper.systems.initialize<ParticleSystemManager>(new ParticleSystemManager("ParticleSystemManager"));
+        ECSWrapper.systems.initialize<CircadianRhythmSystem>(new CircadianRhythmSystem("CircadianRhythm"));
+        
         ECSWrapper.systems.start("ThreeSystem");
         ECSWrapper.systems.start("CannonSystem");
         ECSWrapper.systems.start("WorldGenerationSystem");
@@ -36,6 +47,11 @@ class Window {
         ECSWrapper.systems.start("LifeSystem");
         ECSWrapper.systems.start("CloudSystem");
         ECSWrapper.systems.start("VoxelRaycastSystem");
+        ECSWrapper.systems.start("AnimalSpawningSystem");
+        ECSWrapper.systems.start("AnimalMovementSystem");
+        ECSWrapper.systems.start("AnimalReproductionSystem");
+        ECSWrapper.systems.start("ParticleSystemManager");
+        ECSWrapper.systems.start("CircadianRhythm");
 
         document.addEventListener('mousemove', ( mouseEvent ) => { ECSWrapper.systems.dispatch("mouseEvent", mouseEvent) });
         document.addEventListener('keydown', (keyDown) => { ECSWrapper.systems.dispatch("keyDown", keyDown); });

@@ -50,8 +50,8 @@ class ThreeSystem extends ASystem {
         LightUtilities.AddLight(this.scene, 1, -1, -2);
 
         ECSWrapper.entities.create("Player");
-        this.renderer.shadowMapEnabled = true;
-        this.renderer.shadowMapCullFace = THREE.CullFaceBack;
+        this.renderer.shadowMap.enabled = true;
+        //this.renderer.shadowSide = THREE.CullFaceBack;
 
 
         const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
@@ -59,7 +59,7 @@ class ThreeSystem extends ASystem {
             new FirstPersonController(
                 playerEntity,
                 new THREE.Vector2(0.005, 0.005),
-                new THREE.Vector2(0.005, 0.005)
+                new THREE.Vector2(5, 5)
             )
         );
         playerEntity.assignComponent<Box>(new Box(
@@ -82,7 +82,7 @@ class ThreeSystem extends ASystem {
             playerEntity.getComponent(Box).size,
             10
         ));
-        playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity));
+        playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity, 3));
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
 
@@ -94,11 +94,11 @@ class ThreeSystem extends ASystem {
 
         ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
             entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {
-                entity.getComponent(FirstPersonController).jumping = false
+                entity.getComponent(FirstPersonController).canJump = true;
             });
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0x3498db, 100);
+        this.renderer.setClearColor(0x222233, 5);
         document.body.appendChild(this.renderer.domElement);
 
         this.stats.showPanel(0);

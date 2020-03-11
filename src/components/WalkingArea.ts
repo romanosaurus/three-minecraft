@@ -9,11 +9,13 @@ interface BoxArea {
 }
 
 class WalkingArea extends AComponent {
+    private _size: number;
     private _area: Array<BoxArea>;
 
-    constructor(entity: IEntity) {
+    constructor(entity: IEntity, size: number) {
         super(entity);
         this._area = [];
+        this._size = size;
     }
 
     public newArea(position: CANNON.Vec3, body: CANNON.Body): void {
@@ -32,6 +34,14 @@ class WalkingArea extends AComponent {
 
     get area(): Array<BoxArea> {
         return this._area;
+    }
+
+    get size(): number {
+        return this._size;
+    }
+
+    set size(ns) {
+        this._size = ns;
     }
 }
 
