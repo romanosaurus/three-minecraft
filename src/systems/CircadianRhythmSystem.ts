@@ -59,14 +59,14 @@ export default class CircadianRhythmSystem extends ASystem {
             scene.add(this._dirLight);
 
             this._dirLight.castShadow = true;
-            this._dirLight.shadowMapWidth = this._dirLight.shadowMapHeight = 1024*2;
-            this._dirLight.shadowCameraLeft = -30;
-            this._dirLight.shadowCameraRight = 30;
-            this._dirLight.shadowCameraTop = 30;
-            this._dirLight.shadowCameraBottom = -30;
+            this._dirLight.shadow.mapSize.width = this._dirLight.shadow.mapSize.height = 1024*2;
+            this._dirLight.shadow.camera.left = -30;
+            this._dirLight.shadow.camera.right = 30;
+            this._dirLight.shadow.camera.top = 30;
+            this._dirLight.shadow.camera.bottom = -30;
 
-            this._dirLight.shadowCameraFar = 3500;
-            this._dirLight.shadowBias = -0.000001;
+            this._dirLight.shadow.camera.far = 3500;
+            this._dirLight.shadow.bias = -0.000001;
             scene.add(this._dirLight);
         });
     }

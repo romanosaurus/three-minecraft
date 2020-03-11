@@ -38,7 +38,7 @@ class Window {
         ECSWrapper.systems.initialize<AnimalReproductionSystem>(new AnimalReproductionSystem("AnimalReproductionSystem"));
         ECSWrapper.systems.initialize<ParticleSystemManager>(new ParticleSystemManager("ParticleSystemManager"));
         ECSWrapper.systems.initialize<CircadianRhythmSystem>(new CircadianRhythmSystem("CircadianRhythm"));
-        
+
         ECSWrapper.systems.start("ThreeSystem");
         ECSWrapper.systems.start("CannonSystem");
         ECSWrapper.systems.start("WorldGenerationSystem");
