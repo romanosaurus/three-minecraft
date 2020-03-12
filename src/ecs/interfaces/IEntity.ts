@@ -3,6 +3,9 @@ export default interface IEntity {
     getComponent<T>(TCtor: { new(...args: any[]): T }): T | null;
     getId() : number;
     getName() : string;
-    hasComponents(components : Array<string>) : boolean
-    hasComponent(componentName : string) : boolean
+    hasComponents(components : Array<string>) : boolean;
+    hasComponent(componentName : string) : boolean;
+    isEnable(): boolean;
+    disable(): void;
+    enable(): void;
 }

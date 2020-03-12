@@ -88,7 +88,7 @@ class WalkingPhysicsSystem extends ASystem {
         }
     }
 
-    private handleDeletionOfWalkingArea(walkingArea: WalkingArea): void {
+    public handleDeletionOfWalkingArea(walkingArea: WalkingArea): void {
         let indexToDelete: Array<number> = [];
 
         for (let i = 0; i < walkingArea.area.length; i++) {
@@ -108,6 +108,15 @@ class WalkingPhysicsSystem extends ASystem {
             if (walkingArea.area[indexToDelete[i]] !== undefined)
                 ECSWrapper.systems.get(CannonSystem).world.remove(walkingArea.area[indexToDelete[i]].body);
             walkingArea.area.splice(indexToDelete[i], 1);
+        }
+    }
+
+    public setWalkingArea(walkingArea: WalkingArea, enable: boolean) {
+        for (let i = 0; i < walkingArea.area.length; i++) {
+            if (enable)
+                ECSWrapper.systems.get(CannonSystem).world.addBody(walkingArea.area[i].body);
+            else
+                ECSWrapper.systems.get(CannonSystem).world.remove(walkingArea.area[i].body);
         }
     }
 }
