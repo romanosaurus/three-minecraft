@@ -85,22 +85,6 @@ export default class AnimalSpawningSystem extends ASystem {
                             scene.add(obj);
                         });
                     }
-                    if (Utilities.vectorCollide(playerPosition, animalPosition, 30)) {
-                        if (animal.getComponent(Animal).type === AnimalType.PIG) {
-                            const pigSound = ECSWrapper.entities.getByName("pigSound")[0].getComponent(Audio);
-                            let number = THREE.MathUtils.randInt(1, 10000);
-                            if (number > 70 && number < 80) {
-                                pigSound.sound.play();
-                            }
-                        } else if (animal.getComponent(Animal).type === AnimalType.SHEEP) {
-                            const sheepSound = ECSWrapper.entities.getByName("sheepSound")[0].getComponent(Audio);
-                            let number = THREE.MathUtils.randInt(1, 10000);
-                            if (number > 70 && number < 80) {
-                                sheepSound.sound.play();
-                            }
-                        }
-                    }
-
                 } else {
                     if (scene.getObjectByName(animal.getName())) {
                         animal.getComponent(Animal).speed = 0;
@@ -111,6 +95,23 @@ export default class AnimalSpawningSystem extends ASystem {
                                 scene.remove(animal.getComponent(ParticleSystem).particleEmitter)
                             scene.remove(obj);
                         });
+                    }
+                }
+
+                // playing sound of animal
+                if (Utilities.vectorCollide(playerPosition, animalPosition, 30)) {
+                    if (animal.getComponent(Animal).type === AnimalType.PIG) {
+                        const pigSound = ECSWrapper.entities.getByName("pigSound")[0].getComponent(Audio);
+                        let number = THREE.MathUtils.randInt(1, 10000);
+                        if (number > 70 && number < 80) {
+                            pigSound.sound.play();
+                        }
+                    } else if (animal.getComponent(Animal).type === AnimalType.SHEEP) {
+                        const sheepSound = ECSWrapper.entities.getByName("sheepSound")[0].getComponent(Audio);
+                        let number = THREE.MathUtils.randInt(1, 10000);
+                        if (number > 70 && number < 80) {
+                            sheepSound.sound.play();
+                        }
                     }
                 }
             });
