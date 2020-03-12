@@ -78,11 +78,11 @@ class FirstPersonSystem extends ASystem {
                     let minuteTime = time / 60;
 
                     this.currentAirTime = minuteTime;
-                } else if (this.currentAirTime > 0.02 && firstPersonController.canJump) {
-                    lifeComponent.takeDamage = Math.round(this.currentAirTime * 100);
+                } else if (this.currentAirTime > 0.03 && firstPersonController.canJump) {
+                    lifeComponent.takeDamage = Math.round((this.currentAirTime * 100) / 2);
                     firstPersonController.airTime = 0;
                     this.currentAirTime = 0;
-                } else if (this.currentAirTime < 0.02) {
+                } else if (this.currentAirTime < 0.03) {
                     firstPersonController.airTime = 0;
                     this.currentAirTime = 0;
                 }
