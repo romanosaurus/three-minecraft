@@ -10,7 +10,7 @@ import BoxCollider from "../components/BoxCollider";
 import PointerLock from '../components/PointerLock';
 import Life from '../components/Life';
 import AudioSource from '../components/AudioSource';
-import Audio from '../components/Audio';
+import Audio, { AudioState } from '../components/Audio';
 
 /**
  * FirstPersonSystem heriting from ASystem
@@ -38,13 +38,14 @@ class FirstPersonSystem extends ASystem {
         ECSWrapper.entities.create("fall");
         const fallEntity = ECSWrapper.entities.getByName("fall")[0];
         fallEntity.assignComponent<AudioSource>(new AudioSource(fallEntity));
+        ECSWrapper.entities.getByName('Player')[0].getComponent(Camera).camera.add(fallEntity.getComponent(AudioSource).listener);
         fallEntity.assignComponent<Audio>(new Audio(fallEntity, {
             listener: fallEntity.getComponent(AudioSource).listener,
             path: "../../assets/audio/minecraft-damage-oof-sound-effect-hd.ogg",
             loop: false,
             volume: 1
         }));
-        fallEntity.getComponent(Audio).disable();
+        fallEntity.getComponent(Audio).state = AudioState.SOUND;
     }
 
     onUpdate(elapsedTime: number): void {
@@ -91,14 +92,14 @@ class FirstPersonSystem extends ASystem {
                     let time : number = ((firstPersonController.airTime - elapsedTime) / 1000)
                     let minuteTime = time / 60;
                     this.currentAirTime = minuteTime;
-//                    sound.disable();
+                    //sound.state = AudioState.STOP;
                 } else if (this.currentAirTime > 0.02 && firstPersonController.canJump) {
-                    sound.enable();
+                    sound.sound.play();
                     lifeComponent.takeDamage = Math.round((this.currentAirTime * 100) / 2);
                     firstPersonController.airTime = 0;
                     this.currentAirTime = 0;
                 } else if (this.currentAirTime < 0.02) {
-//                    sound.disable();
+                    //sound.state = AudioState.STOP;
                     firstPersonController.airTime = 0;
                     this.currentAirTime = 0;
                 }
