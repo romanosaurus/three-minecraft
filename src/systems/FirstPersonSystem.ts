@@ -8,7 +8,9 @@ import FirstPersonController from "../components/FirstPersonController";
 import Box from "../components/Box";
 import BoxCollider from "../components/BoxCollider";
 import PointerLock from '../components/PointerLock';
-import Life from '../components/Life'
+import Life from '../components/Life';
+import AudioSource from '../components/AudioSource';
+import Audio from '../components/Audio';
 
 /**
  * FirstPersonSystem heriting from ASystem
@@ -32,7 +34,18 @@ class FirstPersonSystem extends ASystem {
         this.setupKeyEvents();
     }
 
-    onInit() {}
+    onInit() {
+        ECSWrapper.entities.create("fall");
+        const fallEntity = ECSWrapper.entities.getByName("fall")[0];
+        fallEntity.assignComponent<AudioSource>(new AudioSource(fallEntity));
+        fallEntity.assignComponent<Audio>(new Audio(fallEntity, {
+            listener: fallEntity.getComponent(AudioSource).listener,
+            path: "../../assets/audio/minecraft-damage-oof-sound-effect-hd.ogg",
+            loop: false,
+            volume: 1
+        }));
+        fallEntity.getComponent(Audio).disable();
+    }
 
     onUpdate(elapsedTime: number): void {
         const jumpingTime: number = 0.3;
@@ -71,18 +84,21 @@ class FirstPersonSystem extends ASystem {
 
                 entity.getComponent(BoxCollider).body.position.z += movementVector.z;
                 entity.getComponent(BoxCollider).body.position.x += movementVector.x;
+                const sound = ECSWrapper.entities.getByName("fall")[0].getComponent(Audio);
 
                 if (!firstPersonController.canJump) {
                     firstPersonController.airTime = elapsedTime + firstPersonController.airTime;
                     let time : number = ((firstPersonController.airTime - elapsedTime) / 1000)
                     let minuteTime = time / 60;
-
                     this.currentAirTime = minuteTime;
-                } else if (this.currentAirTime > 0.03 && firstPersonController.canJump) {
+//                    sound.disable();
+                } else if (this.currentAirTime > 0.02 && firstPersonController.canJump) {
+                    sound.enable();
                     lifeComponent.takeDamage = Math.round((this.currentAirTime * 100) / 2);
                     firstPersonController.airTime = 0;
                     this.currentAirTime = 0;
-                } else if (this.currentAirTime < 0.03) {
+                } else if (this.currentAirTime < 0.02) {
+//                    sound.disable();
                     firstPersonController.airTime = 0;
                     this.currentAirTime = 0;
                 }
