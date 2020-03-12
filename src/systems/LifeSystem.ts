@@ -74,7 +74,7 @@ class LifeSystem extends ASystem {
                     }
                 }
             }
-            if (currentLife === 0 && !LifeComponent.isPlayerDead) {
+            if (currentLife <= 0 && !LifeComponent.isPlayerDead) {
                 LifeComponent.isDead = true;
                 var textDeath = document.createElement('div');
                 textDeath.id = "text-death"
