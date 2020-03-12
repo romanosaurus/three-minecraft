@@ -50,7 +50,7 @@ class WorldGenerationSystem extends ASystem {
         super(name);
 
         this.generatedArray = {};
-        this.worldOptions = { cellSize: 64, tileTextureWidth: 256, tileTextureHeight: 64, tileSize: 16 };
+        this.worldOptions = { cellSize: 64, tileTextureWidth: 272, tileTextureHeight: 64, tileSize: 16 };
         this.perlinGenerator = new PerlinGenerator(this.worldOptions.cellSize, this.worldOptions.cellSize, THREE.MathUtils.randInt(0, 3000));
 
         this.textureLoader = new THREE.TextureLoader();
@@ -143,6 +143,70 @@ class WorldGenerationSystem extends ASystem {
         }
     }
 
+    private createTree(thickness : number, voxelComponent: Voxel, chunk: Chunk, startX: number, startZ: number, startY: number) {
+        let size : number = thickness * THREE.MathUtils.randInt(4, 6);
+
+        const offsetX: number = 0;
+        const offsetZ: number = 0;
+
+//        const startX: number = 150;
+//        const startZ: number = 50;
+//        const startY: number = 110;
+
+        //remplissage dessous tronc
+        for (let y = 0; y < thickness; y++) {
+            for (let x = 0; x < thickness; x++) {
+                if (voxelComponent.getVoxel(startX + x + offsetX, startZ - 1, y + startY + offsetZ, chunk) === 0) {
+                    voxelComponent.setVoxel(startX + x + offsetX, startZ - 1, y + startY + offsetZ, 14, chunk);
+                }
+            }
+        }
+        //tronc
+        for (let y = 0; y < thickness; y++) {
+            for (let z = 0; z < size; z++) {
+                for (let x = 0; x < thickness; x++) {
+                    voxelComponent.setVoxel(startX + x + offsetX, startZ + z, y + startY + offsetZ, 10, chunk);
+                }
+            }
+        }
+        //feuillage
+        let leafColor = THREE.MathUtils.randInt(0, 1) === 0 ? 12 : 17;
+        for (let y = 0; y < (thickness + 4 * thickness); y++) {
+            for (let z = 0; z < thickness; z++) {
+                for (let x = 0; x < (thickness + 4 * thickness); x++) {
+                    voxelComponent.setVoxel((x + startX) - (thickness * 2) + offsetX, z + startZ + size, (y + startY) - (thickness * 2) + offsetZ, leafColor, chunk);
+                }
+            }
+        }
+        for (let y = 0; y < (thickness + 2 * thickness); y++) {
+            for (let z = 0; z < thickness; z++) {
+                for (let x = 0; x < (thickness + 2 * thickness); x++) {
+                    voxelComponent.setVoxel((x + startX) - thickness + offsetX, z + startZ + size + thickness, (y + startY) + offsetZ - thickness, leafColor, chunk);
+                }
+            }
+        }
+        //procedural generation
+        let randomBranchIteration = THREE.MathUtils.randInt(10 * thickness, 20 * thickness);
+        for (let i = 0; i < randomBranchIteration; i++) {
+            let basicPosY = startX - (thickness * 2) + offsetX;
+            let basicPosX = startY + offsetZ - thickness * 2;
+            let randomPosY = THREE.MathUtils.randInt(basicPosY, basicPosY + (thickness + 2 * thickness) - 1);
+            let randomPosX = THREE.MathUtils.randInt(basicPosX, basicPosX + (thickness + 2 * thickness) - 1);
+
+            let randomIterations = THREE.MathUtils.randInt(1 * thickness, 8 * thickness);
+            let Zpos = startZ + size;
+            for (let j = 0; j < randomIterations; j++) {
+                voxelComponent.setVoxel(randomPosY, Zpos, randomPosX, leafColor, chunk);
+                if (THREE.MathUtils.randInt(0, 1) === 0) {
+                    for (let k = 0; k < thickness; k++)
+                        voxelComponent.setVoxel(randomPosY + THREE.MathUtils.randInt(-1, 1), Zpos + THREE.MathUtils.randInt(-1, 1), randomPosX + THREE.MathUtils.randInt(-1, 1), leafColor, chunk);
+                }
+                basicPosY += THREE.MathUtils.randInt(0, 1) === 1 ? 1 : -1;
+                basicPosX += THREE.MathUtils.randInt(0, 1) === 1 ? 1 : -1;
+                Zpos += THREE.MathUtils.randInt(-1, 1);
+            }
+        }
+    }
     public async displayWorld(voxelComponent: Voxel, scene: THREE.Scene, chunk: Chunk) {
         const perlinArray: any = chunk.getMeshData();
         const counterOffset: number = 4;
@@ -154,10 +218,17 @@ class WorldGenerationSystem extends ASystem {
         const startX: number = chunk.getWidthOffset() * this.worldOptions.cellSize;
         const startZ: number = chunk.getHeightOffset() * this.worldOptions.cellSize;
 
+        let test = 0;
         for (let z = 0; z < chunk.size; z += 1) {
             for (let x = 0; x < chunk.size; x += 1) {
+                let first = 0;
                 for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--) {
                     voxelComponent.setVoxel(startX + x, height, startZ + z, 14, chunk);
+                    if (first === 0 && test === 0 && x === 20 && z === 20) {
+                        first = 1;
+                        test = 1;
+                        this.createTree(THREE.MathUtils.randInt(1, 2), voxelComponent, chunk, startX + x, height + 1, startZ + z);
+                    }
                 }
                 counter += counterOffset;
             }
