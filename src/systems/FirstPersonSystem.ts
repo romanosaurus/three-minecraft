@@ -35,8 +35,8 @@ class FirstPersonSystem extends ASystem {
     }
 
     onInit() {
-        ECSWrapper.entities.create("fall");
-        const fallEntity = ECSWrapper.entities.getByName("fall")[0];
+        ECSWrapper.entities.create("fallSound");
+        const fallEntity = ECSWrapper.entities.getByName("fallSound")[0];
         fallEntity.assignComponent<AudioSource>(new AudioSource(fallEntity));
         ECSWrapper.entities.getByName('Player')[0].getComponent(Camera).camera.add(fallEntity.getComponent(AudioSource).listener);
         fallEntity.assignComponent<Audio>(new Audio(fallEntity, {
@@ -85,21 +85,19 @@ class FirstPersonSystem extends ASystem {
 
                 entity.getComponent(BoxCollider).body.position.z += movementVector.z;
                 entity.getComponent(BoxCollider).body.position.x += movementVector.x;
-                const sound = ECSWrapper.entities.getByName("fall")[0].getComponent(Audio);
+                const sound = ECSWrapper.entities.getByName("fallSound")[0].getComponent(Audio);
 
                 if (!firstPersonController.canJump) {
                     firstPersonController.airTime = elapsedTime + firstPersonController.airTime;
                     let time : number = ((firstPersonController.airTime - elapsedTime) / 1000)
                     let minuteTime = time / 60;
                     this.currentAirTime = minuteTime;
-                    //sound.state = AudioState.STOP;
                 } else if (this.currentAirTime > 0.02 && firstPersonController.canJump) {
                     sound.sound.play();
                     lifeComponent.takeDamage = Math.round((this.currentAirTime * 100) / 2);
                     firstPersonController.airTime = 0;
                     this.currentAirTime = 0;
                 } else if (this.currentAirTime < 0.02) {
-                    //sound.state = AudioState.STOP;
                     firstPersonController.airTime = 0;
                     this.currentAirTime = 0;
                 }

@@ -9,6 +9,8 @@ import ThreeSystem from './ThreeSystem';
 import IEntity from '../ecs/interfaces/IEntity';
 import Chunk from '../utils/Chunk';
 import WorldGenerationSystem from './WorldGenerationSystem';
+import Audio, { AudioState } from '../components/Audio';
+import AudioSource from '../components/AudioSource';
 
 /**
  * @interface Intersection
@@ -61,6 +63,17 @@ export default class VoxelRaycastSystem extends ASystem {
     }
 
     onInit(): void {
+        ECSWrapper.entities.create("breakSound");
+        const breakBlockEntity = ECSWrapper.entities.getByName("breakSound")[0];
+        breakBlockEntity.assignComponent<AudioSource>(new AudioSource(breakBlockEntity));
+        ECSWrapper.entities.getByName('Player')[0].getComponent(Camera).camera.add(breakBlockEntity.getComponent(AudioSource).listener);
+        breakBlockEntity.assignComponent<Audio>(new Audio(breakBlockEntity, {
+            listener: breakBlockEntity.getComponent(AudioSource).listener,
+            path: "../../assets/audio/minecraft-grass-sound-effect.ogg",
+            loop: false,
+            volume: 1
+        }));
+        breakBlockEntity.getComponent(Audio).state = AudioState.SOUND;
     }
 
     onUpdate(elapsedTime: number): void {}
@@ -174,6 +187,8 @@ export default class VoxelRaycastSystem extends ASystem {
         const voxelComponent: Voxel = worldEntity.getComponent(Voxel);
         const intersection: Intersection | null = this.intersectRay(start, end, voxelComponent);
         if (intersection) {
+            const sound = ECSWrapper.entities.getByName("breakSound")[0].getComponent(Audio);
+            sound.sound.play();
             const pos = intersection.position.map((v, ndx) => {
                 return v + intersection.normal[ndx] * (this.voxelId > 0 ? 0.5 : -0.5)
             });
