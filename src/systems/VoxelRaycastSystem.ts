@@ -69,7 +69,7 @@ export default class VoxelRaycastSystem extends ASystem {
         ECSWrapper.entities.getByName('Player')[0].getComponent(Camera).camera.add(breakBlockEntity.getComponent(AudioSource).listener);
         breakBlockEntity.assignComponent<Audio>(new Audio(breakBlockEntity, {
             listener: breakBlockEntity.getComponent(AudioSource).listener,
-            path: "../../assets/audio/minecraft-grass-sound-effect.ogg",
+            path: "../../assets/sound/minecraft-grass-sound-effect.ogg",
             loop: false,
             volume: 1
         }));

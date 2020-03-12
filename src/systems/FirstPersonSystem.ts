@@ -41,7 +41,7 @@ class FirstPersonSystem extends ASystem {
         ECSWrapper.entities.getByName('Player')[0].getComponent(Camera).camera.add(fallEntity.getComponent(AudioSource).listener);
         fallEntity.assignComponent<Audio>(new Audio(fallEntity, {
             listener: fallEntity.getComponent(AudioSource).listener,
-            path: "../../assets/audio/minecraft-damage-oof-sound-effect-hd.ogg",
+            path: "../../assets/sound/minecraft-damage-oof-sound-effect-hd.ogg",
             loop: false,
             volume: 1
         }));

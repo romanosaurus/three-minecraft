@@ -12,6 +12,9 @@ import Model from '../../components/Model';
 import ParticleSystem from "../../components/ParticleSystem";
 import Chunk from "../../utils/Chunk";
 import Utilities from "../../utils/Utilities";
+import AudioSource from '../../components/AudioSource';
+import Audio, { AudioState } from '../../components/Audio';
+import Camera from '../../components/Camera';
 
 export default class AnimalSpawningSystem extends ASystem {
 
@@ -36,7 +39,29 @@ export default class AnimalSpawningSystem extends ASystem {
             if (chunk.getWidthOffset() % 2)
                 this.spawnAnimalGroup(animalSpawnArea)
         });
+        ECSWrapper.entities.create("pigSound");
+        const pigSoundEntity = ECSWrapper.entities.getByName("pigSound")[0];
+        pigSoundEntity.assignComponent<AudioSource>(new AudioSource(pigSoundEntity));
+        ECSWrapper.entities.getByName('Player')[0].getComponent(Camera).camera.add(pigSoundEntity.getComponent(AudioSource).listener);
+        pigSoundEntity.assignComponent<Audio>(new Audio(pigSoundEntity, {
+            listener: pigSoundEntity.getComponent(AudioSource).listener,
+            path: "../../../assets/sound/minecraft-sound-effects-pig-sound-effects.ogg",
+            loop: false,
+            volume: 1
+        }));
+        pigSoundEntity.getComponent(Audio).state = AudioState.SOUND;
 
+        ECSWrapper.entities.create("sheepSound");
+        const sheepSoundEntity = ECSWrapper.entities.getByName("sheepSound")[0];
+        sheepSoundEntity.assignComponent<AudioSource>(new AudioSource(sheepSoundEntity));
+        ECSWrapper.entities.getByName('Player')[0].getComponent(Camera).camera.add(sheepSoundEntity.getComponent(AudioSource).listener);
+        sheepSoundEntity.assignComponent<Audio>(new Audio(sheepSoundEntity, {
+            listener: sheepSoundEntity.getComponent(AudioSource).listener,
+            path: "../../../assets/sound/minecraft-sheep-sound-affect.ogg",
+            loop: false,
+            volume: 1
+        }));
+        sheepSoundEntity.getComponent(Audio).state = AudioState.SOUND;
     }
 
     onUpdate(elapsedTime: number): void {
@@ -59,6 +84,21 @@ export default class AnimalSpawningSystem extends ASystem {
                                 scene.add(animal.getComponent(ParticleSystem).particleEmitter)
                             scene.add(obj);
                         });
+                    }
+                    if (Utilities.vectorCollide(playerPosition, animalPosition, 30)) {
+                        if (animal.getComponent(Animal).type === AnimalType.PIG) {
+                            const pigSound = ECSWrapper.entities.getByName("pigSound")[0].getComponent(Audio);
+                            let number = THREE.MathUtils.randInt(1, 10000);
+                            if (number > 70 && number < 80) {
+                                pigSound.sound.play();
+                            }
+                        } else if (animal.getComponent(Animal).type === AnimalType.SHEEP) {
+                            const sheepSound = ECSWrapper.entities.getByName("sheepSound")[0].getComponent(Audio);
+                            let number = THREE.MathUtils.randInt(1, 10000);
+                            if (number > 70 && number < 80) {
+                                sheepSound.sound.play();
+                            }
+                        }
                     }
 
                 } else {

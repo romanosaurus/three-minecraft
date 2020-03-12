@@ -10,9 +10,6 @@ import Camera from '../components/Camera';
 import Box from '../components/Box';
 import EntityManager from '../ecs/managers/EntityManager';
 import BoxCollider from '../components/BoxCollider';
-import AudioSource from "../components/AudioSource";
-import Audio from "../components/Audio";
-import IEntity from '../ecs/interfaces/IEntity';
 
 /**
  * LifeSystem heriting from ASystem
