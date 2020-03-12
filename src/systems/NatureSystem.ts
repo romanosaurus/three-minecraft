@@ -36,7 +36,7 @@ export default class NatureSystem extends ASystem {
     private createThree(scene : THREE.Scene) {
         ECSWrapper.entities.create(`Tree`);
             const treeEntity: IEntity = ECSWrapper.entities.getByName(`Tree`)[0];
-            treeEntity.assignComponent<Tree>(new Tree(treeEntity, 2));
+            treeEntity.assignComponent<Tree>(new Tree(treeEntity, 1));
             treeEntity.getComponent(Tree).addToScene(scene);
     }
 }
