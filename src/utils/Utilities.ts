@@ -1,5 +1,4 @@
 import * as CANNON from 'cannon';
-import Quaternion = CANNON.Quaternion;
 
 class Utilities {
     public static multiplyVectorByQuaternion(initialVector: CANNON.Vec3, quaternion: CANNON.Quaternion): CANNON.Vec3 {

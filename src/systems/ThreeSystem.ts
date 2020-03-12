@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import * as CANNON from 'cannon';
 
 import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
@@ -102,9 +103,21 @@ class ThreeSystem extends ASystem {
         });
 
         ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
+            let contactNormal = new CANNON.Vec3();
+            let upAxis = new CANNON.Vec3(0,1,0);
             entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {
-                entity.getComponent(FirstPersonController).canJump = true;
+                let contact = e.contact;
+
+                if (contact.bi.id == entity.getComponent(BoxCollider).body.id)
+                    contact.ni.negate(contactNormal);
+                else
+                    contactNormal.copy(contact.ni);
+
+                if (contactNormal.dot(upAxis) > 0.5) {
+                    entity.getComponent(FirstPersonController).canJump = true;
+                }
             });
+
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor(0x222233, 5);
