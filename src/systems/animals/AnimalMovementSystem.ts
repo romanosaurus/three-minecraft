@@ -67,9 +67,9 @@ export default class AnimalMovementSystem extends ASystem {
                 let movementVector: CANNON.Vec3 = new CANNON.Vec3(0, 2, 2);
                 let rotatedVector: CANNON.Vec3 = Utilities.multiplyVectorByQuaternion(movementVector, animalBoxCollider.body.quaternion);
 
-                animalBoxCollider.position.x += rotatedVector.x * 2 * elapsedTimeAsSeconds;
-                animalBoxCollider.position.y += rotatedVector.y * 2 * elapsedTimeAsSeconds;
-                animalBoxCollider.position.z += rotatedVector.z * 2 * elapsedTimeAsSeconds;
+                animalBoxCollider.position.x += rotatedVector.x * animalUtils.speed * elapsedTimeAsSeconds;
+                animalBoxCollider.position.y += rotatedVector.y * animalUtils.speed * elapsedTimeAsSeconds;
+                animalBoxCollider.position.z += rotatedVector.z * animalUtils.speed * elapsedTimeAsSeconds;
 
                 // Handle rotation
                 if (randomPick > 0.3 && randomPick < 0.5 && !animalUtils.partner) {
