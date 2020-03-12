@@ -22,6 +22,7 @@ import AnimalMovementSystem from "./systems/animals/AnimalMovementSystem";
 import ParticleSystem from "./components/ParticleSystem";
 import ParticleSystemManager from "./systems/ParticleSystemManager";
 import AnimalReproductionSystem from "./systems/animals/AnimalReproductionSystem";
+import AudioSystem from "./systems/AudioSystem";
 
 class Window {
     run() : void {
@@ -38,6 +39,7 @@ class Window {
         ECSWrapper.systems.initialize<AnimalReproductionSystem>(new AnimalReproductionSystem("AnimalReproductionSystem"));
         ECSWrapper.systems.initialize<ParticleSystemManager>(new ParticleSystemManager("ParticleSystemManager"));
         ECSWrapper.systems.initialize<CircadianRhythmSystem>(new CircadianRhythmSystem("CircadianRhythm"));
+        ECSWrapper.systems.initialize<AudioSystem>(new AudioSystem("AudioSystem"));
 
         ECSWrapper.systems.start("ThreeSystem");
         ECSWrapper.systems.start("CannonSystem");
@@ -52,6 +54,7 @@ class Window {
         ECSWrapper.systems.start("AnimalReproductionSystem");
         ECSWrapper.systems.start("ParticleSystemManager");
         ECSWrapper.systems.start("CircadianRhythm");
+        ECSWrapper.systems.start("AudioSystem");
 
         document.addEventListener('mousemove', ( mouseEvent ) => { ECSWrapper.systems.dispatch("mouseEvent", mouseEvent) });
         document.addEventListener('keydown', (keyDown) => { ECSWrapper.systems.dispatch("keyDown", keyDown); });

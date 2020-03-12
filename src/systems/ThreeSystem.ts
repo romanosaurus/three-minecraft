@@ -16,7 +16,8 @@ import * as Stats from 'stats.js';
 import LightUtilities from "../utils/LightUtilities";
 import WalkingArea from "../components/WalkingArea";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
-
+import AudioSource from "../components/AudioSource";
+import Audio from "../components/Audio";
 /**
  * ThreeSystem heriting from ASystem
  * @system ThreeSystem
@@ -38,6 +39,8 @@ class ThreeSystem extends ASystem {
 
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer();
+
+        this.renderer.getContext().getExtension('EXT_color_buffer_half_float');
         this.stats = new Stats();
 
         this.registerEvent("keyDown", (event: any) => {
@@ -50,9 +53,8 @@ class ThreeSystem extends ASystem {
         LightUtilities.AddLight(this.scene, 1, -1, -2);
 
         ECSWrapper.entities.create("Player");
-        this.renderer.shadowMap.enabled = true;
-        //this.renderer.shadowSide = THREE.CullFaceBack;
 
+        this.renderer.shadowMap.enabled = true;
 
         const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
         playerEntity.assignComponent<FirstPersonController>(
@@ -76,6 +78,13 @@ class ThreeSystem extends ASystem {
                 1000
             )
         );
+        playerEntity.assignComponent<AudioSource>(new AudioSource(playerEntity));
+        playerEntity.assignComponent<Audio>(new Audio(playerEntity, {
+            listener: playerEntity.getComponent(AudioSource).listener,
+            path: "../../assets/audio/music.ogg",
+            loop: true,
+            volume: 1
+        }));
         playerEntity.assignComponent<BoxCollider>(new BoxCollider(
             playerEntity,
             playerEntity.getComponent(Box).mesh.position,

@@ -51,14 +51,24 @@ export default class AnimalSpawningSystem extends ASystem {
 
                 if (Utilities.vectorCollide(playerPosition, animalPosition, 60)) {
                     if (!scene.getObjectByName(animal.getName())) {
+                        animal.getComponent(Animal).speed = 2;
+                        animal.getComponent(BoxCollider).body.mass = 10;
+                        animal.getComponent(WalkingArea).enable();
                         animal.getComponent(Model).getObject().then((obj) => {
+                            if (animal.getComponent(ParticleSystem).isEnable())
+                                scene.add(animal.getComponent(ParticleSystem).particleEmitter)
                             scene.add(obj);
                         });
                     }
 
                 } else {
                     if (scene.getObjectByName(animal.getName())) {
+                        animal.getComponent(Animal).speed = 0;
+                        animal.getComponent(BoxCollider).body.mass = 0;
+                        animal.getComponent(WalkingArea).disable();
                         animal.getComponent(Model).getObject().then((obj) => {
+                            if (animal.getComponent(ParticleSystem).isEnable())
+                                scene.remove(animal.getComponent(ParticleSystem).particleEmitter)
                             scene.remove(obj);
                         });
                     }
