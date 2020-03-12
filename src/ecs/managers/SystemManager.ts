@@ -57,7 +57,7 @@ export default class SystemManager {
         return <T>this.systems.filter((elem) => TCtor.name === elem.constructor.name)[0];
     }
 
-    public dispatch(eventName: string, eventObject: Event) {
+    public dispatch(eventName: string, eventObject: any) {
         this.systems.forEach((system) => {
             const currentEvent: RegisteredEvent[] = system.getRegisteredEvents();
 

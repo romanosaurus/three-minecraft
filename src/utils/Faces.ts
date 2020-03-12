@@ -1,9 +1,19 @@
+/**
+ * @interface IFace
+ * @contain uvRow : number
+ * @contain dir : Array<number>
+ * @contain corners : an array of object of uvRow and Array<number> 
+ */
 interface IFace {
     uvRow: number,
     dir: Array<number>,
     corners: {pos: Array<number>, uv: Array<number>}[]
 };
 
+/**
+ * Face using IFace interface
+ * used to create a GeometryBuffer
+ */
 const Faces: Array<IFace> = [
     { // left
         uvRow: 0,

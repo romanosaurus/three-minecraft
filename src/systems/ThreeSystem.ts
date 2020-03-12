@@ -16,17 +16,31 @@ import * as Stats from 'stats.js';
 import LightUtilities from "../utils/LightUtilities";
 import WalkingArea from "../components/WalkingArea";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
-
+import AudioSource from "../components/AudioSource";
+import Audio from "../components/Audio";
+/**
+ * ThreeSystem heriting from ASystem
+ * @system ThreeSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class ThreeSystem extends ASystem {
     private readonly scene : THREE.Scene;
     private readonly renderer : THREE.WebGLRenderer;
     private readonly stats : Stats;
 
+    /**
+     * Constuctor of the ThreeSystem
+     * @param name name of the system
+     */
     constructor(name : string) {
         super(name);
 
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer();
+
+        this.renderer.getContext().getExtension('EXT_color_buffer_half_float');
         this.stats = new Stats();
 
         this.registerEvent("keyDown", (event: any) => {
@@ -39,16 +53,15 @@ class ThreeSystem extends ASystem {
         LightUtilities.AddLight(this.scene, 1, -1, -2);
 
         ECSWrapper.entities.create("Player");
-        this.renderer.shadowMapEnabled = true;
-        this.renderer.shadowMapCullFace = THREE.CullFaceBack;
 
+        this.renderer.shadowMap.enabled = true;
 
         const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
         playerEntity.assignComponent<FirstPersonController>(
             new FirstPersonController(
                 playerEntity,
                 new THREE.Vector2(0.005, 0.005),
-                new THREE.Vector2(0.005, 0.005)
+                new THREE.Vector2(5, 5)
             )
         );
         playerEntity.assignComponent<Box>(new Box(
@@ -65,18 +78,24 @@ class ThreeSystem extends ASystem {
                 1000
             )
         );
+        playerEntity.assignComponent<AudioSource>(new AudioSource(playerEntity));
+        playerEntity.assignComponent<Audio>(new Audio(playerEntity, {
+            listener: playerEntity.getComponent(AudioSource).listener,
+            path: "../../assets/audio/music.ogg",
+            loop: true,
+            volume: 1
+        }));
         playerEntity.assignComponent<BoxCollider>(new BoxCollider(
             playerEntity,
             playerEntity.getComponent(Box).mesh.position,
             playerEntity.getComponent(Box).size,
             10
         ));
-        playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity));
+        playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity, 3));
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
 
-        playerEntity.assignComponent<Life>(new Life(playerEntity, 9));
-
+        playerEntity.assignComponent<Life>(new Life(playerEntity, 9, playerEntity.getComponent(Box).position, 0.30));
 
         ECSWrapper.entities.applyToEach(["Box"], (entity) => {
             this.scene.add(entity.getComponent(Box).mesh);
@@ -84,12 +103,11 @@ class ThreeSystem extends ASystem {
 
         ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
             entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {
-                entity.getComponent(FirstPersonController).jumping = false
+                entity.getComponent(FirstPersonController).canJump = true;
             });
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        // TODO setClearColor with the 0x222233 and increase alpha float
-        this.renderer.setClearColor(0x3498db, 100);
+        this.renderer.setClearColor(0x222233, 5);
         document.body.appendChild(this.renderer.domElement);
 
         this.stats.showPanel(0);

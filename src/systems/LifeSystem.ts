@@ -5,8 +5,25 @@ import ECSWrapper from '../ecs/wrapper/ECSWrapper';
 
 import FirstPersonController from '../components/FirstPersonController';
 import Life from '../components/Life';
+import { printCommonLine } from 'jest-diff/build/printDiffs';
+import Camera from '../components/Camera';
+import Box from '../components/Box';
+import EntityManager from '../ecs/managers/EntityManager';
+import BoxCollider from '../components/BoxCollider';
 
+/**
+ * LifeSystem heriting from ASystem
+ * @system LifeSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class LifeSystem extends ASystem {
+
+    /**
+     * Constuctor of the LifeSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name)
     }
@@ -35,6 +52,17 @@ class LifeSystem extends ASystem {
             let globalLife = LifeComponent.globalLife;
             let currentLife = LifeComponent.currentLife;
 
+            LifeComponent.timer = elapsedTime + LifeComponent.timer;
+
+            let time : number = ((LifeComponent.timer - elapsedTime) / 1000)
+
+            var minuteTime = time / 60;
+
+            if (currentLife < globalLife && minuteTime > LifeComponent.regenerationLifeTime && !LifeComponent.isPlayerDead) {
+                LifeComponent.timer = 0;
+                LifeComponent.changeCurrentLife = LifeComponent.currentLife + 1;
+            }
+
             if (currentLife <= globalLife) {
                 for (let index = 1; index <= globalLife; index++) {
                     if (index > currentLife) {
@@ -46,14 +74,38 @@ class LifeSystem extends ASystem {
                     }
                 }
             }
-            if (currentLife === 0) {
+            if (currentLife <= 0 && !LifeComponent.isPlayerDead) {
                 LifeComponent.isDead = true;
+                var textDeath = document.createElement('div');
+                textDeath.id = "text-death"
+                textDeath.className = "death-message"
+                textDeath.innerHTML = "You are Dead !";
+                document.body.appendChild(textDeath);
+                var buttonDeath = document.createElement('button');
+                buttonDeath.id = "button-death"
+                buttonDeath.className = "respawn-button"
+                buttonDeath.innerHTML = "RESPAWN"
+                buttonDeath.addEventListener("click", this.respawn, false);
+                document.body.appendChild(buttonDeath)
             }
         });
 
     }
 
     onClose() {}
+
+    respawn(event) {
+        const LifeComponent = ECSWrapper.entities.getByName("Player")[0].getComponent(Life);
+        LifeComponent.changeCurrentLife = LifeComponent.globalLife;
+        var textDeath = document.getElementById("text-death");
+        var buttonDeath = document.getElementById("button-death");
+        textDeath.parentNode.removeChild(textDeath);
+        buttonDeath.parentNode.removeChild(buttonDeath);
+        LifeComponent.isDead = false;
+        ECSWrapper.entities.getByName("Player")[0].getComponent(BoxCollider).body.position.x = LifeComponent.respawnPosition.x;
+        ECSWrapper.entities.getByName("Player")[0].getComponent(BoxCollider).body.position.y = LifeComponent.respawnPosition.y;
+        ECSWrapper.entities.getByName("Player")[0].getComponent(BoxCollider).body.position.z = LifeComponent.respawnPosition.z;
+      }
 }
 
 export default LifeSystem;

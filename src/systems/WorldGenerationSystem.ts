@@ -14,6 +14,10 @@ import Chunk from '../utils/Chunk';
 import PerlinGenerator from '../utils/PerlinGenerator';
 import Faces from "../utils/Faces";
 
+/**
+ * @interface WorldOptions
+ * containing voxel world options
+ */
 interface WorldOptions {
     cellSize: number,
     tileTextureWidth: number,
@@ -21,6 +25,13 @@ interface WorldOptions {
     tileSize: number
 };
 
+/**
+ * WorldGenerationSystem heriting from ASystem
+ * @system WorldGenerationSystem
+ * @function onInit function automatically called at the initialization of the system
+ * @function onUpdate function automatically called at each main loop tour
+ * @function onClose function calles when the system is shutted down
+ */
 class WorldGenerationSystem extends ASystem {
     private generatedArray: Object;
     private perlinGenerator: PerlinGenerator;
@@ -31,6 +42,10 @@ class WorldGenerationSystem extends ASystem {
     private texture: THREE.Texture;
     private material: THREE.MeshLambertMaterial;
 
+    /**
+     * Constuctor of the WorldGenerationSystem
+     * @param name name of the system
+     */
     constructor(name: string) {
         super(name);
 
@@ -65,7 +80,7 @@ class WorldGenerationSystem extends ASystem {
         );
 
         ECSWrapper.entities.applyToEach(["Voxel"], (entity) => {
-        //worldEntity.assignComponent<CircadianRhythm>(new CircadianRhythm(worldEntity, 10));
+        worldEntity.assignComponent<CircadianRhythm>(new CircadianRhythm(worldEntity, 5));
             const mesh: Chunk = new Chunk(this.worldOptions.cellSize, 2, 2, this.perlinGenerator);
 
             this.displayWorld(worldEntity.getComponent(Voxel), scene, mesh);
@@ -75,7 +90,7 @@ class WorldGenerationSystem extends ASystem {
     onUpdate(elapsedTime: number): void {
         const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
 
-        ECSWrapper.entities.applyToEach(["BoxCollider"], (entity) => {
+        ECSWrapper.entities.applyToEach(["FirstPersonController", "BoxCollider"], (entity) => {
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
 
             ECSWrapper.entities.applyToEach(["Voxel"], (voxelEntity) => {
@@ -117,6 +132,8 @@ class WorldGenerationSystem extends ASystem {
 
                         let meshFromWorker: Chunk = new Chunk(gen.size, gen.HeightOffset, gen.WidthOffset, this.perlinGenerator, gen.data);
                         this.displayWorld(voxelComponent, scene, meshFromWorker);
+
+                        ECSWrapper.systems.dispatch("newChunk", new CustomEvent("newChunk", { detail: meshFromWorker }));
                     }
                     drawed.push(currentId);
 
@@ -185,6 +202,8 @@ class WorldGenerationSystem extends ASystem {
         drawMesh.castShadow = true;
         drawMesh.receiveShadow = true;
         drawMesh.position.set(chunk.getWidthOffset() * this.worldOptions.cellSize, 0, chunk.getHeightOffset() * this.worldOptions.cellSize);
+        drawMesh.castShadow = true;
+        drawMesh.receiveShadow = true;
         scene.add(drawMesh);
         voxelComponent.meshContainer.addMeshToSceneId(chunk.getWidthOffset() + ',' + chunk.getHeightOffset(), drawMesh, geometry);
     }

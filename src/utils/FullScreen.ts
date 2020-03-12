@@ -7,6 +7,9 @@ import IEntity from "../ecs/interfaces/IEntity";
 
 import Camera from "../components/Camera";
 
+/**
+ * @class FullScreen
+ */
 export default class FullScreen
 {
     public static keyDown(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {

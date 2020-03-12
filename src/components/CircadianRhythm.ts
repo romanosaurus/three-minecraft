@@ -21,7 +21,7 @@ export default class CircadianRhythm extends AComponent {
         this._isDay = this.DaysEnum.day;
         this._time = 0;
     }
-
+    
     get switchingTime(): number {
         return this._switchingTime;
     }

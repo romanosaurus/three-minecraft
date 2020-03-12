@@ -15,6 +15,8 @@ class FirstPersonController extends AComponent {
     public readonly movementSpeed: THREE.Vector2;
     public direction: Direction;
     private isJumping: boolean;
+    private _canJump: boolean;
+    private _airTime: number;
 
     constructor(entity: IEntity, rotationSpeed: THREE.Vector2, movementSpeed: THREE.Vector2) {
         super(entity);
@@ -22,6 +24,8 @@ class FirstPersonController extends AComponent {
         this.rotationSpeed = rotationSpeed;
         this.movementSpeed = movementSpeed;
         this.direction = { left: 0, right: 0, forward: 0, backward: 0 };
+        this._canJump = false;
+        this._airTime = 0;
     }
 
     public keyUp(keyEvent: KeyboardEvent) {
@@ -65,12 +69,28 @@ class FirstPersonController extends AComponent {
         }
     }
 
+    get airTime(): number {
+        return this._airTime;
+    }
+
+    set airTime(newTime: number) {
+        this._airTime = newTime;
+    }
+
     get jumping(): boolean {
         return this.isJumping;
     }
 
     set jumping(jump: boolean) {
         this.isJumping = jump;
+    }
+
+    get canJump(): boolean {
+        return this._canJump;
+    }
+
+    set canJump(newState) {
+        this._canJump = newState;
     }
 }
 

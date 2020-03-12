@@ -1,22 +1,47 @@
 import Random from "../utils/Random";
 
+/**
+ * @class PerlinGenerator used to generate image of perlin noise
+ */
 export default class PerlinGenerator {
 
+    /**
+     * Public members
+     */
     public width : number;
     public height : number;
-    private data;
     public spec;
 
+    /**
+     * Private members
+     */
+    private data;
+
+    /**
+     * static function used to (re)create a generator with already filled variables
+     * @param width : the width of the generator
+     * @param height : the height of the generator
+     * @param randseed : the random seed
+     * @return a new instance of PerlinGenerator
+     */
     static fromData(width : number, height : number, randseed : number) {
         return new this(width, height, randseed);
     }
+
+    /**
+     * constuctor of the PerlinGenerator class
+     * create the datas here, don't need to call other members methods
+     * @param width : the width of the future generated images
+     * @param height : the height of the future generated images
+     * @param randseed : the random seed
+     */
     constructor(width : number, height : number, randseed : number) {
         this.width = width;
         this.height = height;
         this.data = new Array(width * height * 4);
         this.spec = {};
         this.spec.randseed = randseed;
-        this.spec.period = 32;
+        this.spec.period = 64;
         this.spec.levels = 2;
         this.spec.atten = 0.1;
         this.spec.absolute = false;
@@ -24,19 +49,43 @@ export default class PerlinGenerator {
         this.spec.alpha = false;
         this.createTurbulence();
     }
+
+    /**
+     * Public method used to create an image
+     * @return a two dimensionnal array of a perlin image
+     */
     public createMesh() {
         this.createTurbulence();
         return this.data;
     }
+
+    /**
+     * Public method to get the width of the (future) generated images
+     * @return width, a number
+     */
     public getWidth() {
         return this.width;
     }
+
+    /**
+     * Public method to get the height of the (future) generated images
+     * @return height, a number
+     */
     public getHeight() {
         return this.height;
     }
+
+    /**
+     * Public method to get the data of the generated image
+     * @return data, a two dimensionnal array
+     */
     public getData() {
         return this.data;
     }
+
+    /**
+     * Private method used in the generation
+     */
     private setRgba(x, y, r, g, b, a) {
         let offset = ((y * this.width) + x) * 4;
 
@@ -45,6 +94,10 @@ export default class PerlinGenerator {
         this.data[offset + 2] = b;
         this.data[offset + 3] = a;
     }
+
+    /**
+     * Public method to generate the perlin image, stocking it in public variable member data
+     */
     public createTurbulence() {
         let numChannels = this.spec.color ? 3 : 1 + this.spec.alpha ? 1 : 0;
         let raster = new Array(this.width * this.height * numChannels);
@@ -109,13 +162,25 @@ export default class PerlinGenerator {
     }
 };
 
+/**
+ * @class PerlinSampler2D used to generate raw datas of a 2d perlin noise, dependant of the 
+ */
 class PerlinSampler2D {
 
+    /**
+     * Private members
+     */
     private width : number;
     private height : number;
     private randseed : number;
     private gradients;
 
+    /**
+     * constuctor of the PerlinSampler2D class
+     * @param width : the width of the future generated image
+     * @param height : the height of the future generated image
+     * @param randseed : the random seed used in the future generated image
+     */
     constructor(width, height, randseed) {
         this.width = width;
         this.height = height;
@@ -123,13 +188,16 @@ class PerlinSampler2D {
         this.gradients = new Array(width * height * 2);
         this.sampler(randseed);
     }
+
+    /**
+     * Private method used in the generation
+     */
     private sampler(randseed : number) {
         let rand = new Random();
         rand.setSeed(randseed);
 
         for (let i = 0; i < this.gradients.length; i += 2) {
             let x, y;
-//            let angle = 2;
             let angle = rand.next() * Math.PI * 2;
             x = Math.sin(angle);
             y = Math.cos(angle);
@@ -137,19 +205,34 @@ class PerlinSampler2D {
             this.gradients[i + 1] = y;
         }
     }
+
+    /**
+     * Private method used in the generation
+     */
     private dot(cellX, cellY, vx, vy) {
         let offset = (cellX + cellY * this.width) * 2;
         let wx = this.gradients[offset];
         let wy = this.gradients[offset + 1];
         return wx * vx + wy * vy;
     }
+
+    /**
+     * Private method used in the generation
+     */
     private lerp(a, b, t) {
         return a + t * (b - a);
     }
 
+    /**
+     * Private method used in the generation
+     */
     private sCurve(t) {
         return t * t * (3 - 2 * t);
     }
+
+    /**
+     * Private method used in the generation
+     */
     public getValue(x, y) {
         let xCell = Math.floor(x);
         let yCell = Math.floor(y);

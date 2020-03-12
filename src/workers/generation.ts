@@ -7,8 +7,17 @@ import PerlinGenerator from "../utils/PerlinGenerator";
 
 /**
  * Worker to handle the world generation
+ * expose is used to define the active thread, dont rename or delete it
  */
 expose({
+    /**
+     * threaded function to create Chunk data with the generator sended in 4th parameter
+     * @param cellSize : chunk size in x, y and z
+     * @param height : height of the chunk to create
+     * @param width : width of the chunk to create
+     * @param generator : the generator used to create the chunk
+     * @return a chunk
+     */
     meshWorker(cellSize: number, height: number, width: number, generator: PerlinGenerator): Chunk {
         const chunk: Chunk = new Chunk(
             cellSize,
@@ -23,6 +32,16 @@ expose({
 
         return chunk;
     },
+    /**
+     * threaded function generate all datas used to create a buffer geometry
+     * @param cellX : x pos of the chunk if it was in a 2 dimensionnal array
+     * @param cellY : y pos of the chunk if it was in a 3 dimensionnal array (unused if the chunk are in a 2 dimensionnal array)
+     * @param cell2 : z pos of the chunk if it was in a 2 dimensionnal array
+     * @param meshSize : chunk size
+     * @param meshData : data of all the perlin generated chunk
+     * @param utils : all the utils needed to generate a buffer geometry
+     * @return all datas used to create a buffer geometry
+     */
     generateGeometryDataForCell(cellX: number, cellY: number, cellZ: number, meshSize: number, meshData: any, utils: any) {
 
         function computeVoxelOffset(x: number, y: number, z: number, cellSize: number, cellSliceSize: number): number {
