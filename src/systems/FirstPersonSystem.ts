@@ -12,6 +12,7 @@ import Life from '../components/Life';
 import AudioSource from '../components/AudioSource';
 import Audio, { AudioState } from '../components/Audio';
 import Transform from '../components/Transform';
+import Euler from '../maths/Euler';
 
 /**
  * FirstPersonSystem heriting from ASystem
@@ -111,18 +112,6 @@ class FirstPersonSystem extends ASystem {
                 }
             }
         });
-
-        ECSWrapper.entities.applyToEach(["Box", "Camera"], (entity) => {
-            const lifeComponent = entity.getComponent(Life);
-
-            if (!lifeComponent.isPlayerDead) {
-                entity.getComponent(Camera).camera.position.set(
-                    entity.getComponent(Box).mesh.position.x,
-                    entity.getComponent(Box).mesh.position.y,
-                    entity.getComponent(Box).mesh.position.z
-                );
-            }
-        });
     }
 
     onClose(): void {}
@@ -131,10 +120,11 @@ class FirstPersonSystem extends ASystem {
         this.registerEvent("mouseEvent", (event: any) => {
             ECSWrapper.entities.applyToEach(["Camera", "FirstPersonController", "PointerLock", "Transform"], (entity) => {
                 const lifeComponent = entity.getComponent(Life);
+                const transform = entity.getComponent(Transform);
 
                 if (!lifeComponent.isPlayerDead) {
                     if (entity.getComponent(PointerLock).pointerLockActivated) {
-                        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+                        const euler = new Euler(0, 0, 0, 'YXZ');
                         let movementX: number = 0;
                         let movementY: number = 0;
 
@@ -143,12 +133,12 @@ class FirstPersonSystem extends ASystem {
                             movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
                         }
 
-                        euler.setFromQuaternion(entity.getComponent(Camera).camera.quaternion);
+                        euler.setFromQuaternion(transform.quaternion);
                         euler.y -= movementX * entity.getComponent(FirstPersonController).rotationSpeed.y;
                         euler.x -= movementY * entity.getComponent(FirstPersonController).rotationSpeed.x;
 
                         euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
-                        entity.getComponent(Camera).camera.quaternion.setFromEuler(euler);
+                        transform.quaternion.setFromEuler(euler);
                     }
                 } else {
                     entity.getComponent(PointerLock).pointerLockActivated = false;

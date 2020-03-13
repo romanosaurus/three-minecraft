@@ -35,6 +35,12 @@ export default class Vector3D {
 
     /**
      * @static
+     * @brief Create a vector 3D with x = 1 & y = 1 & z = 1
+     */
+    static ONE = new Vector3D(1, 1, 1);
+
+    /**
+     * @static
      * @brief Create a vector 3d with x = 0 & y = 0 & z = 1
      */
     static FORWARD = new Vector3D(0, 0, 1);

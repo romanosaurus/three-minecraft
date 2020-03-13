@@ -75,9 +75,6 @@ export default class AnimalMovementSystem extends ASystem {
                     rotatedVector.y * animalController.speed * elapsedTimeAsSeconds,
                     rotatedVector.z * animalController.speed * elapsedTimeAsSeconds
                 );
-                //animalBoxCollider.position.x += rotatedVector.x * animalUtils.speed * elapsedTimeAsSeconds;
-                //animalBoxCollider.position.y += rotatedVector.y * animalUtils.speed * elapsedTimeAsSeconds;
-                //animalBoxCollider.position.z += rotatedVector.z * animalUtils.speed * elapsedTimeAsSeconds;
 
                 // Handle rotation
                 if (randomPick > 0.3 && randomPick < 0.5 && !animalUtils.partner) {

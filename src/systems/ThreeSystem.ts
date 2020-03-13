@@ -91,6 +91,24 @@ class ThreeSystem extends ASystem {
             })
         });
 
+        ECSWrapper.entities.applyToEach(["Transform", "Camera"], (entity) => {
+            const camera = entity.getComponent(Camera);
+            const transform = entity.getComponent(Transform);
+
+            camera.camera.position.set(
+                transform.position.x,
+                transform.position.y,
+                transform.position.z
+            );
+
+            camera.camera.quaternion.set(
+                transform.quaternion.x,
+                transform.quaternion.y,
+                transform.quaternion.z,
+                transform.quaternion.w
+            );
+        });
+
         requestAnimationFrame(() => {
             ECSWrapper.systems.run();
         });
