@@ -1,4 +1,5 @@
 import Euler from "./Euler";
+import Vector3D from "./Vector3D";
 
 export default class Quaternion {
     public x: number;
@@ -29,6 +30,18 @@ export default class Quaternion {
 			this.z = c1 * c2 * s3 - s1 * s2 * c3;
 			this.w = c1 * c2 * c3 + s1 * s2 * s3;
         }
+
+        return this;
+    }
+
+    public setFromAxisAngle(axis: Vector3D, angle: number): Quaternion {
+        let halfAngle = angle / 2;
+        let s = Math.sin(halfAngle);
+
+        this.x = axis.x * s;
+        this.y = axis.y * s;
+        this.z = axis.z * s;
+        this.w = Math.cos(halfAngle);
 
         return this;
     }

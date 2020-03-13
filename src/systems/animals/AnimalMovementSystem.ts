@@ -35,6 +35,7 @@ export default class AnimalMovementSystem extends ASystem {
             const animalBoxCollider: BoxCollider = animal.getComponent(BoxCollider);
             const animalUtils: Animal = animal.getComponent(Animal);
             const animalController = animal.getComponent(Controller);
+            const animalTransform = animal.getComponent(Transform);
             const randomPick: number = Math.random(); // Random pick to know if the animal has to move.
 
             // Handle the movement of the animals if the animal has a partner
@@ -78,10 +79,8 @@ export default class AnimalMovementSystem extends ASystem {
 
                 // Handle rotation
                 if (randomPick > 0.3 && randomPick < 0.5 && !animalUtils.partner) {
-                    animalBoxCollider.body.fixedRotation = false;
-                    animalBoxCollider.rotation.set(0, animalBoxCollider.rotation.y + elapsedTimeAsSeconds, 0);
-                    animalBoxCollider.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), animalBoxCollider.rotation.y);
-                    animalBoxCollider.body.fixedRotation = true;
+                    animalTransform.rotation.y = animalBoxCollider.rotation.y + elapsedTimeAsSeconds;
+                    animalTransform.quaternion.setFromAxisAngle(Vector3D.UP, animalTransform.rotation.y);
                 }
 
                 animalUtils.currentMovingTime += elapsedTimeAsSeconds;

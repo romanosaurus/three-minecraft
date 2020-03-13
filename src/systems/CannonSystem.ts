@@ -101,6 +101,13 @@ class CannonSystem extends ASystem {
             transform.position.x = positionOffsetted.x;
             transform.position.y = positionOffsetted.y;
             transform.position.z = positionOffsetted.z;
+
+            /*boxCollider.body.quaternion.set(
+                transform.quaternion.x,
+                transform.quaternion.y,
+                transform.quaternion.z,
+                transform.quaternion.w
+            );*/
         });
 
         ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
@@ -110,6 +117,7 @@ class CannonSystem extends ASystem {
             boxCollider.body.position.x += firstPersonController.velocity.x;
             boxCollider.body.velocity.y = (firstPersonController.velocity.y === 0) ? boxCollider.body.velocity.y : firstPersonController.velocity.y;
             boxCollider.body.position.z += firstPersonController.velocity.z;
+
             //boxCollider.body.velocity.set(firstPersonController.velocity.x, firstPersonController.velocity.y, firstPersonController.velocity.z);
         });
 
@@ -127,7 +135,7 @@ class CannonSystem extends ASystem {
 
         ////////////////////////////////
 
-        ECSWrapper.entities.applyToEach(["Box", "BoxCollider"], (entity) => {
+        /*ECSWrapper.entities.applyToEach(["Box", "BoxCollider"], (entity) => {
             const box: Box = entity.getComponent(Box);
             const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
 
@@ -154,7 +162,7 @@ class CannonSystem extends ASystem {
                 object.quaternion.copy(boxCollider.body.quaternion as any);
             });
 
-        });
+        });*/
     }
 
     onClose(): void {

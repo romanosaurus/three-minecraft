@@ -80,6 +80,7 @@ class ThreeSystem extends ASystem {
             const box = entity.getComponent(Box);
 
             box.mesh.position.set(transform.position.x, transform.position.y, transform.position.z);
+            //box.mesh.quaternion.set(transform.quaternion.x, transform.quaternion.y, transform.quaternion.z, transform.quaternion.w);
         });
 
         ECSWrapper.entities.applyToEach(["Transform", "Model"], (entity) => {
@@ -88,6 +89,7 @@ class ThreeSystem extends ASystem {
 
             model.getObject().then(obj => {
                 obj.position.set(transform.position.x, transform.position.y, transform.position.z);
+                //obj.quaternion.set(transform.quaternion.x, transform.quaternion.y, transform.quaternion.z, transform.quaternion.w);
             })
         });
 
