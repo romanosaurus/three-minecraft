@@ -24,7 +24,6 @@ class FirstPersonController extends AComponent {
         this.movementSpeed = movementSpeed;
         this.direction = { left: 0, right: 0, forward: 0, backward: 0 };
         this._canJump = false;
-        this._airTime = 0;
     }
 
     public keyUp(keyEvent: KeyboardEvent) {
