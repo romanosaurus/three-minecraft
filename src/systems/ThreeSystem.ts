@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import * as CANNON from 'cannon';
 
 import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
@@ -52,9 +53,43 @@ class ThreeSystem extends ASystem {
         LightUtilities.AddLight(this.scene, -1,  2,  4);
         LightUtilities.AddLight(this.scene, 1, -1, -2);
 
-        ECSWrapper.entities.create("Player");
-
         this.renderer.shadowMap.enabled = true;
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor(0x222233, 5);
+
+        document.body.appendChild(this.renderer.domElement);
+
+        this.initializePlayer();
+
+        ECSWrapper.entities.applyToEach(["Box"], (entity) => {
+            this.scene.add(entity.getComponent(Box).mesh);
+        });
+
+        this.stats.showPanel(0);
+        document.body.appendChild( this.stats.dom );
+    }
+
+    onUpdate(elapsedTime: number): void {
+        this.stats.begin();
+
+        this.stats.end();
+
+        requestAnimationFrame(() => {
+            ECSWrapper.systems.run();
+        });
+
+        this.renderer.render(
+            this.scene,
+            ECSWrapper.entities.getByName("Player")[0].getComponent(Camera).camera
+        );
+    }
+
+    onClose(): void {
+
+    }
+
+    private initializePlayer(): void {
+        ECSWrapper.entities.create("Player");
 
         const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
         playerEntity.assignComponent<FirstPersonController>(
@@ -96,41 +131,6 @@ class ThreeSystem extends ASystem {
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
 
         playerEntity.assignComponent<Life>(new Life(playerEntity, 9, playerEntity.getComponent(Box).position, 0.30));
-
-        ECSWrapper.entities.applyToEach(["Box"], (entity) => {
-            this.scene.add(entity.getComponent(Box).mesh);
-        });
-
-        ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
-            entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {
-                entity.getComponent(FirstPersonController).canJump = true;
-            });
-        });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0x222233, 5);
-        document.body.appendChild(this.renderer.domElement);
-
-        this.stats.showPanel(0);
-        document.body.appendChild( this.stats.dom );
-    }
-
-    onUpdate(elapsedTime: number): void {
-        this.stats.begin();
-
-        this.stats.end();
-
-        requestAnimationFrame(() => {
-            ECSWrapper.systems.run();
-        });
-
-        this.renderer.render(
-            this.scene,
-            ECSWrapper.entities.getByName("Player")[0].getComponent(Camera).camera
-        );
-    }
-
-    onClose(): void {
-
     }
 
     getScene(): THREE.Scene {
