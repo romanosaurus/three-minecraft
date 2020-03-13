@@ -79,7 +79,10 @@ export default class AnimalMovementSystem extends ASystem {
 
                 // Handle rotation
                 if (randomPick > 0.3 && randomPick < 0.5 && !animalUtils.partner) {
-                    animalTransform.rotation.y = animalBoxCollider.rotation.y + elapsedTimeAsSeconds;
+                    if (randomPick < 0.4 && randomPick > 0.3)
+                        animalTransform.rotation.y += elapsedTimeAsSeconds;
+                    else
+                        animalTransform.rotation.y -= elapsedTimeAsSeconds;
                     animalTransform.quaternion.setFromAxisAngle(Vector3D.UP, animalTransform.rotation.y);
                 }
 
@@ -95,11 +98,12 @@ export default class AnimalMovementSystem extends ASystem {
     makeLoverMeet(animalUtils: Animal, elapsedTime: number) {
         const curAnimalBody = animalUtils.getEntity().getComponent(BoxCollider);
         const partnerBody = animalUtils.partner.getEntity().getComponent(BoxCollider);
+        const transform = animalUtils.getEntity().getComponent(Transform);
 
         if (!animalUtils.facingPartner || this.curTime > 1) {
             curAnimalBody.getEntity().getComponent(Model).getObject().then((obj) => {
                 obj.lookAt(partnerBody.body.position.x, partnerBody.body.position.y, partnerBody.body.position.z);
-                curAnimalBody.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), obj.rotation.x);
+                transform.quaternion.setFromAxisAngle(Vector3D.UP, obj.rotation.x);
             });
             animalUtils.facingPartner = true;
             this.curTime = 0;

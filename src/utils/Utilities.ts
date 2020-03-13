@@ -1,4 +1,5 @@
 import * as CANNON from 'cannon';
+import Quaternion from '../maths/Quaternion';
 
 /**
  * Utilities class where all functions
@@ -39,6 +40,15 @@ class Utilities {
         return (point.x >= source.x - radius && point.x <= source.x + radius) &&
             (point.y >= source.y - radius && point.y <= source.y + radius) &&
             (point.z >= source.z - radius && point.z <= source.z + radius)
+    }
+
+    /**
+     * 
+     */
+    public static didQuaternionEqual(source: Quaternion, comp: THREE.Quaternion | CANNON.Quaternion): boolean {
+        if (source.x === comp.x && source.y === comp.y && source.z === comp.z && source.w === comp.w)
+            return true;
+        return false;
     }
 }
 

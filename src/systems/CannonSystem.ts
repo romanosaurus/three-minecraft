@@ -102,12 +102,13 @@ class CannonSystem extends ASystem {
             transform.position.y = positionOffsetted.y;
             transform.position.z = positionOffsetted.z;
 
-            /*boxCollider.body.quaternion.set(
-                transform.quaternion.x,
-                transform.quaternion.y,
-                transform.quaternion.z,
-                transform.quaternion.w
-            );*/
+            if (!entity.hasComponent("Box"))
+                boxCollider.body.quaternion.set(
+                    transform.quaternion.x,
+                    transform.quaternion.y,
+                    transform.quaternion.z,
+                    transform.quaternion.w
+                );
         });
 
         ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
@@ -129,6 +130,7 @@ class CannonSystem extends ASystem {
             collider.body.position.y += controller.velocity.y;
             collider.body.position.z += controller.velocity.z;
         });
+
         ECSWrapper.entities.applyToEach(["BoxCollider"], (entity) => {
             this.world.addBody(entity.getComponent(BoxCollider).body);
         });

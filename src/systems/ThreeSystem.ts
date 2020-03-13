@@ -20,6 +20,7 @@ import WalkingArea from "../components/WalkingArea";
 import AudioSource from "../components/AudioSource";
 import Audio from "../components/Audio";
 import Model from "../components/Model";
+import Utilities from "../utils/Utilities";
 /**
  * ThreeSystem heriting from ASystem
  * @system ThreeSystem
@@ -80,7 +81,6 @@ class ThreeSystem extends ASystem {
             const box = entity.getComponent(Box);
 
             box.mesh.position.set(transform.position.x, transform.position.y, transform.position.z);
-            //box.mesh.quaternion.set(transform.quaternion.x, transform.quaternion.y, transform.quaternion.z, transform.quaternion.w);
         });
 
         ECSWrapper.entities.applyToEach(["Transform", "Model"], (entity) => {
@@ -89,7 +89,7 @@ class ThreeSystem extends ASystem {
 
             model.getObject().then(obj => {
                 obj.position.set(transform.position.x, transform.position.y, transform.position.z);
-                //obj.quaternion.set(transform.quaternion.x, transform.quaternion.y, transform.quaternion.z, transform.quaternion.w);
+                obj.quaternion.set(transform.quaternion.x, transform.quaternion.y, transform.quaternion.z, transform.quaternion.w);
             })
         });
 
