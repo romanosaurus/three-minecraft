@@ -5,11 +5,13 @@ export default class AEntity implements IEntity {
     private readonly id : number;
     private readonly name : string;
     private readonly components : Array<IComponent>;
+    private enabled: boolean;
 
     constructor(id : number, name : string) {
         this.id = id;
         this.name = name;
         this.components = new Array<IComponent>();
+        this.enabled = true;
     }
 
     /**
@@ -70,5 +72,26 @@ export default class AEntity implements IEntity {
             if (!this.hasComponent(component))
                 return false;
         return true;
+    }
+
+    /**
+     * Know if the entity is enabled
+     */
+    isEnable(): boolean {
+        return this.enabled;
+    }
+
+    /**
+     * Disable the entity
+     */
+    disable(): void {
+        this.enabled = false;
+    }
+
+    /**
+     * Enable the entity
+     */
+    enable(): void {
+        this.enabled = true;
     }
 }

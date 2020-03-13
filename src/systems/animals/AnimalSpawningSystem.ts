@@ -15,6 +15,8 @@ import Utilities from "../../utils/Utilities";
 import AudioSource from '../../components/AudioSource';
 import Audio, { AudioState } from '../../components/Audio';
 import Camera from '../../components/Camera';
+import WalkingPhysicsSystem from '../WalkingPhysicsSystem';
+import CannonSystem from '../CannonSystem';
 
 export default class AnimalSpawningSystem extends ASystem {
 
@@ -75,10 +77,10 @@ export default class AnimalSpawningSystem extends ASystem {
                 const animalPosition: CANNON.Vec3 = animal.getComponent(BoxCollider).body.position;
 
                 if (Utilities.vectorCollide(playerPosition, animalPosition, 60)) {
+                    animal.getComponent(Animal).speed = 2;
+                    ECSWrapper.systems.get(CannonSystem).world.addBody(animal.getComponent(BoxCollider).body)
+                    ECSWrapper.systems.get(WalkingPhysicsSystem).setWalkingArea(animal.getComponent(WalkingArea), true);
                     if (!scene.getObjectByName(animal.getName())) {
-                        animal.getComponent(Animal).speed = 2;
-                        animal.getComponent(BoxCollider).body.mass = 10;
-                        animal.getComponent(WalkingArea).enable();
                         animal.getComponent(Model).getObject().then((obj) => {
                             if (animal.getComponent(ParticleSystem).isEnable())
                                 scene.add(animal.getComponent(ParticleSystem).particleEmitter)
@@ -86,10 +88,10 @@ export default class AnimalSpawningSystem extends ASystem {
                         });
                     }
                 } else {
+                    animal.getComponent(Animal).speed = 0;
+                    ECSWrapper.systems.get(CannonSystem).world.remove(animal.getComponent(BoxCollider).body)
+                    ECSWrapper.systems.get(WalkingPhysicsSystem).setWalkingArea(animal.getComponent(WalkingArea), false);
                     if (scene.getObjectByName(animal.getName())) {
-                        animal.getComponent(Animal).speed = 0;
-                        animal.getComponent(BoxCollider).body.mass = 0;
-                        animal.getComponent(WalkingArea).disable();
                         animal.getComponent(Model).getObject().then((obj) => {
                             if (animal.getComponent(ParticleSystem).isEnable())
                                 scene.remove(animal.getComponent(ParticleSystem).particleEmitter)

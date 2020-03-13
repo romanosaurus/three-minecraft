@@ -62,7 +62,7 @@ export default class EntityManager {
      */
     public applyToEach(componentsName : Array<string>, callback : (entity : IEntity) => void) : void {
         for (let ent of this.entities) {
-            if (ent.hasComponents(componentsName))
+            if (ent.hasComponents(componentsName) && ent.isEnable())
                 callback(ent);
         }
     }
