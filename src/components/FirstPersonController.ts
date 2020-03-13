@@ -16,7 +16,6 @@ class FirstPersonController extends AComponent {
     public direction: Direction;
     private isJumping: boolean;
     private _canJump: boolean;
-    private _airTime: number;
 
     constructor(entity: IEntity, rotationSpeed: THREE.Vector2, movementSpeed: THREE.Vector2) {
         super(entity);
@@ -67,14 +66,6 @@ class FirstPersonController extends AComponent {
             default:
                 break;
         }
-    }
-
-    get airTime(): number {
-        return this._airTime;
-    }
-
-    set airTime(newTime: number) {
-        this._airTime = newTime;
     }
 
     get jumping(): boolean {
