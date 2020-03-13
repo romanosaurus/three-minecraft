@@ -26,7 +26,8 @@ class AudioSystem extends ASystem {
                     }
                     break;
                 case AudioState.STOP:
-                    audioComponent.sound.stop();
+                    if (audioComponent.sound.isPlaying)
+                        audioComponent.sound.stop();
                     break;
                 case AudioState.PAUSE:
                     audioComponent.sound.pause();

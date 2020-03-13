@@ -13,7 +13,8 @@ interface AudioOptions {
 export enum AudioState {
     PLAY,
     PAUSE,
-    STOP
+    STOP,
+    SOUND
 };
 export default class Audio extends AComponent {
     private _audio: THREE.Audio;
@@ -30,7 +31,6 @@ export default class Audio extends AComponent {
             this._audio.setBuffer(buffer);
             this._audio.setLoop(options.loop);
             this._audio.setVolume(options.volume);
-            //this._audio.play();
         });
 
         this._state = AudioState.PLAY;
