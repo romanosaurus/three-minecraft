@@ -1,6 +1,17 @@
 import * as CANNON from 'cannon';
 
+/**
+ * Utilities class where all functions
+ * independant from the ECS are stocked.
+ */
 class Utilities {
+    /**
+     * Function to handle the multiplication between
+     * a quaternion and a vector
+     *
+     * @param initialVector source vector
+     * @param quaternion source quaternion
+     */
     public static multiplyVectorByQuaternion(initialVector: CANNON.Vec3, quaternion: CANNON.Quaternion): CANNON.Vec3 {
         initialVector.normalize();
 
@@ -17,6 +28,13 @@ class Utilities {
         );
     }
 
+    /**
+     * Know if a point is in an area around another point
+     *
+     * @param source source point
+     * @param point destination point
+     * @param radius size of the radius
+     */
     public static vectorCollide(source: CANNON.Vec3, point: CANNON.Vec3, radius: number): boolean {
         return (point.x >= source.x - radius && point.x <= source.x + radius) &&
             (point.y >= source.y - radius && point.y <= source.y + radius) &&

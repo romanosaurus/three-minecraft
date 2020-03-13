@@ -7,6 +7,7 @@ import ThreeSystem from "./ThreeSystem";
 import Box from "../components/Box";
 import BoxCollider from "../components/BoxCollider";
 import Model from '../components/Model';
+import FirstPersonController from "../components/FirstPersonController";
 
 /**
  * CannonSystem heriting from ASystem
@@ -47,14 +48,28 @@ class CannonSystem extends ASystem {
         this.world.broadphase.useBoundingBoxes = true;
         this.world.defaultContactMaterial.friction = 0.4;
         this.world.defaultContactMaterial.restitution = 0.0;
-        //this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
-        //this.world.defaultContactMaterial.contactEquationRelaxation = 5;
 
         let solver = new CANNON.GSSolver();
         solver.iterations = 7;
         solver.tolerance = 0.1;
         this.world.solver = new CANNON.SplitSolver(solver);
 
+        ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
+            let contactNormal = new CANNON.Vec3();
+            let upAxis = new CANNON.Vec3(0,1,0);
+            entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {
+                let contact = e.contact;
+
+                if (contact.bi.id == entity.getComponent(BoxCollider).body.id)
+                    contact.ni.negate(contactNormal);
+                else
+                    contactNormal.copy(contact.ni);
+
+                if (contactNormal.dot(upAxis) > 0.5) {
+                    entity.getComponent(FirstPersonController).canJump = true;
+                }
+            });
+        });
     }
 
     onUpdate(elapsedTime: number): void {
