@@ -17,6 +17,9 @@ import Audio, { AudioState } from '../../components/Audio';
 import Camera from '../../components/Camera';
 import WalkingPhysicsSystem from '../WalkingPhysicsSystem';
 import CannonSystem from '../CannonSystem';
+import Transform from '../../components/Transform';
+import Vector3D from '../../maths/Vector3D';
+import Controller from '../../components/controllers/Controller';
 
 export default class AnimalSpawningSystem extends ASystem {
 
@@ -77,7 +80,7 @@ export default class AnimalSpawningSystem extends ASystem {
                 const animalPosition: CANNON.Vec3 = animal.getComponent(BoxCollider).body.position;
 
                 if (Utilities.vectorCollide(playerPosition, animalPosition, 60)) {
-                    animal.getComponent(Animal).speed = 2;
+                    animal.getComponent(Controller).speed = 2;
                     ECSWrapper.systems.get(CannonSystem).world.addBody(animal.getComponent(BoxCollider).body)
                     ECSWrapper.systems.get(WalkingPhysicsSystem).setWalkingArea(animal.getComponent(WalkingArea), true);
                     if (!scene.getObjectByName(animal.getName())) {
@@ -88,7 +91,7 @@ export default class AnimalSpawningSystem extends ASystem {
                         });
                     }
                 } else {
-                    animal.getComponent(Animal).speed = 0;
+                    animal.getComponent(Controller).speed = 0;
                     ECSWrapper.systems.get(CannonSystem).world.remove(animal.getComponent(BoxCollider).body)
                     ECSWrapper.systems.get(WalkingPhysicsSystem).setWalkingArea(animal.getComponent(WalkingArea), false);
                     if (scene.getObjectByName(animal.getName())) {
@@ -142,6 +145,10 @@ export default class AnimalSpawningSystem extends ASystem {
                 newAnimalEntity.assignComponent<Model>(new Model(newAnimalEntity, "pig", "../../assets/models/pig/pig.obj", "../../assets/models/pig/pig.mtl"));
             else if (animalComponent.type === AnimalType.SHEEP)
                 newAnimalEntity.assignComponent<Model>(new Model(newAnimalEntity, "sheep", "../../assets/models/sheep/sheep.obj", "../../assets/models/sheep/sheep.mtl"));
+
+            newAnimalEntity.assignComponent<Controller>(new Controller(newAnimalEntity, 2));
+            newAnimalEntity.assignComponent<Transform>(new Transform(newAnimalEntity));
+            newAnimalEntity.getComponent(Transform).position = new Vector3D(spawningZones[i].x, spawningZones[i].y, spawningZones[i].z);
 
             const animalModel: Model = newAnimalEntity.getComponent(Model);
             animalModel.getObject().then((object) => {
@@ -204,6 +211,13 @@ export default class AnimalSpawningSystem extends ASystem {
             newAnimalEntity.assignComponent<Model>(new Model(newAnimalEntity, "pig", "../../assets/models/pig/pig.obj", "../../assets/models/pig/pig.mtl"));
         else if (animalComponent.type === AnimalType.SHEEP)
             newAnimalEntity.assignComponent<Model>(new Model(newAnimalEntity, "sheep", "../../assets/models/sheep/sheep.obj", "../../assets/models/sheep/sheep.mtl"));
+
+        newAnimalEntity.assignComponent<Controller>(new Controller(newAnimalEntity, 2));
+        newAnimalEntity.assignComponent<Transform>(new Transform(newAnimalEntity));
+        newAnimalEntity.getComponent(Transform).position = new Vector3D(position.x + 2, position.y, position.z);
+        newAnimalEntity.getComponent(Transform).scale.x /= 2;
+        newAnimalEntity.getComponent(Transform).scale.y /= 2;
+        newAnimalEntity.getComponent(Transform).scale.z /= 2;
 
         const animalModel: Model = newAnimalEntity.getComponent(Model);
         animalModel.getObject().then((object) => {

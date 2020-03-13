@@ -9,6 +9,9 @@ import Model from "../../components/Model";
 import Utilities from "../../utils/Utilities";
 import { Object3D } from "three";
 import ThreeSystem from "../ThreeSystem";
+import Transform from "../../components/Transform";
+import Controller from "../../components/controllers/Controller";
+import Vector3D from "../../maths/Vector3D";
 
 /**
  * AnimalMovementSystem
@@ -31,7 +34,7 @@ export default class AnimalMovementSystem extends ASystem {
         ECSWrapper.entities.applyToEach(["Animal"], (animal: IEntity) => {
             const animalBoxCollider: BoxCollider = animal.getComponent(BoxCollider);
             const animalUtils: Animal = animal.getComponent(Animal);
-
+            const animalController = animal.getComponent(Controller);
             const randomPick: number = Math.random(); // Random pick to know if the animal has to move.
 
             // Handle the movement of the animals if the animal has a partner
@@ -67,9 +70,14 @@ export default class AnimalMovementSystem extends ASystem {
                 let movementVector: CANNON.Vec3 = new CANNON.Vec3(0, 2, 2);
                 let rotatedVector: CANNON.Vec3 = Utilities.multiplyVectorByQuaternion(movementVector, animalBoxCollider.body.quaternion);
 
-                animalBoxCollider.position.x += rotatedVector.x * animalUtils.speed * elapsedTimeAsSeconds;
-                animalBoxCollider.position.y += rotatedVector.y * animalUtils.speed * elapsedTimeAsSeconds;
-                animalBoxCollider.position.z += rotatedVector.z * animalUtils.speed * elapsedTimeAsSeconds;
+                animalController.velocity = new Vector3D(
+                    rotatedVector.x * animalController.speed * elapsedTimeAsSeconds,
+                    rotatedVector.y * animalController.speed * elapsedTimeAsSeconds,
+                    rotatedVector.z * animalController.speed * elapsedTimeAsSeconds
+                );
+                //animalBoxCollider.position.x += rotatedVector.x * animalUtils.speed * elapsedTimeAsSeconds;
+                //animalBoxCollider.position.y += rotatedVector.y * animalUtils.speed * elapsedTimeAsSeconds;
+                //animalBoxCollider.position.z += rotatedVector.z * animalUtils.speed * elapsedTimeAsSeconds;
 
                 // Handle rotation
                 if (randomPick > 0.3 && randomPick < 0.5 && !animalUtils.partner) {

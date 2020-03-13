@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import ASystem from '../ecs/abstract/ASystem';
 import ECSWrapper from '../ecs/wrapper/ECSWrapper';
 
-import FirstPersonController from '../components/FirstPersonController';
+import FirstPersonController from '../components/controllers/FirstPersonController';
 import Life from '../components/Life';
 import { printCommonLine } from 'jest-diff/build/printDiffs';
 import Camera from '../components/Camera';

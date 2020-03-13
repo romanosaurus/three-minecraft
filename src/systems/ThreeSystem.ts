@@ -5,10 +5,11 @@ import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import IEntity from "../ecs/interfaces/IEntity";
 
-import FirstPersonController from "../components/FirstPersonController";
+import FirstPersonController from "../components/controllers/FirstPersonController";
 import Box from "../components/Box";
 import Camera from "../components/Camera";
 import BoxCollider from "../components/BoxCollider";
+import Transform from "../components/Transform";
 import PointerLock from "../components/PointerLock";
 import Life from "../components/Life";
 import FullScreen from "../utils/FullScreen";
@@ -16,9 +17,9 @@ import FullScreen from "../utils/FullScreen";
 import * as Stats from 'stats.js';
 import LightUtilities from "../utils/LightUtilities";
 import WalkingArea from "../components/WalkingArea";
-import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
 import AudioSource from "../components/AudioSource";
 import Audio from "../components/Audio";
+import Model from "../components/Model";
 /**
  * ThreeSystem heriting from ASystem
  * @system ThreeSystem
@@ -74,6 +75,22 @@ class ThreeSystem extends ASystem {
 
         this.stats.end();
 
+        ECSWrapper.entities.applyToEach(["Transform", "Box"], (entity) => {
+            const transform = entity.getComponent(Transform);
+            const box = entity.getComponent(Box);
+
+            box.mesh.position.set(transform.position.x, transform.position.y, transform.position.z);
+        });
+
+        ECSWrapper.entities.applyToEach(["Transform", "Model"], (entity) => {
+            const transform = entity.getComponent(Transform);
+            const model = entity.getComponent(Model);
+
+            model.getObject().then(obj => {
+                obj.position.set(transform.position.x, transform.position.y, transform.position.z);
+            })
+        });
+
         requestAnimationFrame(() => {
             ECSWrapper.systems.run();
         });
@@ -92,6 +109,12 @@ class ThreeSystem extends ASystem {
         ECSWrapper.entities.create("Player");
 
         const playerEntity: IEntity = ECSWrapper.entities.getByName("Player")[0];
+        playerEntity.assignComponent<Transform>(new Transform(playerEntity));
+
+        playerEntity.getComponent(Transform).position.x = 64 * 2 + 10;
+        playerEntity.getComponent(Transform).position.y = 60;
+        playerEntity.getComponent(Transform).position.z = 64 * 2 + 10;
+
         playerEntity.assignComponent<FirstPersonController>(
             new FirstPersonController(
                 playerEntity,

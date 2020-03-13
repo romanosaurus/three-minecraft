@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 
-import AComponent from "../ecs/abstract/AComponent";
-import IEntity from "../ecs/interfaces/IEntity";
+import AComponent from "../../ecs/abstract/AComponent";
+import IEntity from "../../ecs/interfaces/IEntity";
+
+import Vector3D from "../../maths/Vector3D";
 
 interface Direction {
     left: number,
@@ -14,6 +16,7 @@ class FirstPersonController extends AComponent {
     public readonly rotationSpeed: THREE.Vector2;
     public readonly movementSpeed: THREE.Vector2;
     public direction: Direction;
+    public velocity: Vector3D;
     private isJumping: boolean;
     private _canJump: boolean;
     private _airTime: number;
@@ -26,6 +29,7 @@ class FirstPersonController extends AComponent {
         this.direction = { left: 0, right: 0, forward: 0, backward: 0 };
         this._canJump = false;
         this._airTime = 0;
+        this.velocity = new Vector3D;
     }
 
     public keyUp(keyEvent: KeyboardEvent) {
@@ -73,7 +77,7 @@ class FirstPersonController extends AComponent {
         return this._airTime;
     }
 
-    set airTime(newTime: number) {
+    set airTime(newTime: number) {
         this._airTime = newTime;
     }
 
