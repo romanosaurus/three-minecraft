@@ -4,13 +4,14 @@ import * as CANNON from 'cannon';
 import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import Camera from "../components/Camera";
-import FirstPersonController from "../components/FirstPersonController";
+import FirstPersonController from "../components/controllers/FirstPersonController";
 import Box from "../components/Box";
-import BoxCollider from "../components/BoxCollider";
 import PointerLock from '../components/PointerLock';
 import Life from '../components/Life';
-import AudioSource from '../components/AudioSource';
-import Audio, { AudioState } from '../components/Audio';
+import AudioSource from '../components/audio/AudioSource';
+import Audio, { AudioState } from '../components/audio/Audio';
+import Transform from '../components/Transform';
+import Euler from '../maths/Euler';
 
 /**
  * FirstPersonSystem heriting from ASystem
@@ -49,22 +50,23 @@ class FirstPersonSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number): void {
-        const jumpingTime: number = 0.3;
         const elapsedTimeAsSecond = elapsedTime / 1000;
 
-        ECSWrapper.entities.applyToEach(["Camera", "Box", "FirstPersonController", "BoxCollider"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Camera", "Box", "FirstPersonController", "Rigidbody", "Transform"], (entity) => {
             const firstPersonController: FirstPersonController = entity.getComponent(FirstPersonController);
             const lifeComponent = entity.getComponent(Life);
+            const transform = entity.getComponent(Transform);
 
             if (!lifeComponent.isPlayerDead) {
-                entity.getComponent(BoxCollider).body.mass = 10;
                 if (firstPersonController.jumping && firstPersonController.canJump) {
-                    entity.getComponent(BoxCollider).body.velocity.y = 5;
+                    firstPersonController.velocity.y = 5;
                     firstPersonController.canJump = false;
                     firstPersonController.jumping = false;
+                } else {
+                    firstPersonController.velocity.y = 0;
                 }
 
-                let directionVector : THREE.Vector3 = new THREE.Vector3(
+                let directionVector: THREE.Vector3 = new THREE.Vector3(
                     firstPersonController.direction.right - firstPersonController.direction.left,
                     0,
                     firstPersonController.direction.backward - firstPersonController.direction.forward
@@ -72,9 +74,11 @@ class FirstPersonSystem extends ASystem {
                 directionVector.applyEuler(entity.getComponent(Camera).camera.rotation);
                 directionVector.y = 0;
 
-                if (directionVector.lengthSq() === 0)
+                if (directionVector.lengthSq() === 0) {
+                    firstPersonController.velocity.x = 0;
+                    firstPersonController.velocity.z = 0;
                     return;
-                else
+                } else
                     directionVector = directionVector.normalize();
 
                 let movementVector : THREE.Vector3 = new THREE.Vector3(
@@ -83,8 +87,9 @@ class FirstPersonSystem extends ASystem {
                     directionVector.z * firstPersonController.movementSpeed.y * elapsedTimeAsSecond
                 );
 
-                entity.getComponent(BoxCollider).body.position.z += movementVector.z;
-                entity.getComponent(BoxCollider).body.position.x += movementVector.x;
+                firstPersonController.velocity.x = movementVector.x;
+                firstPersonController.velocity.z = movementVector.z;
+                
                 const sound = ECSWrapper.entities.getByName("fallSound")[0].getComponent(Audio);
 
                 if (!firstPersonController.canJump) {
@@ -103,30 +108,19 @@ class FirstPersonSystem extends ASystem {
                 }
             }
         });
-
-        ECSWrapper.entities.applyToEach(["Box", "Camera"], (entity) => {
-            const lifeComponent = entity.getComponent(Life);
-
-            if (!lifeComponent.isPlayerDead) {
-                entity.getComponent(Camera).camera.position.set(
-                    entity.getComponent(Box).mesh.position.x,
-                    entity.getComponent(Box).mesh.position.y,
-                    entity.getComponent(Box).mesh.position.z
-                );
-            }
-        });
     }
 
     onClose(): void {}
 
     private setupMouseEvent() {
         this.registerEvent("mouseEvent", (event: any) => {
-            ECSWrapper.entities.applyToEach(["Camera", "FirstPersonController", "PointerLock"], (entity) => {
+            ECSWrapper.entities.applyToEach(["Camera", "FirstPersonController", "PointerLock", "Transform"], (entity) => {
                 const lifeComponent = entity.getComponent(Life);
-                
+                const transform = entity.getComponent(Transform);
+
                 if (!lifeComponent.isPlayerDead) {
                     if (entity.getComponent(PointerLock).pointerLockActivated) {
-                        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+                        const euler = new Euler(0, 0, 0, 'YXZ');
                         let movementX: number = 0;
                         let movementY: number = 0;
 
@@ -135,12 +129,12 @@ class FirstPersonSystem extends ASystem {
                             movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
                         }
 
-                        euler.setFromQuaternion(entity.getComponent(Camera).camera.quaternion);
+                        euler.setFromQuaternion(transform.quaternion);
                         euler.y -= movementX * entity.getComponent(FirstPersonController).rotationSpeed.y;
                         euler.x -= movementY * entity.getComponent(FirstPersonController).rotationSpeed.x;
 
                         euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
-                        entity.getComponent(Camera).camera.quaternion.setFromEuler(euler);
+                        transform.quaternion.setFromEuler(euler);
                     }
                 } else {
                     entity.getComponent(PointerLock).pointerLockActivated = false;

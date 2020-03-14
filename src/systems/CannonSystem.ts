@@ -4,10 +4,12 @@ import ASystem from "../ecs/abstract/ASystem";
 import CannonDebugRenderer from "../utils/CannonDebugger";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import ThreeSystem from "./ThreeSystem";
-import Box from "../components/Box";
-import BoxCollider from "../components/BoxCollider";
-import Model from '../components/Model';
-import FirstPersonController from "../components/FirstPersonController";
+import BoxCollider from "../components/physics/BoxCollider";
+import FirstPersonController from "../components/controllers/FirstPersonController";
+import Transform from '../components/Transform';
+import Vector3D from '../maths/Vector3D';
+import Controller from '../components/controllers/Controller';
+import Rigidbody from '../components/physics/RigidBody';
 
 /**
  * CannonSystem heriting from ASystem
@@ -54,13 +56,23 @@ class CannonSystem extends ASystem {
         solver.tolerance = 0.1;
         this.world.solver = new CANNON.SplitSolver(solver);
 
-        ECSWrapper.entities.applyToEach(["BoxCollider", "FirstPersonController"], (entity) => {
+        ECSWrapper.entities.applyToEach(["BoxCollider", "Rigidbody", "Transform"], (entity) => {
+            const boxCollider = entity.getComponent(BoxCollider);
+            const rigidbody = entity.getComponent(Rigidbody);
+            const transform = entity.getComponent(Transform);
+
+            rigidbody.addShape(boxCollider.collider);
+            rigidbody.position = transform.position;
+        });
+
+        ECSWrapper.entities.applyToEach(["Rigidbody", "FirstPersonController"], (entity) => {
             let contactNormal = new CANNON.Vec3();
             let upAxis = new CANNON.Vec3(0,1,0);
-            entity.getComponent(BoxCollider).body.addEventListener("collide", (e) => {
+
+            entity.getComponent(Rigidbody).skeleton.addEventListener("collide", (e) => {
                 let contact = e.contact;
 
-                if (contact.bi.id == entity.getComponent(BoxCollider).body.id)
+                if (contact.bi.id == entity.getComponent(Rigidbody).skeleton.id)
                     contact.ni.negate(contactNormal);
                 else
                     contactNormal.copy(contact.ni);
@@ -79,37 +91,53 @@ class CannonSystem extends ASystem {
             this.debugger.update();
         }
 
-        ECSWrapper.entities.applyToEach(["BoxCollider"], (entity) => {
-            this.world.addBody(entity.getComponent(BoxCollider).body);
+        ECSWrapper.entities.applyToEach(["BoxCollider", "Rigidbody", "Transform"], (entity) => {
+            const boxCollider = entity.getComponent(BoxCollider);
+            const rigidbody = entity.getComponent(Rigidbody);
+            const transform = entity.getComponent(Transform);
+
+            if (rigidbody.skeleton.shapes.length === 0) {
+                rigidbody.addShape(boxCollider.collider);
+                rigidbody.position = transform.position;
+            }
         });
 
-        ECSWrapper.entities.applyToEach(["Box", "BoxCollider"], (entity) => {
-            const box: Box = entity.getComponent(Box);
-            const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
+        ECSWrapper.entities.applyToEach(["Rigidbody", "BoxCollider", "Transform"], (entity) => {
+            const transform = entity.getComponent(Transform);
+            const rigidbody = entity.getComponent(Rigidbody);
+            const boxCollider = entity.getComponent(BoxCollider);
 
-            const positionOffsetted: CANNON.Vec3 = new CANNON.Vec3(
-                boxCollider.body.position.x + boxCollider.offset.x,
-                boxCollider.body.position.y + boxCollider.offset.y,
-                boxCollider.body.position.z + boxCollider.offset.z
+            const positionOffsetted: Vector3D = new Vector3D(
+                rigidbody.skeleton.position.x + boxCollider.offset.x,
+                rigidbody.skeleton.position.y + boxCollider.offset.y,
+                rigidbody.skeleton.position.z + boxCollider.offset.z
             );
-            box.mesh.position.copy(positionOffsetted as any);
-            box.mesh.quaternion.copy(boxCollider.body.quaternion as any);
+            transform.position = positionOffsetted;
+
+            if (!entity.hasComponent("Box"))
+                rigidbody.quaternion = transform.quaternion;
         });
 
-        ECSWrapper.entities.applyToEach(["Model", "BoxCollider"], (entity) => {
-            const box: Model = entity.getComponent(Model);
-            const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
+        ECSWrapper.entities.applyToEach(["Rigidbody", "FirstPersonController"], (entity) => {
+            const rigidbody = entity.getComponent(Rigidbody);
+            const firstPersonController = entity.getComponent(FirstPersonController);
 
-            const positionOffsetted: CANNON.Vec3 = new CANNON.Vec3(
-                boxCollider.body.position.x + boxCollider.offset.x,
-                boxCollider.body.position.y + boxCollider.offset.y,
-                boxCollider.body.position.z + boxCollider.offset.z
-            );
-            box.getObject().then((object) => {
-                object.position.copy(positionOffsetted as any);
-                object.quaternion.copy(boxCollider.body.quaternion as any);
-            });
+            rigidbody.skeleton.position.x += firstPersonController.velocity.x;
+            rigidbody.skeleton.velocity.y = (firstPersonController.velocity.y === 0) ? rigidbody.skeleton.velocity.y : firstPersonController.velocity.y;
+            rigidbody.skeleton.position.z += firstPersonController.velocity.z;
+        });
 
+        ECSWrapper.entities.applyToEach(["Rigidbody", "Controller"], (entity) => {
+            const collider = entity.getComponent(Rigidbody);
+            const controller = entity.getComponent(Controller);
+
+            collider.skeleton.position.x += controller.velocity.x;
+            collider.skeleton.position.y += controller.velocity.y;
+            collider.skeleton.position.z += controller.velocity.z;
+        });
+
+        ECSWrapper.entities.applyToEach(["Rigidbody"], (entity) => {
+            this.world.addBody(entity.getComponent(Rigidbody).skeleton);
         });
     }
 

@@ -2,8 +2,8 @@ import ASystem from "../ecs/abstract/ASystem";
 
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import Camera from "../components/Camera";
-import AudioSource from "../components/AudioSource";
-import Audio, { AudioState } from "../components/Audio";
+import AudioSource from "../components/audio/AudioSource";
+import Audio, { AudioState } from "../components/audio/Audio";
 
 class AudioSystem extends ASystem {
     onInit() {

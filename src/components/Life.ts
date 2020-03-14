@@ -2,16 +2,17 @@ import * as THREE from 'three';
 
 import AComponent from '../ecs/abstract/AComponent';
 import IEntity from '../ecs/interfaces/IEntity';
+import Vector3D from '../maths/Vector3D';
 
 export default class Life extends AComponent {
     private _globalLife : number;
     private _currentLife : number;
     private _isDead : boolean;
-    private _respawnPosition : THREE.Vector3;
+    private _respawnPosition : Vector3D;
     private _timer: number;
     private _regenerationLifeTime: number;
 
-    constructor(entity: IEntity, lifePoint : number, spawnPosition: THREE.Vector3, regenerationTime: number) {
+    constructor(entity: IEntity, lifePoint : number, spawnPosition: Vector3D, regenerationTime: number) {
         super(entity);
 
         if (lifePoint < 0 || lifePoint > 13) {
@@ -39,7 +40,7 @@ export default class Life extends AComponent {
         this._timer = newTime;
     }
 
-    get respawnPosition(): THREE.Vector3 {
+    get respawnPosition(): Vector3D {
         return this._respawnPosition;
     }
 

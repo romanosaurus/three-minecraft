@@ -3,13 +3,14 @@ import * as CANNON from 'cannon';
 import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import Voxel from "../components/Voxel";
-import BoxCollider from "../components/BoxCollider";
 import CannonSystem from "./CannonSystem";
 import SystemManager from "../ecs/managers/SystemManager";
 import ThreeSystem from "./ThreeSystem";
 import Chunk from "../utils/Chunk";
 import WalkingArea from "../components/WalkingArea";
 import IEntity from "../ecs/interfaces/IEntity";
+import Rigidbody from '../components/physics/RigidBody';
+import Vector3D from '../maths/Vector3D';
 
 /**
  * WalkingPhysicsSystem heriting from ASystem
@@ -35,12 +36,12 @@ class WalkingPhysicsSystem extends ASystem {
     }
 
     onUpdate(elapsedTime: number): void {
-        ECSWrapper.entities.applyToEach(["BoxCollider", "WalkingArea"], (entity) => {
-            const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
+        ECSWrapper.entities.applyToEach(["Rigidbody", "WalkingArea"], (entity) => {
+            const rigidbody: Rigidbody = entity.getComponent(Rigidbody);
             const walkingArea: WalkingArea = entity.getComponent(WalkingArea);
 
             ECSWrapper.entities.applyToEach(["Voxel"], (voxelEntities) => {
-                this.handleWalkingArea(boxCollider, walkingArea, voxelEntities);
+                this.handleWalkingArea(rigidbody, walkingArea, voxelEntities);
                 this.handleDeletionOfWalkingArea(walkingArea);
             });
         });
@@ -51,10 +52,10 @@ class WalkingPhysicsSystem extends ASystem {
 
     }
 
-    private handleWalkingArea(boxCollider: BoxCollider, walkingArea: WalkingArea, voxelEntities: IEntity): void {
+    private handleWalkingArea(rigidbody: Rigidbody, walkingArea: WalkingArea, voxelEntities: IEntity): void {
         const boxColliderSize: number = 1;
         const physicsRadius: number = walkingArea.size;
-        const playerPosition: CANNON.Vec3 = boxCollider.position;
+        const playerPosition: Vector3D = rigidbody.position;
         const voxelComponent: Voxel = voxelEntities.getComponent(Voxel);
         const activeMesh: Chunk = voxelComponent.getMeshByPosition(playerPosition.x, playerPosition.z)
 

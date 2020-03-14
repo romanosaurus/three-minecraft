@@ -8,11 +8,12 @@ import IEntity from "../ecs/interfaces/IEntity";
 import Voxel from "../components/Voxel";
 import CircadianRhythm from "../components/CircadianRhythm";
 import ThreeSystem from "./ThreeSystem";
-import BoxCollider from '../components/BoxCollider';
 import MeshContainer from "../utils/MeshContainer";
 import Chunk from '../utils/Chunk';
 import PerlinGenerator from '../utils/PerlinGenerator';
 import Faces from "../utils/Faces";
+import Rigidbody from '../components/physics/RigidBody';
+import Vector3D from '../maths/Vector3D';
 
 /**
  * @interface WorldOptions
@@ -90,13 +91,13 @@ class WorldGenerationSystem extends ASystem {
     onUpdate(elapsedTime: number): void {
         const scene: THREE.Scene = ECSWrapper.systems.get(ThreeSystem).getScene();
 
-        ECSWrapper.entities.applyToEach(["FirstPersonController", "BoxCollider"], (entity) => {
-            const boxCollider: BoxCollider = entity.getComponent(BoxCollider);
+        ECSWrapper.entities.applyToEach(["FirstPersonController", "Rigidbody"], (entity) => {
+            const boxCollider: Rigidbody = entity.getComponent(Rigidbody);
 
             ECSWrapper.entities.applyToEach(["Voxel"], (voxelEntity) => {
                 const voxelComponent: Voxel = voxelEntity.getComponent(Voxel);
 
-                this.generateFromPlayerPosition(boxCollider.body.position, voxelComponent, scene);
+                this.generateFromPlayerPosition(boxCollider.position, voxelComponent, scene);
             });
         });
     }
@@ -105,7 +106,7 @@ class WorldGenerationSystem extends ASystem {
 
     }
 
-    public async generateFromPlayerPosition(playerPosition: CANNON.Vec3, voxelComponent: Voxel, scene: THREE.Scene): Promise<void> {
+    public async generateFromPlayerPosition(playerPosition: Vector3D, voxelComponent: Voxel, scene: THREE.Scene): Promise<void> {
         const currentZPlayerPosition = Math.floor(playerPosition.z / voxelComponent.cellSize);
         const currentXPlayerPosition = Math.floor(playerPosition.x / voxelComponent.cellSize);
         const meshContainer: MeshContainer = voxelComponent.meshContainer;

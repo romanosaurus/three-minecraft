@@ -3,13 +3,13 @@ import * as THREE from 'three';
 import ASystem from '../ecs/abstract/ASystem';
 import ECSWrapper from '../ecs/wrapper/ECSWrapper';
 
-import FirstPersonController from '../components/FirstPersonController';
+import FirstPersonController from '../components/controllers/FirstPersonController';
 import Life from '../components/Life';
 import { printCommonLine } from 'jest-diff/build/printDiffs';
 import Camera from '../components/Camera';
 import Box from '../components/Box';
 import EntityManager from '../ecs/managers/EntityManager';
-import BoxCollider from '../components/BoxCollider';
+import Rigidbody from '../components/physics/RigidBody';
 
 /**
  * LifeSystem heriting from ASystem
@@ -102,9 +102,9 @@ class LifeSystem extends ASystem {
         textDeath.parentNode.removeChild(textDeath);
         buttonDeath.parentNode.removeChild(buttonDeath);
         LifeComponent.isDead = false;
-        ECSWrapper.entities.getByName("Player")[0].getComponent(BoxCollider).body.position.x = LifeComponent.respawnPosition.x;
-        ECSWrapper.entities.getByName("Player")[0].getComponent(BoxCollider).body.position.y = LifeComponent.respawnPosition.y;
-        ECSWrapper.entities.getByName("Player")[0].getComponent(BoxCollider).body.position.z = LifeComponent.respawnPosition.z;
+        ECSWrapper.entities.getByName("Player")[0].getComponent(Rigidbody).position.x = LifeComponent.respawnPosition.x;
+        ECSWrapper.entities.getByName("Player")[0].getComponent(Rigidbody).position.y = LifeComponent.respawnPosition.y;
+        ECSWrapper.entities.getByName("Player")[0].getComponent(Rigidbody).position.z = LifeComponent.respawnPosition.z;
       }
 }
 

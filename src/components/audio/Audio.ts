@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import AComponent from "../ecs/abstract/AComponent";
-import IEntity from '../ecs/interfaces/IEntity';
+import AComponent from "../../ecs/abstract/AComponent";
+import IEntity from '../../ecs/interfaces/IEntity';
 
 interface AudioOptions {
     listener: THREE.AudioListener,

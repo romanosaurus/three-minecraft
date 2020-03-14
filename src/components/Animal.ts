@@ -1,9 +1,5 @@
-import * as THREE from 'three';
-
 import AComponent from "../ecs/abstract/AComponent";
 import IEntity from '../ecs/interfaces/IEntity';
-
-import ModelLoader from "../utils/ModelLoader";
 
 export enum AnimalType {
     PIG,
@@ -25,8 +21,6 @@ export class Animal extends AComponent {
     private _facingPartner: boolean;
     private _makeBaby: boolean;
 
-    private _speed: number;
-
     constructor(entity: IEntity, animalType: AnimalType) {
         super(entity);
 
@@ -42,8 +36,6 @@ export class Animal extends AComponent {
         this._facingPartner = false;
 
         this._makeBaby = false;
-
-        this._speed = 2;
     }
 
     get type(): AnimalType {
@@ -96,13 +88,5 @@ export class Animal extends AComponent {
 
     set makeBaby(state) {
         this._makeBaby = state;
-    }
-
-    get speed(): number {
-        return this._speed;
-    }
-
-    set speed(ns: number) {
-        this._speed = ns;
     }
 }
