@@ -6,7 +6,6 @@ import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import Camera from "../components/Camera";
 import FirstPersonController from "../components/controllers/FirstPersonController";
 import Box from "../components/Box";
-import BoxCollider from "../components/BoxCollider";
 import PointerLock from '../components/PointerLock';
 import Life from '../components/Life';
 import AudioSource from '../components/AudioSource';

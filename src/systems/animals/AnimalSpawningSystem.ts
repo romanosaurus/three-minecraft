@@ -76,9 +76,9 @@ export default class AnimalSpawningSystem extends ASystem {
 
         // Remove from scene animals who are outside of the player radius
         ECSWrapper.entities.applyToEach(["FirstPersonController"], (entity) => {
-            const playerPosition: CANNON.Vec3 = entity.getComponent(Rigidbody).skeleton.position;
+            const playerPosition = entity.getComponent(Rigidbody).position;
             ECSWrapper.entities.applyToEach(["Animal"], (animal: IEntity) => {
-                const animalPosition: CANNON.Vec3 = animal.getComponent(Rigidbody).skeleton.position;
+                const animalPosition = animal.getComponent(Rigidbody).position;
 
                 if (Utilities.vectorCollide(playerPosition, animalPosition, 60)) {
                     animal.getComponent(Controller).speed = 2;
@@ -147,7 +147,7 @@ export default class AnimalSpawningSystem extends ASystem {
             else if (animalComponent.type === AnimalType.SHEEP)
                 newAnimalEntity.assignComponent<Model>(new Model(newAnimalEntity, "sheep", "../../assets/models/sheep/sheep.obj", "../../assets/models/sheep/sheep.mtl"));
 
-            newAnimalEntity.assignComponent<Controller>(new Controller(newAnimalEntity, 2));
+            newAnimalEntity.assignComponent<Controller>(new Controller(newAnimalEntity, 1));
             newAnimalEntity.assignComponent<Transform>(new Transform(newAnimalEntity));
             newAnimalEntity.getComponent(Transform).position = new Vector3D(spawningZones[i].x, spawningZones[i].y, spawningZones[i].z);
 
@@ -189,7 +189,7 @@ export default class AnimalSpawningSystem extends ASystem {
         }
     }
 
-    public spawnBaby(position: THREE.Vector3, type: AnimalType) {
+    public spawnBaby(position: Vector3D, type: AnimalType) {
         const animalId: string = `Baby${this.spawningAnimals}`;
         ECSWrapper.entities.create(animalId);
 

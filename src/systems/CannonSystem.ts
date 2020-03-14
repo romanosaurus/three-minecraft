@@ -91,6 +91,17 @@ class CannonSystem extends ASystem {
             this.debugger.update();
         }
 
+        ECSWrapper.entities.applyToEach(["BoxCollider", "Rigidbody", "Transform"], (entity) => {
+            const boxCollider = entity.getComponent(BoxCollider);
+            const rigidbody = entity.getComponent(Rigidbody);
+            const transform = entity.getComponent(Transform);
+
+            if (rigidbody.skeleton.shapes.length === 0) {
+                rigidbody.addShape(boxCollider.collider);
+                rigidbody.position = transform.position;
+            }
+        });
+
         ECSWrapper.entities.applyToEach(["Rigidbody", "BoxCollider", "Transform"], (entity) => {
             const transform = entity.getComponent(Transform);
             const rigidbody = entity.getComponent(Rigidbody);
@@ -120,17 +131,9 @@ class CannonSystem extends ASystem {
             const collider = entity.getComponent(Rigidbody);
             const controller = entity.getComponent(Controller);
 
-            collider.position.x += controller.velocity.x;
-            collider.position.y += controller.velocity.y;
-            collider.position.z += controller.velocity.z;
-        });
-
-        ECSWrapper.entities.applyToEach(["BoxCollider", "Rigidbody", "Transform"], (entity) => {
-            const boxCollider = entity.getComponent(BoxCollider);
-            const rigidbody = entity.getComponent(Rigidbody);
-
-            if (rigidbody.skeleton.shapes.length === 0)
-                rigidbody.addShape(boxCollider.collider);
+            collider.skeleton.position.x += controller.velocity.x;
+            collider.skeleton.position.y += controller.velocity.y;
+            collider.skeleton.position.z += controller.velocity.z;
         });
 
         ECSWrapper.entities.applyToEach(["Rigidbody"], (entity) => {

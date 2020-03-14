@@ -7,8 +7,8 @@ import ASystem from '../../ecs/abstract/ASystem';
 import ParticleSystem from '../../components/ParticleSystem';
 import AnimalSpawningSystem from './AnimalSpawningSystem';
 import ThreeSystem from '../ThreeSystem';
-import BoxCollider from "../../components/BoxCollider";
 import Utilities from "../../utils/Utilities";
+import Rigidbody from '../../components/physics/RigidBody';
 
 export default class AnimalReproductionSystem extends ASystem {
     onInit(): void {
@@ -50,8 +50,8 @@ export default class AnimalReproductionSystem extends ASystem {
             ECSWrapper.entities.applyToEach(["Animal"], (entity) => {
                 const otherAnimal = entity.getComponent(Animal);
 
-                const animalPosition: CANNON.Vec3 = animal.getEntity().getComponent(BoxCollider).position;
-                const potentialPartnerPosition: CANNON.Vec3 = otherAnimal.getEntity().getComponent(BoxCollider).position;
+                const animalPosition = animal.getEntity().getComponent(Rigidbody).position;
+                const potentialPartnerPosition = otherAnimal.getEntity().getComponent(Rigidbody).position;
 
                 if (Utilities.vectorCollide(animalPosition, potentialPartnerPosition, 30)) {
                     if (otherAnimal !== animal && otherAnimal.type === animal.type && otherAnimal.isInHeat) {
@@ -66,12 +66,7 @@ export default class AnimalReproductionSystem extends ASystem {
 
     makeBaby(animal: Animal) {
         if (animal.makeBaby && animal.partner && animal.isInHeat && animal.partner.isInHeat) {
-            const pos = new THREE.Vector3(
-                animal.getEntity().getComponent(BoxCollider).position.x,
-                animal.getEntity().getComponent(BoxCollider).position.y,
-                animal.getEntity().getComponent(BoxCollider).position.z
-            );
-            ECSWrapper.systems.get(AnimalSpawningSystem).spawnBaby(pos, animal.type);
+            ECSWrapper.systems.get(AnimalSpawningSystem).spawnBaby(animal.getEntity().getComponent(Rigidbody).position, animal.type);
 
             animal.makeBaby = false;
             this.setAnimalInHeat(animal, false);

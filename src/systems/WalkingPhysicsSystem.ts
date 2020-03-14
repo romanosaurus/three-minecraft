@@ -3,7 +3,6 @@ import * as CANNON from 'cannon';
 import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
 import Voxel from "../components/Voxel";
-import BoxCollider from "../components/BoxCollider";
 import CannonSystem from "./CannonSystem";
 import SystemManager from "../ecs/managers/SystemManager";
 import ThreeSystem from "./ThreeSystem";

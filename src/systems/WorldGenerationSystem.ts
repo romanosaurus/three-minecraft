@@ -8,7 +8,6 @@ import IEntity from "../ecs/interfaces/IEntity";
 import Voxel from "../components/Voxel";
 import CircadianRhythm from "../components/CircadianRhythm";
 import ThreeSystem from "./ThreeSystem";
-import BoxCollider from '../components/BoxCollider';
 import MeshContainer from "../utils/MeshContainer";
 import Chunk from '../utils/Chunk';
 import PerlinGenerator from '../utils/PerlinGenerator';

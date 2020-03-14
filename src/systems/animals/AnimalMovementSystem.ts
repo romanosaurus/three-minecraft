@@ -3,7 +3,6 @@ import * as CANNON from "cannon";
 import ECSWrapper from "../../ecs/wrapper/ECSWrapper";
 import ASystem from "../../ecs/abstract/ASystem";
 import IEntity from "../../ecs/interfaces/IEntity";
-import BoxCollider from "../../components/BoxCollider";
 import { Animal } from "../../components/Animal";
 import Model from "../../components/Model";
 import Utilities from "../../utils/Utilities";
@@ -69,9 +68,11 @@ export default class AnimalMovementSystem extends ASystem {
                 }
 
                 // Calculate the movement based on the animal's rotation.
-                let movementVector: CANNON.Vec3 = new CANNON.Vec3(0, 2, 2);
-                let rotatedVector: CANNON.Vec3 = Utilities.multiplyVectorByQuaternion(movementVector, animalBoxCollider.skeleton.quaternion);
+                //let movementVector: CANNON.Vec3 = new CANNON.Vec3(0, 2, 2);
+                //let rotatedVector: CANNON.Vec3 = Utilities.multiplyVectorByQuaternion(movementVector, animalBoxCollider.skeleton.quaternion);
 
+                let rotatedVector = new Vector3D(0, 2, 2).applyQuaternion(animalTransform.quaternion);
+                
                 animalController.velocity = new Vector3D(
                     rotatedVector.x * animalController.speed * elapsedTimeAsSeconds,
                     rotatedVector.y * animalController.speed * elapsedTimeAsSeconds,

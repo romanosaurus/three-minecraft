@@ -155,18 +155,18 @@ export default class Vector3D {
      * @param quaternion
      */
     public applyQuaternion(quaternion: Quaternion): Vector3D {
-        let x = this.x, y = this.y, z = this.z;
-        let qx = quaternion.x, qy = quaternion.y, qz = quaternion.z, qw = quaternion.w;
+        this.normalize();
 
-        var ix = qw * x + qy * z - qz * y;
-		var iy = qw * y + qz * x - qx * z;
-		var iz = qw * z + qx * y - qy * x;
-		var iw = - qx * x - qy * y - qz * z;
-
-		this.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
-		this.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
-		this.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
-
-		return this;
+        let i = new Quaternion(
+            quaternion.w * this.x + quaternion.y * this.z - quaternion.z * this.y,
+            quaternion.w * this.y + quaternion.z * this.x - quaternion.x * this.z,
+            quaternion.w * this.z + quaternion.x * this.y - quaternion.y * this.x,
+            -quaternion.x * this.x - quaternion.y * this.y - quaternion.z * this.z
+        );
+        return new Vector3D(
+            i.x * quaternion.w + i.w * -quaternion.x + i.y * -quaternion.z - i.z * -quaternion.y,
+            i.y * quaternion.w + i.w * -quaternion.y + i.z * -quaternion.x - i.x * -quaternion.z,
+            i.z * quaternion.w + i.w * -quaternion.z + i.x * -quaternion.y - i.y * -quaternion.x
+        );
     }
 }
