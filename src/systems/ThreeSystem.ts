@@ -22,6 +22,8 @@ import Rigidbody from "../components/physics/RigidBody";
 import BoxCollider from "../components/physics/BoxCollider";
 import Vector3D from "../maths/Vector3D";
 import Light from "../components/misc/Light";
+import LightFactory from "../factories/LightFactory";
+import Vector2D from "../maths/Vector2D";
 
 /**
  * ThreeSystem heriting from ASystem
@@ -54,6 +56,9 @@ class ThreeSystem extends ASystem {
     }
 
     onInit(): void {
+        LightFactory.createLight(0.7, 0xFFFFFF, new Vector3D(-1, 2, 4));
+        LightFactory.createLight(0.7, 0xFFFFFF, new Vector3D(1, -1, -2));
+
         this.renderer.shadowMap.enabled = true;
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor(0x222233, 5);
@@ -83,6 +88,13 @@ class ThreeSystem extends ASystem {
             const box = entity.getComponent(Box);
 
             box.mesh.position.set(transform.position.x, transform.position.y, transform.position.z);
+        });
+
+        ECSWrapper.entities.applyToEach(["Transform", "Light"], (entity) => {
+            const transform = entity.getComponent(Transform);
+            const light = entity.getComponent(Light);
+
+            light.bulb.position.set(transform.position.x, transform.position.y, transform.position.z);
         });
 
         ECSWrapper.entities.applyToEach(["Transform", "Model"], (entity) => {
@@ -141,15 +153,11 @@ class ThreeSystem extends ASystem {
         playerEntity.assignComponent<FirstPersonController>(
             new FirstPersonController(
                 playerEntity,
-                new THREE.Vector2(0.005, 0.005),
-                new THREE.Vector2(5, 5)
+                new Vector2D(0.005, 0.005),
+                new Vector2D(5, 5)
             )
         );
-        playerEntity.assignComponent<Box>(new Box(
-            playerEntity,
-            new THREE.Vector3(1, 3, 1),
-            new THREE.Vector3(64 * 2 + 10, 60, 64 * 2 + 10))
-        );
+        playerEntity.assignComponent<Box>(new Box(playerEntity, new Vector3D(1, 3, 1)));
         playerEntity.assignComponent<Camera>(
             new Camera(
                 playerEntity,
@@ -173,17 +181,12 @@ class ThreeSystem extends ASystem {
             playerEntity,
             new Vector3D(playerBoxSize.x, playerBoxSize.y, playerBoxSize.z)
         ));
-        /*playerEntity.assignComponent<BoxCollider>(new BoxCollider(
-            playerEntity,
-            playerEntity.getComponent(Box).mesh.position,
-            playerEntity.getComponent(Box).size,
-            10
-        ));*/
+
         playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity, 3));
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
 
-        playerEntity.assignComponent<Life>(new Life(playerEntity, 9, playerEntity.getComponent(Box).position, 0.30));
+        playerEntity.assignComponent<Life>(new Life(playerEntity, 9, playerEntity.getComponent(Transform).position, 0.30));
     }
 
     getScene(): THREE.Scene {

@@ -4,6 +4,7 @@ import AComponent from "../../ecs/abstract/AComponent";
 import IEntity from "../../ecs/interfaces/IEntity";
 
 import Vector3D from "../../maths/Vector3D";
+import Vector2D from '../../maths/Vector2D';
 
 interface Direction {
     left: number,
@@ -13,15 +14,15 @@ interface Direction {
 }
 
 class FirstPersonController extends AComponent {
-    public readonly rotationSpeed: THREE.Vector2;
-    public readonly movementSpeed: THREE.Vector2;
+    public readonly rotationSpeed: Vector2D;
+    public readonly movementSpeed: Vector2D;
     public direction: Direction;
     public velocity: Vector3D;
     private isJumping: boolean;
     private _canJump: boolean;
     private _airTime: number;
 
-    constructor(entity: IEntity, rotationSpeed: THREE.Vector2, movementSpeed: THREE.Vector2) {
+    constructor(entity: IEntity, rotationSpeed: Vector2D, movementSpeed: Vector2D) {
         super(entity);
 
         this.rotationSpeed = rotationSpeed;

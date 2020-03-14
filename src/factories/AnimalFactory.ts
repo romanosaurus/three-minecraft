@@ -1,6 +1,8 @@
-import { AnimalType, Animal } from "../components/Animal";
-import Vector3D from "../maths/Vector3D";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
+
+import Vector3D from "../maths/Vector3D";
+
+import { AnimalType, Animal } from "../components/Animal";
 import Model from "../components/Model";
 import Controller from "../components/controllers/Controller";
 import Transform from "../components/Transform";

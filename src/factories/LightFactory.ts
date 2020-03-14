@@ -5,7 +5,8 @@ import Light from "../components/misc/Light";
 
 class LightFactory {
     private _lightNumber = 0;
-    public createLight(color: number, position: Vector3D) {
+
+    public createLight(intensity: number, color: number, position: Vector3D) {
         const id = `Light${this._lightNumber}`;
         ECSWrapper.entities.create(`Light${this._lightNumber}`);
 

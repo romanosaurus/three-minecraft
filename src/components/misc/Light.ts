@@ -6,9 +6,9 @@ import IEntity from "../../ecs/interfaces/IEntity";
 export default class Light extends AComponent {
     public bulb: THREE.DirectionalLight;
 
-    constructor(entity: IEntity, color: number = 0xFFFFFF) {
+    constructor(entity: IEntity, color: number = 0xFFFFFF, intensity: number = 1) {
         super(entity);
 
-        this.bulb = new THREE.DirectionalLight(color, 1);
+        this.bulb = new THREE.DirectionalLight(color, intensity);
     }
 }
