@@ -68,11 +68,9 @@ export default class AnimalMovementSystem extends ASystem {
                 }
 
                 // Calculate the movement based on the animal's rotation.
-                //let movementVector: CANNON.Vec3 = new CANNON.Vec3(0, 2, 2);
-                //let rotatedVector: CANNON.Vec3 = Utilities.multiplyVectorByQuaternion(movementVector, animalBoxCollider.skeleton.quaternion);
 
                 let rotatedVector = new Vector3D(0, 2, 2).applyQuaternion(animalTransform.quaternion);
-                
+
                 animalController.velocity = new Vector3D(
                     rotatedVector.x * animalController.speed * elapsedTimeAsSeconds,
                     rotatedVector.y * animalController.speed * elapsedTimeAsSeconds,
@@ -105,7 +103,7 @@ export default class AnimalMovementSystem extends ASystem {
         if (!animalUtils.facingPartner || this.curTime > 1) {
             curAnimalBody.getEntity().getComponent(Model).getObject().then((obj) => {
                 obj.lookAt(partnerBody.position.x, partnerBody.position.y, partnerBody.position.z);
-                transform.quaternion.setFromAxisAngle(Vector3D.UP, obj.rotation.x);
+                transform.quaternion.setFromEuler(obj.rotation);
             });
             animalUtils.facingPartner = true;
             this.curTime = 0;

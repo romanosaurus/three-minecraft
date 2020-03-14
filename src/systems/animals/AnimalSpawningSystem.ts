@@ -77,9 +77,9 @@ export default class AnimalSpawningSystem extends ASystem {
 
         // Remove from scene animals who are outside of the player radius
         ECSWrapper.entities.applyToEach(["FirstPersonController"], (entity) => {
-            const playerPosition = entity.getComponent(Rigidbody).position;
+            const playerPosition = entity.getComponent(Transform).position;
             ECSWrapper.entities.applyToEach(["Animal"], (animal: IEntity) => {
-                const animalPosition = animal.getComponent(Rigidbody).position;
+                const animalPosition = animal.getComponent(Transform).position;
 
                 if (Utilities.vectorCollide(playerPosition, animalPosition, 60)) {
                     animal.getComponent(Controller).speed = 2;
