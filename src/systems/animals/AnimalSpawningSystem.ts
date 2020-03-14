@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import {Animal, AnimalType} from "../../components/Animal";
-import BoxCollider from "../../components/BoxCollider";
+import BoxCollider from "../../components/physics/BoxCollider";
 import WalkingArea from "../../components/WalkingArea";
 
 import ASystem from '../../ecs/abstract/ASystem';
@@ -20,6 +20,7 @@ import CannonSystem from '../CannonSystem';
 import Transform from '../../components/Transform';
 import Vector3D from '../../maths/Vector3D';
 import Controller from '../../components/controllers/Controller';
+import Rigidbody from '../../components/physics/RigidBody';
 
 export default class AnimalSpawningSystem extends ASystem {
 
@@ -75,13 +76,13 @@ export default class AnimalSpawningSystem extends ASystem {
 
         // Remove from scene animals who are outside of the player radius
         ECSWrapper.entities.applyToEach(["FirstPersonController"], (entity) => {
-            const playerPosition: CANNON.Vec3 = entity.getComponent(BoxCollider).body.position;
+            const playerPosition: CANNON.Vec3 = entity.getComponent(Rigidbody).skeleton.position;
             ECSWrapper.entities.applyToEach(["Animal"], (animal: IEntity) => {
-                const animalPosition: CANNON.Vec3 = animal.getComponent(BoxCollider).body.position;
+                const animalPosition: CANNON.Vec3 = animal.getComponent(Rigidbody).skeleton.position;
 
                 if (Utilities.vectorCollide(playerPosition, animalPosition, 60)) {
                     animal.getComponent(Controller).speed = 2;
-                    ECSWrapper.systems.get(CannonSystem).world.addBody(animal.getComponent(BoxCollider).body)
+                    ECSWrapper.systems.get(CannonSystem).world.addBody(animal.getComponent(Rigidbody).skeleton)
                     ECSWrapper.systems.get(WalkingPhysicsSystem).setWalkingArea(animal.getComponent(WalkingArea), true);
                     if (!scene.getObjectByName(animal.getName())) {
                         animal.getComponent(Model).getObject().then((obj) => {
@@ -92,7 +93,7 @@ export default class AnimalSpawningSystem extends ASystem {
                     }
                 } else {
                     animal.getComponent(Controller).speed = 0;
-                    ECSWrapper.systems.get(CannonSystem).world.remove(animal.getComponent(BoxCollider).body)
+                    ECSWrapper.systems.get(CannonSystem).world.remove(animal.getComponent(Rigidbody).skeleton)
                     ECSWrapper.systems.get(WalkingPhysicsSystem).setWalkingArea(animal.getComponent(WalkingArea), false);
                     if (scene.getObjectByName(animal.getName())) {
                         animal.getComponent(Model).getObject().then((obj) => {
@@ -164,22 +165,13 @@ export default class AnimalSpawningSystem extends ASystem {
                 object.name = animalId;
             });
 
-            if (animalComponent.type === AnimalType.PIG)
-                newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(
-                    newAnimalEntity,
-                    spawningZones[i],
-                    new THREE.Vector3(1, 2, 2),
-                    10,
-                    {x: 0, y: -0.2, z: 0}
-                ));
-            else
-                newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(
-                    newAnimalEntity,
-                    spawningZones[i],
-                    new THREE.Vector3(1, 2, 2),
-                    10,
-                    {x: 0, y: 0.2, z: 0}
-                ));
+            if (animalComponent.type === AnimalType.PIG) {
+                newAnimalEntity.assignComponent<Rigidbody>(new Rigidbody(newAnimalEntity, 10));
+                newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(newAnimalEntity, new Vector3D(1, 2, 2), new Vector3D(0, -0.2, 0)));
+            } else {
+                newAnimalEntity.assignComponent<Rigidbody>(new Rigidbody(newAnimalEntity, 10));
+                newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(newAnimalEntity, new Vector3D(1, 2, 2), new Vector3D(0, 0.2, 0)));
+            }
 
             newAnimalEntity.assignComponent<WalkingArea>(new WalkingArea(newAnimalEntity, 2));
             newAnimalEntity.assignComponent<ParticleSystem>(new ParticleSystem(
@@ -189,7 +181,7 @@ export default class AnimalSpawningSystem extends ASystem {
                 new THREE.Vector3(spawningZones[i].x - 5, spawningZones[i].y - 5, spawningZones[i].z - 5),
                 new THREE.Vector3(spawningZones[i].x + 5, spawningZones[i].y + 5, spawningZones[i].z + 5)
             ));
-            newAnimalEntity.getComponent(ParticleSystem).bodyToFollow = newAnimalEntity.getComponent(BoxCollider).body;
+            newAnimalEntity.getComponent(ParticleSystem).bodyToFollow = newAnimalEntity.getComponent(Rigidbody).skeleton;
 
             newAnimalEntity.getComponent(ParticleSystem).disable();
 
@@ -236,22 +228,13 @@ export default class AnimalSpawningSystem extends ASystem {
             object.name = animalId;
         });
 
-        if (type === AnimalType.PIG)
-            newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(
-                newAnimalEntity,
-                new THREE.Vector3(position.x + 2, position.y, position.z),
-                new THREE.Vector3(1, 1, 1),
-                10,
-                {x: 0, y: -0.2, z: 0}
-            ));
-        else
-            newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(
-                newAnimalEntity,
-                new THREE.Vector3(position.x + 2, position.y, position.z),
-                new THREE.Vector3(1, 1, 1),
-                10,
-                {x: 0, y: 0.2, z: 0}
-            ));
+        if (animalComponent.type === AnimalType.PIG) {
+            newAnimalEntity.assignComponent<Rigidbody>(new Rigidbody(newAnimalEntity, 10));
+            newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(newAnimalEntity, new Vector3D(1, 2, 2), new Vector3D(0, -0.2, 0)));
+        } else {
+            newAnimalEntity.assignComponent<Rigidbody>(new Rigidbody(newAnimalEntity, 10));
+            newAnimalEntity.assignComponent<BoxCollider>(new BoxCollider(newAnimalEntity, new Vector3D(1, 2, 2), new Vector3D(0, 0.2, 0)));
+        }
 
         newAnimalEntity.assignComponent<WalkingArea>(new WalkingArea(newAnimalEntity, 2));
         newAnimalEntity.assignComponent<ParticleSystem>(new ParticleSystem(
@@ -261,7 +244,7 @@ export default class AnimalSpawningSystem extends ASystem {
             new THREE.Vector3(position.x - 3, position.y - 5, position.z - 5),
             new THREE.Vector3(position.x + 3, position.y + 5, position.z + 5)
         ));
-        newAnimalEntity.getComponent(ParticleSystem).bodyToFollow = newAnimalEntity.getComponent(BoxCollider).body;
+        newAnimalEntity.getComponent(ParticleSystem).bodyToFollow = newAnimalEntity.getComponent(Rigidbody).skeleton;
 
         newAnimalEntity.getComponent(ParticleSystem).disable();
 

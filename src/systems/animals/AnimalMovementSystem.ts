@@ -12,6 +12,7 @@ import ThreeSystem from "../ThreeSystem";
 import Transform from "../../components/Transform";
 import Controller from "../../components/controllers/Controller";
 import Vector3D from "../../maths/Vector3D";
+import Rigidbody from "../../components/physics/RigidBody";
 
 /**
  * AnimalMovementSystem
@@ -32,7 +33,7 @@ export default class AnimalMovementSystem extends ASystem {
         const elapsedTimeAsSeconds: number = elapsedTime / 1000;
 
         ECSWrapper.entities.applyToEach(["Animal"], (animal: IEntity) => {
-            const animalBoxCollider: BoxCollider = animal.getComponent(BoxCollider);
+            const animalBoxCollider: Rigidbody = animal.getComponent(Rigidbody);
             const animalUtils: Animal = animal.getComponent(Animal);
             const animalController = animal.getComponent(Controller);
             const animalTransform = animal.getComponent(Transform);
@@ -40,7 +41,7 @@ export default class AnimalMovementSystem extends ASystem {
 
             // Handle the movement of the animals if the animal has a partner
             if (animalUtils.partner) {
-                const partnerCollider = animalUtils.partner.getEntity().getComponent(BoxCollider);
+                const partnerCollider = animalUtils.partner.getEntity().getComponent(Rigidbody);
                 const distance = 1;
 
                 if (partnerCollider.position.x >= animalBoxCollider.position.x + distance ||
@@ -69,7 +70,7 @@ export default class AnimalMovementSystem extends ASystem {
 
                 // Calculate the movement based on the animal's rotation.
                 let movementVector: CANNON.Vec3 = new CANNON.Vec3(0, 2, 2);
-                let rotatedVector: CANNON.Vec3 = Utilities.multiplyVectorByQuaternion(movementVector, animalBoxCollider.body.quaternion);
+                let rotatedVector: CANNON.Vec3 = Utilities.multiplyVectorByQuaternion(movementVector, animalBoxCollider.skeleton.quaternion);
 
                 animalController.velocity = new Vector3D(
                     rotatedVector.x * animalController.speed * elapsedTimeAsSeconds,
@@ -96,13 +97,13 @@ export default class AnimalMovementSystem extends ASystem {
     }
 
     makeLoverMeet(animalUtils: Animal, elapsedTime: number) {
-        const curAnimalBody = animalUtils.getEntity().getComponent(BoxCollider);
-        const partnerBody = animalUtils.partner.getEntity().getComponent(BoxCollider);
+        const curAnimalBody = animalUtils.getEntity().getComponent(Rigidbody);
+        const partnerBody = animalUtils.partner.getEntity().getComponent(Rigidbody);
         const transform = animalUtils.getEntity().getComponent(Transform);
 
         if (!animalUtils.facingPartner || this.curTime > 1) {
             curAnimalBody.getEntity().getComponent(Model).getObject().then((obj) => {
-                obj.lookAt(partnerBody.body.position.x, partnerBody.body.position.y, partnerBody.body.position.z);
+                obj.lookAt(partnerBody.position.x, partnerBody.position.y, partnerBody.position.z);
                 transform.quaternion.setFromAxisAngle(Vector3D.UP, obj.rotation.x);
             });
             animalUtils.facingPartner = true;

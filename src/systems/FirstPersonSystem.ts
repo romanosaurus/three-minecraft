@@ -53,7 +53,7 @@ class FirstPersonSystem extends ASystem {
     onUpdate(elapsedTime: number): void {
         const elapsedTimeAsSecond = elapsedTime / 1000;
 
-        ECSWrapper.entities.applyToEach(["Camera", "Box", "FirstPersonController", "BoxCollider", "Transform"], (entity) => {
+        ECSWrapper.entities.applyToEach(["Camera", "Box", "FirstPersonController", "Rigidbody", "Transform"], (entity) => {
             const firstPersonController: FirstPersonController = entity.getComponent(FirstPersonController);
             const lifeComponent = entity.getComponent(Life);
             const transform = entity.getComponent(Transform);
@@ -90,10 +90,7 @@ class FirstPersonSystem extends ASystem {
 
                 firstPersonController.velocity.x = movementVector.x;
                 firstPersonController.velocity.z = movementVector.z;
-                //transform.position.x += movementVector.x;
-                //transform.position.z += movementVector.z;
-                //entity.getComponent(BoxCollider).body.position.z += movementVector.z;
-                //entity.getComponent(BoxCollider).body.position.x += movementVector.x;
+                
                 const sound = ECSWrapper.entities.getByName("fallSound")[0].getComponent(Audio);
 
                 if (!firstPersonController.canJump) {

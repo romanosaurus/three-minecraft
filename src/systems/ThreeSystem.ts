@@ -8,7 +8,7 @@ import IEntity from "../ecs/interfaces/IEntity";
 import FirstPersonController from "../components/controllers/FirstPersonController";
 import Box from "../components/Box";
 import Camera from "../components/Camera";
-import BoxCollider from "../components/BoxCollider";
+//import BoxCollider from "../components/BoxCollider";
 import Transform from "../components/Transform";
 import PointerLock from "../components/PointerLock";
 import Life from "../components/Life";
@@ -21,6 +21,11 @@ import AudioSource from "../components/AudioSource";
 import Audio from "../components/Audio";
 import Model from "../components/Model";
 import Utilities from "../utils/Utilities";
+
+import Rigidbody from "../components/physics/RigidBody";
+import BoxCollider from "../components/physics/BoxCollider";
+import Vector3D from "../maths/Vector3D";
+
 /**
  * ThreeSystem heriting from ASystem
  * @system ThreeSystem
@@ -163,12 +168,19 @@ class ThreeSystem extends ASystem {
             loop: true,
             volume: 1
         }));
+
+        const playerBoxSize = playerEntity.getComponent(Box).size;
+        playerEntity.assignComponent<Rigidbody>(new Rigidbody(playerEntity, 10));
         playerEntity.assignComponent<BoxCollider>(new BoxCollider(
+            playerEntity,
+            new Vector3D(playerBoxSize.x, playerBoxSize.y, playerBoxSize.z)
+        ));
+        /*playerEntity.assignComponent<BoxCollider>(new BoxCollider(
             playerEntity,
             playerEntity.getComponent(Box).mesh.position,
             playerEntity.getComponent(Box).size,
             10
-        ));
+        ));*/
         playerEntity.assignComponent<WalkingArea>(new WalkingArea(playerEntity, 3));
         playerEntity.assignComponent<PointerLock>(new PointerLock(playerEntity, playerEntity.getComponent(Camera).camera));
         playerEntity.getComponent(Camera).camera.position.set(-32 * .3, 32 * .8, -32 * .3);
