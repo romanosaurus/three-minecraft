@@ -75,6 +75,14 @@ export default class Vector3D {
      */
     static RIGHT = new Vector3D(1, 0, 0);
 
+    public set(x: number, y: number, z: number): void {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    /**
+     * Normalize Vector
+     */
     public normalize(): number {
         let x = this.x, y = this.y, z = this.z;
 

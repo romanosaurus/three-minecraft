@@ -8,8 +8,8 @@ import FirstPersonController from "../components/controllers/FirstPersonControll
 import Box from "../components/Box";
 import PointerLock from '../components/PointerLock';
 import Life from '../components/Life';
-import AudioSource from '../components/AudioSource';
-import Audio, { AudioState } from '../components/Audio';
+import AudioSource from '../components/audio/AudioSource';
+import Audio, { AudioState } from '../components/audio/Audio';
 import Transform from '../components/Transform';
 import Euler from '../maths/Euler';
 

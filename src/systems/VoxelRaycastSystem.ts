@@ -9,8 +9,8 @@ import ThreeSystem from './ThreeSystem';
 import IEntity from '../ecs/interfaces/IEntity';
 import Chunk from '../utils/Chunk';
 import WorldGenerationSystem from './WorldGenerationSystem';
-import Audio, { AudioState } from '../components/Audio';
-import AudioSource from '../components/AudioSource';
+import Audio, { AudioState } from '../components/audio/Audio';
+import AudioSource from '../components/audio/AudioSource';
 
 /**
  * @interface Intersection

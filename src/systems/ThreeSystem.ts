@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import * as CANNON from 'cannon';
 
 import ASystem from "../ecs/abstract/ASystem";
 import ECSWrapper from "../ecs/wrapper/ECSWrapper";
@@ -15,16 +14,15 @@ import Life from "../components/Life";
 import FullScreen from "../utils/FullScreen";
 
 import * as Stats from 'stats.js';
-import LightUtilities from "../utils/LightUtilities";
 import WalkingArea from "../components/WalkingArea";
-import AudioSource from "../components/AudioSource";
-import Audio from "../components/Audio";
+import AudioSource from "../components/audio/AudioSource";
+import Audio from "../components/audio/Audio";
 import Model from "../components/Model";
-import Utilities from "../utils/Utilities";
 
 import Rigidbody from "../components/physics/RigidBody";
 import BoxCollider from "../components/physics/BoxCollider";
 import Vector3D from "../maths/Vector3D";
+import Light from "../components/misc/Light";
 
 /**
  * ThreeSystem heriting from ASystem
@@ -57,9 +55,6 @@ class ThreeSystem extends ASystem {
     }
 
     onInit(): void {
-        LightUtilities.AddLight(this.scene, -1,  2,  4);
-        LightUtilities.AddLight(this.scene, 1, -1, -2);
-
         this.renderer.shadowMap.enabled = true;
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor(0x222233, 5);
@@ -68,6 +63,9 @@ class ThreeSystem extends ASystem {
 
         this.initializePlayer();
 
+        ECSWrapper.entities.applyToEach(["Light"], (entity) => {
+            this.scene.add(entity.getComponent(Light).bulb);
+        })
         ECSWrapper.entities.applyToEach(["Box"], (entity) => {
             this.scene.add(entity.getComponent(Box).mesh);
         });
