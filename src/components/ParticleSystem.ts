@@ -3,6 +3,7 @@ import * as CANNON from 'cannon';
 
 import AComponent from "../ecs/abstract/AComponent";
 import IEntity from "../ecs/interfaces/IEntity";
+import Vector3D from '../maths/Vector3D';
 
 interface MaterialOptions {
     color: number,
@@ -20,7 +21,7 @@ class ParticleSystem extends AComponent {
 
     private _bodyToFollow: CANNON.Body | null;
 
-    constructor(entity: IEntity, particleCount: number, materialOptions: MaterialOptions, minimalPosition: THREE.Vector3, maximumPosition: THREE.Vector3) {
+    constructor(entity: IEntity, particleCount: number, materialOptions: MaterialOptions, minimalPosition: THREE.Vector3 | Vector3D, maximumPosition: THREE.Vector3 | Vector3D) {
         super(entity);
 
         this._particles = new THREE.Geometry();

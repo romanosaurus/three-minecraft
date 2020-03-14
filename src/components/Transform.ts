@@ -7,6 +7,6 @@ import AComponent from "../ecs/abstract/AComponent";
 export default class Transform extends AComponent {
     public position: Vector3D = new Vector3D;
     public rotation: Euler = new Euler;
-    public scale: Vector3D = new Vector3D;
+    public scale: Vector3D = new Vector3D(1, 1, 1);
     public quaternion: Quaternion = new Quaternion;
 }

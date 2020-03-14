@@ -7,7 +7,6 @@ import IEntity from "../ecs/interfaces/IEntity";
 import FirstPersonController from "../components/controllers/FirstPersonController";
 import Box from "../components/Box";
 import Camera from "../components/Camera";
-//import BoxCollider from "../components/BoxCollider";
 import Transform from "../components/Transform";
 import PointerLock from "../components/PointerLock";
 import Life from "../components/Life";
@@ -91,6 +90,7 @@ class ThreeSystem extends ASystem {
             const model = entity.getComponent(Model);
 
             model.getObject().then(obj => {
+                obj.scale.set(transform.scale.x, transform.scale.y, transform.scale.z);
                 obj.position.set(transform.position.x, transform.position.y, transform.position.z);
                 obj.quaternion.set(transform.quaternion.x, transform.quaternion.y, transform.quaternion.z, transform.quaternion.w);
             })
