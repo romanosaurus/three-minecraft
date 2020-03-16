@@ -103,6 +103,8 @@ export default class AnimalMovementSystem extends ASystem {
         if (!animalUtils.facingPartner || this.curTime > 1) {
             curAnimalBody.getEntity().getComponent(Model).getObject().then((obj) => {
                 obj.lookAt(partnerBody.position.x, partnerBody.position.y, partnerBody.position.z);
+                obj.rotation.x = 0;
+                obj.rotation.z = 0;
                 transform.quaternion.setFromEuler(obj.rotation);
             });
             animalUtils.facingPartner = true;
