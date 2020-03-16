@@ -20,7 +20,7 @@ import CannonSystem from '../CannonSystem';
 import Transform from '../../components/Transform';
 import Vector3D from '../../maths/Vector3D';
 import Controller from '../../components/controllers/Controller';
-import Rigidbody from '../../components/physics/RigidBody';
+import Rigidbody from '../../components/physics/Rigidbody';
 import AnimalFactory from '../../factories/AnimalFactory';
 
 export default class AnimalSpawningSystem extends ASystem {

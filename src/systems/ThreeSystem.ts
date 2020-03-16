@@ -18,7 +18,7 @@ import AudioSource from "../components/audio/AudioSource";
 import Audio from "../components/audio/Audio";
 import Model from "../components/Model";
 
-import Rigidbody from "../components/physics/RigidBody";
+import Rigidbody from "../components/physics/Rigidbody";
 import BoxCollider from "../components/physics/BoxCollider";
 import Vector3D from "../maths/Vector3D";
 import Light from "../components/misc/Light";
