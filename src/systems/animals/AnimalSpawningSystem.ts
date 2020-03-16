@@ -77,9 +77,9 @@ export default class AnimalSpawningSystem extends ASystem {
 
         // Remove from scene animals who are outside of the player radius
         ECSWrapper.entities.applyToEach(["FirstPersonController"], (entity) => {
-            const playerPosition = entity.getComponent(Rigidbody).position;
+            const playerPosition = entity.getComponent(Transform).position;
             ECSWrapper.entities.applyToEach(["Animal"], (animal: IEntity) => {
-                const animalPosition = animal.getComponent(Rigidbody).position;
+                const animalPosition = animal.getComponent(Transform).position;
 
                 if (Utilities.vectorCollide(playerPosition, animalPosition, 60)) {
                     animal.getComponent(Controller).speed = 2;
@@ -110,13 +110,13 @@ export default class AnimalSpawningSystem extends ASystem {
                     if (animal.getComponent(Animal).type === AnimalType.PIG) {
                         const pigSound = ECSWrapper.entities.getByName("pigSound")[0].getComponent(Audio);
                         let number = THREE.MathUtils.randInt(1, 10000);
-                        if (number > 70 && number < 80) {
+                        if (number > 70 && number < 80 && !pigSound.sound.isPlaying) {
                             pigSound.sound.play();
                         }
                     } else if (animal.getComponent(Animal).type === AnimalType.SHEEP) {
                         const sheepSound = ECSWrapper.entities.getByName("sheepSound")[0].getComponent(Audio);
                         let number = THREE.MathUtils.randInt(1, 10000);
-                        if (number > 70 && number < 80) {
+                        if (number > 70 && number < 80 && !sheepSound.sound.isPlaying) {
                             sheepSound.sound.play();
                         }
                     }

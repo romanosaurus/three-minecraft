@@ -38,9 +38,9 @@ class AnimalFactory {
 
         animalEntity.assignComponent<Animal>(new Animal(animalEntity, type));
 
-        // Create Model        
+        // Create Model
         animalEntity.assignComponent<Model>(new Model(animalEntity, animalID, `${animalInformations.path}.obj`, `${animalInformations.path}.mtl`));
-        
+
         // Utils
         animalEntity.assignComponent<Controller>(new Controller(animalEntity, 1));
         animalEntity.assignComponent<Transform>(new Transform(animalEntity));

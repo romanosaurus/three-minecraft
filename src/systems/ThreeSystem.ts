@@ -69,7 +69,8 @@ class ThreeSystem extends ASystem {
 
         ECSWrapper.entities.applyToEach(["Light"], (entity) => {
             this.scene.add(entity.getComponent(Light).bulb);
-        })
+        });
+
         ECSWrapper.entities.applyToEach(["Box"], (entity) => {
             this.scene.add(entity.getComponent(Box).mesh);
         });
@@ -105,6 +106,14 @@ class ThreeSystem extends ASystem {
                 obj.scale.set(transform.scale.x, transform.scale.y, transform.scale.z);
                 obj.position.set(transform.position.x, transform.position.y, transform.position.z);
                 obj.quaternion.set(transform.quaternion.x, transform.quaternion.y, transform.quaternion.z, transform.quaternion.w);
+                obj.traverse(o => {
+                    if (o.isMesh) {
+                        o.material.map.magFilter = THREE.NearestFilter;
+                        o.material.map.minFilter = THREE.LinearMipMapLinearFilter;
+                    }
+                });
+                obj.name = entity.getName();
+
             })
         });
 
