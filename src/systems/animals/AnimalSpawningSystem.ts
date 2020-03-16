@@ -110,13 +110,13 @@ export default class AnimalSpawningSystem extends ASystem {
                     if (animal.getComponent(Animal).type === AnimalType.PIG) {
                         const pigSound = ECSWrapper.entities.getByName("pigSound")[0].getComponent(Audio);
                         let number = THREE.MathUtils.randInt(1, 10000);
-                        if (number > 70 && number < 80) {
+                        if (number > 70 && number < 80 && !pigSound.sound.isPlaying) {
                             pigSound.sound.play();
                         }
                     } else if (animal.getComponent(Animal).type === AnimalType.SHEEP) {
                         const sheepSound = ECSWrapper.entities.getByName("sheepSound")[0].getComponent(Audio);
                         let number = THREE.MathUtils.randInt(1, 10000);
-                        if (number > 70 && number < 80) {
+                        if (number > 70 && number < 80 && !sheepSound.sound.isPlaying) {
                             sheepSound.sound.play();
                         }
                     }
