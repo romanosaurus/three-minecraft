@@ -9,7 +9,7 @@ import { printCommonLine } from 'jest-diff/build/printDiffs';
 import Camera from '../components/Camera';
 import Box from '../components/Box';
 import EntityManager from '../ecs/managers/EntityManager';
-import Rigidbody from '../components/physics/RigidBody';
+import Rigidbody from '../components/physics/Rigidbody';
 
 /**
  * LifeSystem heriting from ASystem

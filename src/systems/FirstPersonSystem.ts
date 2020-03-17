@@ -21,7 +21,9 @@ import Euler from '../maths/Euler';
  * @function onClose function calles when the system is shutted down
  */
 class FirstPersonSystem extends ASystem {
-    private currentAirTime: number;
+    private startJumping: number;
+    private isStartedJump: Boolean;
+
 
     /**
      * Constuctor of the FirstPersonSystem
@@ -30,7 +32,8 @@ class FirstPersonSystem extends ASystem {
     constructor(name: string) {
         super(name);
 
-        this.currentAirTime = 0;
+        this.startJumping = 0;
+        this.isStartedJump = false;
         this.setupMouseEvent();
         this.setupKeyEvents();
     }
@@ -92,19 +95,18 @@ class FirstPersonSystem extends ASystem {
                 
                 const sound = ECSWrapper.entities.getByName("fallSound")[0].getComponent(Audio);
 
-                if (!firstPersonController.canJump) {
-                    firstPersonController.airTime = elapsedTime + firstPersonController.airTime;
-                    let time : number = ((firstPersonController.airTime - elapsedTime) / 1000)
-                    let minuteTime = time / 60;
-                    this.currentAirTime = minuteTime;
-                } else if (this.currentAirTime > 0.02 && firstPersonController.canJump) {
-                    sound.sound.play();
-                    lifeComponent.takeDamage = Math.round((this.currentAirTime * 100) / 2);
-                    firstPersonController.airTime = 0;
-                    this.currentAirTime = 0;
-                } else if (this.currentAirTime < 0.02) {
-                    firstPersonController.airTime = 0;
-                    this.currentAirTime = 0;
+                if (!firstPersonController.canJump && !this.isStartedJump) {
+                    this.startJumping = Math.round(entity.getComponent(Transform).position.y);
+                    this.isStartedJump = true;
+                } else if (firstPersonController.canJump && this.isStartedJump) {
+                    let endJump = Math.round(entity.getComponent(Transform).position.y);
+                    let jumpDif = this.startJumping - endJump;
+                    if (jumpDif > 3) {
+                        lifeComponent.takeDamage = jumpDif - 3;
+                        sound.sound.play();
+                    }
+                    this.isStartedJump = false;
+                    this.startJumping = 0;
                 }
             }
         });

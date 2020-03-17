@@ -8,7 +8,7 @@ import ParticleSystem from '../../components/ParticleSystem';
 import AnimalSpawningSystem from './AnimalSpawningSystem';
 import ThreeSystem from '../ThreeSystem';
 import Utilities from "../../utils/Utilities";
-import Rigidbody from '../../components/physics/RigidBody';
+import Rigidbody from '../../components/physics/Rigidbody';
 import Transform from '../../components/Transform';
 
 export default class AnimalReproductionSystem extends ASystem {

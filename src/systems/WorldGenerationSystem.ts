@@ -12,7 +12,7 @@ import MeshContainer from "../utils/MeshContainer";
 import Chunk from '../utils/Chunk';
 import PerlinGenerator from '../utils/PerlinGenerator';
 import Faces from "../utils/Faces";
-import Rigidbody from '../components/physics/RigidBody';
+import Rigidbody from '../components/physics/Rigidbody';
 import Vector3D from '../maths/Vector3D';
 
 /**

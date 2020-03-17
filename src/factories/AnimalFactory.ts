@@ -6,7 +6,7 @@ import { AnimalType, Animal } from "../components/Animal";
 import Model from "../components/Model";
 import Controller from "../components/controllers/Controller";
 import Transform from "../components/Transform";
-import Rigidbody from "../components/physics/RigidBody";
+import Rigidbody from "../components/physics/Rigidbody";
 import BoxCollider from "../components/physics/BoxCollider";
 import WalkingArea from "../components/WalkingArea";
 import ParticleSystem from "../components/ParticleSystem";

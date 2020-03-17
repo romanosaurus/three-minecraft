@@ -9,7 +9,7 @@ import FirstPersonController from "../components/controllers/FirstPersonControll
 import Transform from '../components/Transform';
 import Vector3D from '../maths/Vector3D';
 import Controller from '../components/controllers/Controller';
-import Rigidbody from '../components/physics/RigidBody';
+import Rigidbody from '../components/physics/Rigidbody';
 
 /**
  * CannonSystem heriting from ASystem

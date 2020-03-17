@@ -11,7 +11,7 @@ import ThreeSystem from "../ThreeSystem";
 import Transform from "../../components/Transform";
 import Controller from "../../components/controllers/Controller";
 import Vector3D from "../../maths/Vector3D";
-import Rigidbody from "../../components/physics/RigidBody";
+import Rigidbody from "../../components/physics/Rigidbody";
 
 /**
  * AnimalMovementSystem

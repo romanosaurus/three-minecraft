@@ -9,7 +9,7 @@ import ThreeSystem from "./ThreeSystem";
 import Chunk from "../utils/Chunk";
 import WalkingArea from "../components/WalkingArea";
 import IEntity from "../ecs/interfaces/IEntity";
-import Rigidbody from '../components/physics/RigidBody';
+import Rigidbody from '../components/physics/Rigidbody';
 import Vector3D from '../maths/Vector3D';
 
 /**
