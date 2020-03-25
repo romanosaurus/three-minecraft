@@ -149,10 +149,6 @@ class WorldGenerationSystem extends ASystem {
         const offsetX: number = 0;
         const offsetZ: number = 0;
 
-//        const startX: number = 150;
-//        const startZ: number = 50;
-//        const startY: number = 110;
-
         //remplissage dessous tronc
         for (let y = 0; y < thickness; y++) {
             for (let x = 0; x < thickness; x++) {
@@ -218,15 +214,16 @@ class WorldGenerationSystem extends ASystem {
         const startX: number = chunk.getWidthOffset() * this.worldOptions.cellSize;
         const startZ: number = chunk.getHeightOffset() * this.worldOptions.cellSize;
 
-        let test = 0;
+        let randomPosX = THREE.MathUtils.randInt(10, chunk.size - 10);
+        let randomPosY = THREE.MathUtils.randInt(10, chunk.size - 10);;
         for (let z = 0; z < chunk.size; z += 1) {
             for (let x = 0; x < chunk.size; x += 1) {
-                let first = 0;
+                let firstIteration = 0;
                 for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--) {
                     voxelComponent.setVoxel(startX + x, height, startZ + z, 14, chunk);
-                    if (first === 0 && test === 0 && x === 20 && z === 20) {
-                        first = 1;
-                        test = 1;
+                    //random number of tree + random position + check if not too close
+                    if (x === randomPosX && z === randomPosY && firstIteration === 0) {
+                        firstIteration = 1;
                         this.createTree(THREE.MathUtils.randInt(1, 2), voxelComponent, chunk, startX + x, height + 1, startZ + z);
                     }
                 }
