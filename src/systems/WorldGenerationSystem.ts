@@ -220,7 +220,7 @@ class WorldGenerationSystem extends ASystem {
         for (let z = 0; z < chunk.size; z += 1) {
             for (let x = 0; x < chunk.size; x += 1) {
                 let firstIteration = 0;
-                for (let height = perlinArray[counter] * (64 / 255); height >= 0; height--) {
+                for (let height = perlinArray[counter] * (this.worldOptions.cellSize / 255); height >= 0; height--) {
                     voxelComponent.setVoxel(startX + x, height, startZ + z, 14, chunk);
                     //random number of tree + random position + check if not too close
                     if (x === randomPosX && z === randomPosY && firstIteration === 0) {
