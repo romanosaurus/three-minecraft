@@ -17,6 +17,7 @@ import CloudSystem from "./systems/CloudSystem";
 import VoxelRaycastSystem from "./systems/VoxelRaycastSystem";
 import CircadianRhythmSystem from "./systems/CircadianRhythmSystem";
 import PointerLock from "./components/PointerLock";
+import NatureSystem from "./systems/NatureSystem";
 import AnimalSpawningSystem from "./systems/animals/AnimalSpawningSystem";
 import AnimalMovementSystem from "./systems/animals/AnimalMovementSystem";
 import ParticleSystem from "./components/ParticleSystem";
@@ -26,6 +27,7 @@ import AudioSystem from "./systems/AudioSystem";
 
 class Window {
     run() : void {
+        ECSWrapper.systems.initialize<NatureSystem>(new NatureSystem("NatureSystem"));
         ECSWrapper.systems.initialize<ThreeSystem>(new ThreeSystem("ThreeSystem"));
         ECSWrapper.systems.initialize<CannonSystem>(new CannonSystem("CannonSystem"));
         ECSWrapper.systems.initialize<FirstPersonSystem>(new FirstPersonSystem("FirstPersonSystem"));
@@ -42,6 +44,7 @@ class Window {
         ECSWrapper.systems.initialize<AudioSystem>(new AudioSystem("AudioSystem"));
 
         ECSWrapper.systems.start("ThreeSystem");
+        ECSWrapper.systems.start("NatureSystem");
         ECSWrapper.systems.start("CannonSystem");
         ECSWrapper.systems.start("WorldGenerationSystem");
         ECSWrapper.systems.start("FirstPersonSystem");
