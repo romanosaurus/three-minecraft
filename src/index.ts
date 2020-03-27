@@ -23,38 +23,40 @@ import ParticleSystem from "./components/ParticleSystem";
 import ParticleSystemManager from "./systems/ParticleSystemManager";
 import AnimalReproductionSystem from "./systems/animals/AnimalReproductionSystem";
 import AudioSystem from "./systems/AudioSystem";
+import InventorySystem from "./systems/InventorySystem";
 
 class Window {
     run() : void {
         ECSWrapper.systems.initialize<ThreeSystem>(new ThreeSystem("ThreeSystem"));
-        ECSWrapper.systems.initialize<CannonSystem>(new CannonSystem("CannonSystem"));
-        ECSWrapper.systems.initialize<FirstPersonSystem>(new FirstPersonSystem("FirstPersonSystem"));
-        ECSWrapper.systems.initialize<WalkingPhysicsSystem>(new WalkingPhysicsSystem("WalkingPhysicsSystem"));
-        ECSWrapper.systems.initialize<WorldGenerationSystem>(new WorldGenerationSystem("WorldGenerationSystem"));
-        ECSWrapper.systems.initialize<LifeSystem>(new LifeSystem("LifeSystem"));
+        //ECSWrapper.systems.initialize<CannonSystem>(new CannonSystem("CannonSystem"));
+        //ECSWrapper.systems.initialize<FirstPersonSystem>(new FirstPersonSystem("FirstPersonSystem"));
+        //ECSWrapper.systems.initialize<WalkingPhysicsSystem>(new WalkingPhysicsSystem("WalkingPhysicsSystem"));
+        //ECSWrapper.systems.initialize<WorldGenerationSystem>(new WorldGenerationSystem("WorldGenerationSystem"));
+        /*ECSWrapper.systems.initialize<LifeSystem>(new LifeSystem("LifeSystem"));
         ECSWrapper.systems.initialize<CloudSystem>(new CloudSystem("CloudSystem"));
         ECSWrapper.systems.initialize<VoxelRaycastSystem>(new VoxelRaycastSystem("VoxelRaycastSystem"));
         ECSWrapper.systems.initialize<AnimalSpawningSystem>(new AnimalSpawningSystem("AnimalSpawningSystem"));
         ECSWrapper.systems.initialize<AnimalMovementSystem>(new AnimalMovementSystem("AnimalMovementSystem"));
         ECSWrapper.systems.initialize<AnimalReproductionSystem>(new AnimalReproductionSystem("AnimalReproductionSystem"));
         ECSWrapper.systems.initialize<ParticleSystemManager>(new ParticleSystemManager("ParticleSystemManager"));
-        ECSWrapper.systems.initialize<CircadianRhythmSystem>(new CircadianRhythmSystem("CircadianRhythm"));
+        ECSWrapper.systems.initialize<CircadianRhythmSystem>(new CircadianRhythmSystem("CircadianRhythm"));*/
         ECSWrapper.systems.initialize<AudioSystem>(new AudioSystem("AudioSystem"));
-
+        ECSWrapper.systems.initialize<InventorySystem>(new InventorySystem("InventorySystem"));
         ECSWrapper.systems.start("ThreeSystem");
-        ECSWrapper.systems.start("CannonSystem");
-        ECSWrapper.systems.start("WorldGenerationSystem");
-        ECSWrapper.systems.start("FirstPersonSystem");
-        ECSWrapper.systems.start("WalkingPhysicsSystem");
-        ECSWrapper.systems.start("LifeSystem");
-        ECSWrapper.systems.start("CloudSystem");
-        ECSWrapper.systems.start("VoxelRaycastSystem");
-        ECSWrapper.systems.start("AnimalSpawningSystem");
-        ECSWrapper.systems.start("AnimalMovementSystem");
-        ECSWrapper.systems.start("AnimalReproductionSystem");
-        ECSWrapper.systems.start("ParticleSystemManager");
-        ECSWrapper.systems.start("CircadianRhythm");
+        //ECSWrapper.systems.start("CannonSystem");
+        //ECSWrapper.systems.start("WorldGenerationSystem");
+        //ECSWrapper.systems.start("FirstPersonSystem");
+        //ECSWrapper.systems.start("WalkingPhysicsSystem");
+        //ECSWrapper.systems.start("LifeSystem");
+        //ECSWrapper.systems.start("CloudSystem");
+        //ECSWrapper.systems.start("VoxelRaycastSystem");
+        //ECSWrapper.systems.start("AnimalSpawningSystem");
+        //ECSWrapper.systems.start("AnimalMovementSystem");
+        //ECSWrapper.systems.start("AnimalReproductionSystem");
+        //ECSWrapper.systems.start("ParticleSystemManager");
+        //ECSWrapper.systems.start("CircadianRhythm");
         ECSWrapper.systems.start("AudioSystem");
+        ECSWrapper.systems.start("InventorySystem");
 
         document.addEventListener('mousemove', ( mouseEvent ) => { ECSWrapper.systems.dispatch("mouseEvent", mouseEvent) });
         document.addEventListener('keydown', (keyDown) => { ECSWrapper.systems.dispatch("keyDown", keyDown); });

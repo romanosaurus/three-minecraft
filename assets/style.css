@@ -128,3 +128,12 @@ canvas {
 	display: inline-block;
 	font-size: 30px;
 }
+
+.inventory {
+	position: fixed;
+	z-index: 1000;
+	top: 30%;
+	left: 35%;
+	width: 30%;
+	height: auto;
+}
